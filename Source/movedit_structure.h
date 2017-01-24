@@ -39,7 +39,6 @@ class Structure
 {
     atom* Root_;
     File* F;
-    bool TrackIsVideo;
 
 public:
     Structure  (File* F, const Ztring &Name);
@@ -50,20 +49,64 @@ public:
     bool        mdatIsPresent;
     bool        moovIsPresent;
     bool        freeIsPresent;
-    size_t      VideoTrackCount;
-    uint16_t    Width;
-    uint16_t    Height;
-    double      WidthScale;
-    uint64_t    WidthScalePos;
     uint64_t    moovOffsetMax;
     uint64_t    mdatOffset;
-    uint32_t    pasp_h;
-    uint32_t    pasp_v;
-    uint64_t    paspOffset;
-    vector<uint64_t> paspUpOffsets;
-    vector<uint64_t> paspUpTotalSizes;
+    struct track_struct
+    {
+        struct video_struct
+        {
+            struct pasp_struct
+            {
+                uint32_t    h;
+                uint32_t    v;
+                uint64_t    Offset;
+
+                pasp_struct()
+                    :
+                    h(0),
+                    v(0),
+                    Offset((uint64_t)-1)
+                {
+                }
+            };
+
+            vector<uint64_t> UpOffsets;
+            vector<uint64_t> UpTotalSizes;
+            pasp_struct pasp;
+
+            video_struct()
+            {
+            }
+        };
+
+        bool        IsVideo;
+        uint16_t    Width;
+        uint16_t    Height;
+        double      WidthScale;
+        uint64_t    WidthScalePos;
+        typedef std::vector<video_struct> videos;
+        videos      Videos;
+
+        track_struct()
+            :
+            IsVideo(false),
+            Width(0),
+            Height(0),
+            WidthScale(0),
+            WidthScalePos((uint64_t)-1)
+        {
+
+        }
+
+    };
+    typedef std::vector<track_struct> tracks;
+    tracks      Tracks;
     uint64_t    freeOffset;
     uint64_t    freeTotalSize;
+
+    //Temporary references
+    track_struct* Track;
+    track_struct::video_struct* Video;
 
     void Parse ();
 

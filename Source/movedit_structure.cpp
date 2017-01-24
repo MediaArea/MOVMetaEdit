@@ -22,14 +22,6 @@ Structure::Structure(File* F_, const Ztring &Name_)
     IsOk(true),
     mdatIsPresent(false),
     moovIsPresent(false),
-    VideoTrackCount(0),
-    Width(0),
-    Height(0),
-    WidthScale(0),
-    WidthScalePos((uint64_t)-1),
-    pasp_h(0),
-    pasp_v(0),
-    paspOffset((uint64_t)-1),
     Name(Name_),
     F(F_)
 {
@@ -134,6 +126,9 @@ void Structure::moov(atom* Up)
 
 void Structure::moov_trak(atom* Up)
 {
+    Tracks.resize(Tracks.size() + 1); //Add 1 track
+    Track = &Tracks[Tracks.size() - 1];
+
     for (;;)
     {
         atom* Item = Up->Next();
@@ -156,8 +151,6 @@ void Structure::moov_trak(atom* Up)
 
 void Structure::moov_trak_tkhd(atom* Up)
 {
-    TrackIsVideo = false;
-
     if (!Up->DataLoad())
     {
         IsOk = false;
@@ -187,18 +180,14 @@ void Structure::moov_trak_tkhd(atom* Up)
     uint16_t Height_Temp = BigEndian2int16u(Up->DataContent + ExtraBytes + 0x50);
     if (Width_Temp && Height_Temp > 20) // Test if it is video
     {
-        VideoTrackCount++;
-        if (VideoTrackCount == 1)
-        {
             double WidthScale_BeforeComma = (double)BigEndian2int16u(Up->DataContent + ExtraBytes + 0x28);
             double WidthScale_AfterComma = (double)BigEndian2int16u(Up->DataContent + ExtraBytes + 0x2A);
-            Width = Width_Temp;
-            Height = Height_Temp;
-            WidthScale = WidthScale_BeforeComma + WidthScale_AfterComma / 65536;
-            WidthScalePos = Up->StreamOffset + Up->HeaderSize + ExtraBytes + 0x28;
+            Track->Width = Width_Temp;
+            Track->Height = Height_Temp;
+            Track->WidthScale = WidthScale_BeforeComma + WidthScale_AfterComma / 65536;
+            Track->WidthScalePos = Up->StreamOffset + Up->HeaderSize + ExtraBytes + 0x28;
 
-            cout << " Width = " << Width << ", Height = " << Height << ", Width scale = " << setprecision(3) << fixed << setw(7) << WidthScale << endl;
-        }
+            cout << " Width = " << Track->Width << ", Height = " << Track->Height << ", Width scale = " << setprecision(3) << fixed << setw(7) << Track->WidthScale << endl;
     }
 }
 
@@ -292,7 +281,7 @@ void Structure::moov_trak_mdia_minf_stbl_stsd(atom* Up)
     }
     Up->DataSize = 8;
 
-    if (!TrackIsVideo)
+    if (!Track->IsVideo)
         return; //No need
 
     for (;;)
@@ -308,7 +297,6 @@ void Structure::moov_trak_mdia_minf_stbl_stsd(atom* Up)
 
         moov_trak_mdia_minf_stbl_stsd_xxxxVideo(Item);
     }
-    TrackIsVideo = false; // No more need
 }
 
 void Structure::moov_trak_mdia_minf_stbl_stsd_xxxxVideo(atom* Up)
@@ -337,7 +325,10 @@ void Structure::moov_trak_mdia_minf_stbl_stsd_xxxxVideo(atom* Up)
     }
     Up->DataSize = 0x4E;
 
-    paspOffset = Up->StreamOffset + Up->HeaderSize + Up->DataSize;
+    Track->Videos.resize(Track->Videos.size() + 1);
+    Video = &Track->Videos[Track->Videos.size() - 1];
+
+    Video->pasp.Offset = Up->StreamOffset + Up->HeaderSize + Up->DataSize;
 
     for (;;)
     {
@@ -358,20 +349,20 @@ void Structure::moov_trak_mdia_minf_stbl_stsd_xxxxVideo(atom* Up)
     }
 
     //Saving offsets
-    paspUpOffsets.push_back(Up->Up->Up->Up->Up->Up->Up->StreamOffset); //moov
-    paspUpTotalSizes.push_back(Up->Up->Up->Up->Up->Up->Up->TotalSize);
-    paspUpOffsets.push_back(Up->Up->Up->Up->Up->Up->StreamOffset); //moov_trak
-    paspUpTotalSizes.push_back(Up->Up->Up->Up->Up->Up->TotalSize);
-    paspUpOffsets.push_back(Up->Up->Up->Up->Up->StreamOffset); //moov_trak_mdia
-    paspUpTotalSizes.push_back(Up->Up->Up->Up->Up->TotalSize);
-    paspUpOffsets.push_back(Up->Up->Up->Up->StreamOffset); //moov_trak_mdia_minf
-    paspUpTotalSizes.push_back(Up->Up->Up->Up->TotalSize);
-    paspUpOffsets.push_back(Up->Up->Up->StreamOffset); //moov_trak_mdia_minf_stbl
-    paspUpTotalSizes.push_back(Up->Up->Up->TotalSize);
-    paspUpOffsets.push_back(Up->Up->StreamOffset); //moov_trak_mdia_minf_stbl_stsd
-    paspUpTotalSizes.push_back(Up->Up->TotalSize);
-    paspUpOffsets.push_back(Up->StreamOffset); //moov_trak_mdia_minf_stbl_stsd_xxxx
-    paspUpTotalSizes.push_back(Up->TotalSize);
+    Video->UpOffsets.push_back(Up->Up->Up->Up->Up->Up->Up->StreamOffset); //moov
+    Video->UpTotalSizes.push_back(Up->Up->Up->Up->Up->Up->Up->TotalSize);
+    Video->UpOffsets.push_back(Up->Up->Up->Up->Up->Up->StreamOffset); //moov_trak
+    Video->UpTotalSizes.push_back(Up->Up->Up->Up->Up->Up->TotalSize);
+    Video->UpOffsets.push_back(Up->Up->Up->Up->Up->StreamOffset); //moov_trak_mdia
+    Video->UpTotalSizes.push_back(Up->Up->Up->Up->Up->TotalSize);
+    Video->UpOffsets.push_back(Up->Up->Up->Up->StreamOffset); //moov_trak_mdia_minf
+    Video->UpTotalSizes.push_back(Up->Up->Up->Up->TotalSize);
+    Video->UpOffsets.push_back(Up->Up->Up->StreamOffset); //moov_trak_mdia_minf_stbl
+    Video->UpTotalSizes.push_back(Up->Up->Up->TotalSize);
+    Video->UpOffsets.push_back(Up->Up->StreamOffset); //moov_trak_mdia_minf_stbl_stsd
+    Video->UpTotalSizes.push_back(Up->Up->TotalSize);
+    Video->UpOffsets.push_back(Up->StreamOffset); //moov_trak_mdia_minf_stbl_stsd_xxxxVideo
+    Video->UpTotalSizes.push_back(Up->TotalSize);
 }
 
 void Structure::moov_trak_mdia_minf_stbl_stsd_xxxx_pasp(atom* Up)
@@ -388,9 +379,9 @@ void Structure::moov_trak_mdia_minf_stbl_stsd_xxxx_pasp(atom* Up)
         return;
     }
 
-    paspOffset = Up->StreamOffset + Up->HeaderSize;
-    pasp_h = BigEndian2int32u(Up->DataContent + 0);
-    pasp_v = BigEndian2int32u(Up->DataContent + 4);
+    Video->pasp.Offset = Up->StreamOffset + Up->HeaderSize;
+    Video->pasp.h = BigEndian2int32u(Up->DataContent + 0);
+    Video->pasp.v = BigEndian2int32u(Up->DataContent + 4);
 }
 
 void Structure::moov_trak_mdia_minf_vmhd(atom* Up)
@@ -418,5 +409,5 @@ void Structure::moov_trak_mdia_minf_vmhd(atom* Up)
         return;
     }
 
-    TrackIsVideo = true;
+    Tracks[Tracks.size() - 1].IsVideo = true;
 }

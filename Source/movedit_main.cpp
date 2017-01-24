@@ -172,18 +172,24 @@ int _tmain(int argc, _TCHAR* argv[])
         // Name
         string Name = ItemName->To_Local();
         Name.resize(Max, __T(' '));
-        cout << Name << "|";
 
         if ((*Item)->IsOk)
         {
+            for (std::vector<Structure::track_struct>::iterator Track = (*Item)->Tracks.begin(); Track != (*Item)->Tracks.end(); Track++)
+                if (Track->IsVideo)
+                    for (std::vector<Structure::track_struct::video_struct>::iterator Video = Track->Videos.begin(); Video != Track->Videos.end(); Video++)
+        {
+            // Name
+            cout << Name << "|";
+
             // Test if must be modified
             char pasp_ToModify = ' ';
             char wscale_ToModify = ' ';
-            if ((*Item)->Width == 720 && ((*Item)->Height == 480 || (*Item)->Height == 486 || (*Item)->Height == 576 || (*Item)->Height == 1080))
+            if (Track->Width == 720 && (Track->Height == 480 || Track->Height == 486 || Track->Height == 576 || Track->Height == 1080))
             {
-                if (par_h_New && !((*Item)->pasp_h == 9 && (*Item)->pasp_v == 10))
+                if (par_h_New && !(Video->pasp.h == 9 && Video->pasp.v == 10))
                     pasp_ToModify = 'Y';
-                if (wscale_New && !((*Item)->WidthScale >= wscale_New*0.999 && (*Item)->WidthScale <= wscale_New*1.001))
+                if (wscale_New && !(Track->WidthScale >= wscale_New*0.999 && Track->WidthScale <= wscale_New*1.001))
                     wscale_ToModify = 'Y';
 
                 if (pasp_ToModify == 'Y')
@@ -215,17 +221,17 @@ int _tmain(int argc, _TCHAR* argv[])
             if ((pasp_ToModify || wscale_ToModify) && !simulate)
             {
                 File::access_t Access = File::Access_Write;
-                if (pasp_ToModify && !((*Item)->pasp_h || (*Item)->pasp_v))
+                if (pasp_ToModify && !(Video->pasp.h || Video->pasp.v))
                     Access = File::Access_Read_Write;
                 if (!F.Open((*Item)->Name, Access))
                     ListOpenError.push_back((*Item)->Name);
             }
 
             // PAR
-            if ((*Item)->pasp_h || (*Item)->pasp_v)
+            if (Video->pasp.h || Video->pasp.v)
             {
                 stringstream Temp;
-                Temp << (*Item)->pasp_h << ":" << (*Item)->pasp_v;
+                Temp << Video->pasp.h << ":" << Video->pasp.v;
                 for (size_t Pos = 0; Pos < 5 - Temp.str().size(); ++Pos)
                     cout << " ";
                 cout << Temp.str();
@@ -235,9 +241,9 @@ int _tmain(int argc, _TCHAR* argv[])
             cout << "|";
             if (pasp_ToModify == 'Y' && !simulate)
             {
-                if ((*Item)->pasp_h || (*Item)->pasp_v)
+                if (Video->pasp.h || Video->pasp.v)
                 {
-                    if (F.GoTo((*Item)->paspOffset))
+                    if (F.GoTo(Video->pasp.Offset))
                     {
                         uint32_t h = par_h_New;
                         uint32_t v = par_v_New;
@@ -261,8 +267,8 @@ int _tmain(int argc, _TCHAR* argv[])
                     size_t Buffer_Size;
                     if ((*Item)->mdatOffset < (*Item)->moovOffsetMax)
                     {
-                        if (F.Size_Get() - (*Item)->paspOffset <= BUFFER_SIZE_MAX)
-                            Buffer_Size = (size_t)(F.Size_Get() - (*Item)->paspOffset);
+                        if (F.Size_Get() - Video->pasp.Offset <= BUFFER_SIZE_MAX)
+                            Buffer_Size = (size_t)(F.Size_Get() - Video->pasp.Offset);
                         else
                         {
                             pasp_ToModify = 'N';
@@ -271,8 +277,8 @@ int _tmain(int argc, _TCHAR* argv[])
                     }
                     else if ((*Item)->freeIsPresent)
                     {
-                        if ((*Item)->freeOffset - (*Item)->paspOffset <= BUFFER_SIZE_MAX)
-                            Buffer_Size = (size_t)((*Item)->freeOffset - (*Item)->paspOffset);
+                        if ((*Item)->freeOffset - Video->pasp.Offset <= BUFFER_SIZE_MAX)
+                            Buffer_Size = (size_t)((*Item)->freeOffset - Video->pasp.Offset);
                         else
                         {
                             pasp_ToModify = 'N';
@@ -325,7 +331,7 @@ int _tmain(int argc, _TCHAR* argv[])
                     // Move
                     if (pasp_ToModify == 'Y')
                     {
-                        if (!F.GoTo((*Item)->paspOffset))
+                        if (!F.GoTo(Video->pasp.Offset))
                         {
                             pasp_ToModify = 'N';
                             ListWritingError.push_back((*Item)->Name);
@@ -341,7 +347,7 @@ int _tmain(int argc, _TCHAR* argv[])
                     }
                     if (pasp_ToModify == 'Y')
                     {
-                        if (!F.GoTo((*Item)->paspOffset + 16))
+                        if (!F.GoTo(Video->pasp.Offset + 16))
                         {
                             pasp_ToModify = 'N';
                             ListWritingError.push_back((*Item)->Name);
@@ -364,10 +370,32 @@ int _tmain(int argc, _TCHAR* argv[])
                         int32u2BigEndian(Buffer + 4, Element::pasp);
                         int32u2BigEndian(Buffer + 8, 9);
                         int32u2BigEndian(Buffer + 12, 10);
-                        if (!F.GoTo((*Item)->paspOffset))
+                        if (!F.GoTo(Video->pasp.Offset))
                         {
                             pasp_ToModify = 'N';
                             ListWritingError.push_back((*Item)->Name);
+                        }
+                        else
+                        {
+                            // We are adding bytes, we need to modify atom positions of other videos accordingly accordingly
+                            for (std::vector<Structure::track_struct::video_struct>::iterator Video2 = Video + 1; Video2 != Track->Videos.end(); Video2++)
+                                if (Video2->UpOffsets.size() == 7) // moov_trak_mdia_minf_stbl_stsd_xxxxVideo
+                                {
+                                    Video2->UpOffsets[Video2->UpOffsets.size() - 1] += 16; // size of injected pasp atom
+                                    Video2->pasp.Offset += 16; // size of injected pasp atom
+                                    for (size_t i = 0; i < Video2->UpOffsets.size() - 1; i++) // -1 because index size()-1 is video atom, not changed
+                                        Video2->UpTotalSizes[i] += 16; // size of injected pasp atom
+                                }
+
+                            // We are adding bytes, we need to modify atom positions of other tracks accordingly accordingly
+                            for (std::vector<Structure::track_struct>::iterator Track2 = Track + 1; Track2 != (*Item)->Tracks.end(); Track2++)
+                                for (std::vector<Structure::track_struct::video_struct>::iterator Video2 = Track2->Videos.begin(); Video2 != Track2->Videos.end(); Video2++)
+                                    if (Video2->UpOffsets.size() == 7)
+                                    {
+                                        for (size_t i = 1; i < Video2->UpOffsets.size(); i++) // 1 because index 0 is moov atom, not changed
+                                            Video2->UpOffsets[i] += 16; // size of injected pasp atom
+                                        Video2->pasp.Offset += 16; // size of injected pasp atom
+                                    }
                         }
                     }
                     if (pasp_ToModify == 'Y')
@@ -381,8 +409,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
                     if (pasp_ToModify == 'Y')
                     {
-                        vector<uint64_t>::iterator paspUpTotalSize = (*Item)->paspUpTotalSizes.begin();
-                        for (vector<uint64_t>::iterator paspOffset = (*Item)->paspUpOffsets.begin(); paspOffset != (*Item)->paspUpOffsets.end(); paspOffset++)
+                        vector<uint64_t>::iterator paspUpTotalSize = Video->UpTotalSizes.begin();
+                        for (vector<uint64_t>::iterator paspOffset = Video->UpOffsets.begin(); paspOffset != Video->UpOffsets.end(); paspOffset++)
                         {
                             int64_t paspUpTotalSize_New64 = *paspUpTotalSize + 16;
                             if (paspUpTotalSize_New64 <= (uint32_t)-1)
@@ -421,22 +449,22 @@ int _tmain(int argc, _TCHAR* argv[])
             cout << "|";
 
             // Width
-            if ((*Item)->Width)
+            if (Track->Width)
             {
-                cout << setw(5) << (*Item)->Width;
+                cout << setw(5) << Track->Width;
             }
             else
                 cout << "     ";
             cout << "|";
 
             // w-scale
-            if ((*Item)->WidthScale)
+            if (Track->WidthScale)
             {
-                cout << setprecision(3) << fixed << setw(7) << (*Item)->WidthScale;
+                cout << setprecision(3) << fixed << setw(7) << Track->WidthScale;
                 cout << "|";
                 if (wscale_ToModify == 'Y' && !simulate)
                 {
-                    if (F.GoTo((*Item)->WidthScalePos))
+                    if (F.GoTo(Track->WidthScalePos))
                     {
                         uint16_t Before = 0;
                         uint16_t After = (uint16_t)float64_int64s(0.9 * 0x10000);
@@ -461,10 +489,11 @@ int _tmain(int argc, _TCHAR* argv[])
                 cout << "       | ";
             cout << "|" << endl;
         }
+        }
         else
         {
             ListNotDetected.push_back((*Item)->Name);
-            cout << "   |     | |     |       | |" << endl;
+            cout << Name << "|   |     | |     |       | |" << endl;
         }
 
         ItemName++;

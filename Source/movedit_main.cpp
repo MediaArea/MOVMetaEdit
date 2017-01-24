@@ -512,7 +512,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
     if (!ListOpenError.empty() || !ListSeekError.empty() || !ListWritingError.empty())
         return -2; //Error
-    if (!ListNotDetected.empty() || ListNotCorrected.empty())
+    if (!ListNotDetected.empty() || !ListNotCorrected.empty())
         return -1; //Warning
     return (int)Structures.size();
 }

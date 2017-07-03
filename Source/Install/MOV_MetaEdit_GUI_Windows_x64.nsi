@@ -1,0 +1,129 @@
+; Request application privileges for Windows Vista
+RequestExecutionLevel admin
+
+; Some defines
+!define PRODUCT_NAME "MOV MetaEdit"
+!define PRODUCT_PUBLISHER "MediaArea.net"
+!define PRODUCT_VERSION "0.1.0"
+!define PRODUCT_VERSION4 "${PRODUCT_VERSION}.0"
+!define PRODUCT_WEB_SITE "https://mediaarea.net"
+!define COMPANY_REGISTRY "Software\MediaArea"
+!define PRODUCT_REGISTRY "Software\MediaArea\MOV_MetaEdit"
+!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\MOV_MetaEdit.exe"
+!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+!define PRODUCT_UNINST_ROOT_KEY "HKLM"
+
+; Compression
+SetCompressor /FINAL /SOLID lzma
+
+; x64 stuff
+!include "x64.nsh"
+
+; Modern UI
+!include "MUI2.nsh"
+!define MUI_ABORTWARNING
+!define MUI_ICON "..\..\Source\Resource\Image\Icon.ico"
+
+; Language Selection Dialog Settings
+!define MUI_LANGDLL_REGISTRY_ROOT "${PRODUCT_UNINST_ROOT_KEY}"
+!define MUI_LANGDLL_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
+!define MUI_LANGDLL_REGISTRY_VALUENAME "NSIS:Language"
+
+; Installer pages
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!define MUI_FINISHPAGE_RUN "$INSTDIR\MOV_MetaEdit.exe"
+!insertmacro MUI_PAGE_FINISH
+; Uninstaller pages
+!insertmacro MUI_UNPAGE_WELCOME
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
+
+; Language files
+!insertmacro MUI_LANGUAGE "English"
+!insertmacro MUI_RESERVEFILE_LANGDLL
+
+; Info
+VIProductVersion "${PRODUCT_VERSION4}"
+VIAddVersionKey "ProductName" "${PRODUCT_NAME}" 
+VIAddVersionKey "Comments" "All about editing your MOV files"
+VIAddVersionKey "CompanyName" "MediaArea"
+VIAddVersionKey "LegalTrademarks" "MIT license" 
+VIAddVersionKey "LegalCopyright" "" 
+VIAddVersionKey "FileDescription" "All about editing your MOV files"
+VIAddVersionKey "FileVersion" "${PRODUCT_VERSION}"
+BrandingText " "
+
+; Modern UI end
+
+Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+OutFile "..\..\MOV_MetaEdit_GUI_${PRODUCT_VERSION}_Windows_x64.exe"
+InstallDir "$PROGRAMFILES\${PRODUCT_NAME}"
+InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
+ShowInstDetails nevershow
+ShowUnInstDetails nevershow
+
+Function .onInit
+  ${If} ${RunningX64}
+    SetRegView 64
+  ${Else}
+    MessageBox MB_OK|MB_ICONSTOP 'You are trying to install the 64-bit version of ${PRODUCT_NAME} on 32-bit Windows.$\r$\nPlease download and use the 32-bit version instead.$\r$\nClick OK to quit Setup.'
+    Quit
+  ${EndIf}
+FunctionEnd
+
+Section "SectionPrincipale" SEC01
+  SetOverwrite ifnewer
+  SetOutPath "$INSTDIR"
+  CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk" "$INSTDIR\MOV_MetaEdit.exe" "" "" "" "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+  File "/oname=MOV_MetaEdit.exe" "..\..\Project\Qt\release\MOV_MetaEdit.exe"
+;  File "/oname=History.txt" "..\..\History_GUI.txt"
+;  File "..\..\License.html"
+;  File  "/oname=ReadMe.txt""..\..\Release\ReadMe_GUI_Windows.txt"
+SectionEnd
+
+Section -AdditionalIcons
+  SetOutPath $INSTDIR
+  WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url" "" "" "" "" "" "Website"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk" "$INSTDIR\uninst.exe" "" "" "" "" "" "Uninstall MOV MetaEdit"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\History.lnk" "$INSTDIR\History.txt" "" "" "" "" "" "History"
+SectionEnd
+
+Section -Post
+  WriteUninstaller "$INSTDIR\uninst.exe"
+  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\MOV_MetaEdit.exe"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\MOV_MetaEdit.exe"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
+SectionEnd
+
+
+Section Uninstall
+  Delete "$INSTDIR\${PRODUCT_NAME}.url"
+  Delete "$INSTDIR\uninst.exe"
+  Delete "$INSTDIR\MOV_MetaEdit.exe"
+;  Delete "$INSTDIR\History.txt"
+;  Delete "$INSTDIR\License.html"
+;  Delete "$INSTDIR\ReadMe.txt"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\Website.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\History.lnk"
+
+  RMDir "$SMPROGRAMS\${PRODUCT_NAME}"
+  RMDir "$INSTDIR"
+
+  DeleteRegKey HKLM "${PRODUCT_REGISTRY}"
+  DeleteRegKey /ifempty HKLM "${COMPANY_REGISTRY}"
+  DeleteRegKey HKCU "${PRODUCT_REGISTRY}"
+  DeleteRegKey /ifempty HKCU "${COMPANY_REGISTRY}"
+  DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
+  DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
+  SetAutoClose true
+SectionEnd

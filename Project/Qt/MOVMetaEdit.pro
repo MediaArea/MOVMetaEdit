@@ -8,7 +8,9 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = movedit-gui
+TARGET = movmetaedit-gui
+macx:TARGET=MOVMetaEdit
+win32:TARGET=MOV_MetaEdit
 
 TEMPLATE = app
 
@@ -42,3 +44,7 @@ FORMS += \
         ../../Source/GUI/Qt/helpdialog.ui
 
 RESOURCES += ../../Source/Resource/Resource.qrc
+
+macx:QMAKE_INFO_PLIST = ../Mac/Info.plist
+macx:ICON = ../../Source/Resource/Image/Icon.icns
+win32:RC_FILE = MOVMetaEdit.rc

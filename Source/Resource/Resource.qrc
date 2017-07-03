@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Image/File_Save.png</file>
+        <file>Image/File_Open_Files.png</file>
+        <file>Image/File_Open_Directory.png</file>
+        <file>Image/Options_Prefs.png</file>
+        <file>Image/Help.png</file>
+        <file>Image/About.png</file>
+        <file>Documentation/index.html</file>
+        <file>Documentation/interface.html</file>
+    </qresource>
+</RCC>

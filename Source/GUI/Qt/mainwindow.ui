@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
+  <property name="windowTitle">
+   <string>MOV MetaEdit</string>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="Central_Widget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="TableWidget" name="Table_Widget">
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="columnCount">
+       <number>0</number>
+      </property>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="Menu_Bar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="Menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="Menu_File_Open_Files"/>
+    <addaction name="Menu_File_Open_Directory"/>
+    <addaction name="Menu_File_Close"/>
+    <addaction name="Menu_File_Close_All"/>
+    <addaction name="separator"/>
+    <addaction name="Menu_File_Save_All"/>
+    <addaction name="separator"/>
+    <addaction name="Menu_File_Quit"/>
+   </widget>
+   <widget class="QMenu" name="Menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="Menu_Help_Help"/>
+    <addaction name="Menu_Help_About"/>
+   </widget>
+   <addaction name="Menu_File"/>
+   <addaction name="Menu_Help"/>
+  </widget>
+  <widget class="QToolBar" name="Tool_Bar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Vertical</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="Status_Bar"/>
+  <action name="Menu_File_Quit">
+   <property name="text">
+    <string>Q&amp;uit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit the application</string>
+   </property>
+   <property name="statusTip">
+    <string>Quit the application</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="Menu_File_Open_Files">
+   <property name="icon">
+    <iconset resource="../../Resource/Resource.qrc">
+     <normaloff>:/Image/File_Open_Files.png</normaloff>:/Image/File_Open_Files.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open file(s)...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open file(s)</string>
+   </property>
+   <property name="statusTip">
+    <string>Open file(s)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="Menu_Help_About">
+   <property name="icon">
+    <iconset resource="../../Resource/Resource.qrc">
+     <normaloff>:/Image/About.png</normaloff>:/Image/About.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;About...</string>
+   </property>
+   <property name="toolTip">
+    <string>About MOV MetaEdit</string>
+   </property>
+   <property name="statusTip">
+    <string>About MOV MetaEdit</string>
+   </property>
+  </action>
+  <action name="Menu_File_Open_Directory">
+   <property name="icon">
+    <iconset resource="../../Resource/Resource.qrc">
+     <normaloff>:/Image/File_Open_Directory.png</normaloff>:/Image/File_Open_Directory.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open directory...</string>
+   </property>
+   <property name="statusTip">
+    <string>Open directory</string>
+   </property>
+  </action>
+  <action name="Menu_File_Close">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Close</string>
+   </property>
+   <property name="toolTip">
+    <string>Close selected file(s)</string>
+   </property>
+   <property name="statusTip">
+    <string>Close selected file(s)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="Menu_File_Close_All">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Close &amp;All</string>
+   </property>
+   <property name="toolTip">
+    <string>Close all opened files</string>
+   </property>
+   <property name="statusTip">
+    <string>Close all opened files</string>
+   </property>
+  </action>
+  <action name="Menu_File_Save_All">
+   <property name="icon">
+    <iconset resource="../../Resource/Resource.qrc">
+     <normaloff>:/Image/File_Save.png</normaloff>:/Image/File_Save.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+   <property name="toolTip">
+    <string>Save all modified files</string>
+   </property>
+   <property name="statusTip">
+    <string>Save all modified files</string>
+   </property>
+  </action>
+  <action name="Menu_Help_Help">
+   <property name="icon">
+    <iconset resource="../../Resource/Resource.qrc">
+     <normaloff>:/Image/Help.png</normaloff>:/Image/Help.png</iconset>
+   </property>
+   <property name="text">
+    <string>H&amp;elp...</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>TableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>tablewidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../Resource/Resource.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>Menu_File_Quit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

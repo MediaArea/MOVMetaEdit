@@ -11,7 +11,9 @@
 #include <iomanip>
 #include <sstream>
 #include <vector>
+#ifdef _WIN32
 #include <tchar.h>
+#endif
 #include "ZenLib/Dir.h"
 #include "ZenLib/File.h"
 using namespace std;
@@ -19,7 +21,11 @@ using namespace ZenLib;
 
 const size_t BUFFER_SIZE_MAX = 0x10000000;
 
+#ifdef _WIN32
 int _tmain(int argc, _TCHAR* argv[])
+#else
+int main(int argc, char* argv[])
+#endif
 {
     if (argc < 2)
     {
@@ -40,8 +46,13 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     cout << "Args:" << endl;
+#ifdef _WIN32
     wcout << argv[0] << endl;
     wcout << argv[1] << endl;
+#else
+    cout << argv[0] << endl;
+    cout << argv[1] << endl;
+#endif
 
     double wscale_New = 0;
     uint16_t par_h_New = 0;
@@ -49,10 +60,14 @@ int _tmain(int argc, _TCHAR* argv[])
     bool simulate = false;
     for (int argp = 2; argp < argc; ++argp)
     {
+#ifdef _WIN32
         wcout << argv[argp] << endl;
-        
-        if (Ztring(argv[argp]) == _T("-p")
-         || Ztring(argv[argp]) == _T("-par"))
+#else
+        cout << argv[argp] << endl;
+#endif
+
+        if (Ztring(argv[argp]) == __T("-p")
+         || Ztring(argv[argp]) == __T("-par"))
         {
             par_h_New = 9;
             par_v_New = 10;
@@ -62,8 +77,8 @@ int _tmain(int argc, _TCHAR* argv[])
                 return -1;
             }
         }
-        else if (Ztring(argv[argp]) == _T("-w")
-              || Ztring(argv[argp]) == _T("-width-scale"))
+        else if (Ztring(argv[argp]) == __T("-w")
+              || Ztring(argv[argp]) == __T("-width-scale"))
         {
             //stringstream Scale_Xss;
             //Scale_Xss << argv[2];
@@ -75,8 +90,8 @@ int _tmain(int argc, _TCHAR* argv[])
                 return -1;
             }
         }
-        else if (Ztring(argv[argp]) == _T("-s")
-              || Ztring(argv[argp]) == _T("--simulate"))
+        else if (Ztring(argv[argp]) == __T("-s")
+              || Ztring(argv[argp]) == __T("--simulate"))
         {
             simulate = true;
         }

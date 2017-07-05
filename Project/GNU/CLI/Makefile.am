@@ -6,4 +6,4 @@ movmetaedit_SOURCES = \
     ../../../Source/movedit_atomread.cpp \
     ../../../Source/movedit_main.cpp
 
-AM_CPPFLAGS = -I../../../Source -I../../../../ZenLib/Source
+AM_CPPFLAGS = -std=c++0x -I../../../Source -I../../../../ZenLib/Source

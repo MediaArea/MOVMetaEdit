@@ -14,7 +14,7 @@ configure-stamp:
 	cd Project/GNU/CLI && ./configure --prefix=/usr
 
 	cd Project/Qt
-	cd Project/Qt && qmake
+	cd Project/Qt && ./prepare
 
 	touch $@
 
@@ -55,17 +55,17 @@ install: build
 	install -dm 755 $(CURDIR)/debian/tmp/usr/share/doc/movmetaedit-gui
 	install -m 644 License.html $(CURDIR)/debian/tmp/usr/share/doc/movmetaedit-gui
 
-	#install -dm 755 $(CURDIR)/debian/tmp/usr/share/pixmaps
-	#install -m 644 Source/Resource/Image/FADGI/Logo.png $(CURDIR)/debian/tmp/usr/share/pixmaps/movmetaedit.png
-	#install -dm 755 $(CURDIR)/debian/tmp/usr/share/icons/hicolor/128x128/apps
-	#install -m 644 Source/Resource/Image/FADGI/Logo128.png $(CURDIR)/debian/tmp/usr/share/icons/hicolor/128x128/apps/movmetaedit.png
+	install -dm 755 $(CURDIR)/debian/tmp/usr/share/pixmaps
+	install -m 644 Source/Resource/Image/Icon.png $(CURDIR)/debian/tmp/usr/share/pixmaps/movmetaedit.png
+	install -dm 755 $(CURDIR)/debian/tmp/usr/share/icons/hicolor/128x128/apps
+	install -m 644 Source/Resource/Image/Icon.png $(CURDIR)/debian/tmp/usr/share/icons/hicolor/128x128/apps/movmetaedit.png
 
-	#install -dm 755 $(CURDIR)/debian/tmp/usr/share/applications
-	#install -m 644 Project/GNU/GUI/movmetaedit-gui.desktop $(CURDIR)/debian/tmp/usr/share/applications
-	#install -dm 755 $(CURDIR)/debian/tmp/usr/share/apps/konqueror/servicemenus/
-	#install -m 644 Project/GNU/GUI/movmetaedit-gui.kde3.desktop $(CURDIR)/debian/tmp/usr/share/apps/konqueror/servicemenus/movmetaedit-gui.desktop
-	#install -dm 755 $(CURDIR)/debian/tmp/usr/share/kde4/services/ServiceMenus/
-	#install -m 644 Project/GNU/GUI/movmetaedit-gui.kde4.desktop $(CURDIR)/debian/tmp/usr/share/kde4/services/ServiceMenus/movmetaedit-gui.desktop
+	install -dm 755 $(CURDIR)/debian/tmp/usr/share/applications
+	install -m 644 Project/Qt/movmetaedit-gui.desktop $(CURDIR)/debian/tmp/usr/share/applications
+	install -dm 755 $(CURDIR)/debian/tmp/usr/share/apps/konqueror/servicemenus/
+	install -m 644 Project/Qt/movmetaedit-gui.kde3.desktop $(CURDIR)/debian/tmp/usr/share/apps/konqueror/servicemenus/movmetaedit-gui.desktop
+	install -dm 755 $(CURDIR)/debian/tmp/usr/share/kde4/services/ServiceMenus/
+	install -m 644 Project/Qt/movmetaedit-gui.kde4.desktop $(CURDIR)/debian/tmp/usr/share/kde4/services/ServiceMenus/movmetaedit-gui.desktop
 
 # Build architecture-independent files here.
 binary-indep: build install

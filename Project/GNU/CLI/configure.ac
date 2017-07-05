@@ -25,7 +25,6 @@ CXXFLAGS="$CXXFLAGS"
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
-AC_PROG_LIBTOOL
 
 dnl #########################################################################
 dnl ### Options

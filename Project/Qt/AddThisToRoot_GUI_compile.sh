@@ -24,7 +24,7 @@ Zen_Make()
 if test -e MOV_MetaEdit/Project/Qt/MOVMetaEdit.pro; then
  pushd MOV_MetaEdit/Project/Qt
  test -e Makefile && rm Makefile
- qmake
+ ./prepare
  if test -e Makefile; then
   make clean
   Zen_Make

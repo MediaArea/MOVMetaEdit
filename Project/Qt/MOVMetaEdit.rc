@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription", "MOVMetaEdit"
             VALUE "FileVersion", "0.1.0.0"
             VALUE "InternalName", "QCTools - GUI"
-            VALUE "LegalCopyright", "MediaArea.org"
+            VALUE "LegalCopyright", "MediaArea.net"
             VALUE "OriginalFilename", "MOVMetaEdit.exe"
             VALUE "ProductName", "MOVMetaEdit"
             VALUE "ProductVersion", "0.1.0.0"

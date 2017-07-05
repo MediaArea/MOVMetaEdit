@@ -6,6 +6,7 @@
         <file>Image/Options_Prefs.png</file>
         <file>Image/Help.png</file>
         <file>Image/About.png</file>
+        <file>Image/Icon.png</file>
         <file>Documentation/index.html</file>
         <file>Documentation/interface.html</file>
     </qresource>

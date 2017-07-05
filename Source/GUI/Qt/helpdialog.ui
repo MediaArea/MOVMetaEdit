@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>MOV MetaEdit help</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../Resource/Resource.qrc">
+    <normaloff>:/Image/Icon.png</normaloff>:/Image/Icon.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="Vertical_Layout">
    <item>
     <widget class="QTabWidget" name="Tab_Widget">
@@ -82,7 +86,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../Resource/Resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>Button_Close</sender>

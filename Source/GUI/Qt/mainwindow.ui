@@ -16,6 +16,10 @@
   <property name="windowTitle">
    <string>MOV MetaEdit</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../Resource/Resource.qrc">
+    <normaloff>:/Image/Icon.png</normaloff>:/Image/Icon.png</iconset>
+  </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>true</bool>
   </property>

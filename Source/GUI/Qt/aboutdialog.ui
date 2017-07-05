@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>About MOV MetaEdit</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../Resource/Resource.qrc">
+    <normaloff>:/Image/Icon.png</normaloff>:/Image/Icon.png</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="1" colspan="2">
     <widget class="QTextBrowser" name="NameVersion">
@@ -109,7 +113,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../Resource/Resource.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>Button_Close</sender>

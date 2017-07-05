@@ -7,7 +7,11 @@
         <file>Image/Help.png</file>
         <file>Image/About.png</file>
         <file>Image/Icon.png</file>
+        <file>../../License.html</file>
+        <file>Documentation/Contact.html</file>
+        <file>Documentation/Description.html</file>
         <file>Documentation/index.html</file>
         <file>Documentation/interface.html</file>
+        <file>Image/Ad-iD.png</file>
     </qresource>
 </RCC>

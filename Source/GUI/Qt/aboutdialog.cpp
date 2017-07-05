@@ -1,4 +1,5 @@
 #include <QAbstractTextDocumentLayout>
+#include <QDesktopServices>
 
 #include "config.h"
 #include "aboutdialog.h"
@@ -8,15 +9,13 @@
 AboutDialog::AboutDialog(QWidget* Parent) : QDialog(Parent), Ui(new Ui::AboutDialog)
 {
     Ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     Ui->NameVersion->insertHtml(NameVersion_HTML());
     Ui->NameVersion->setMaximumHeight((int)
         Ui->NameVersion->document()->documentLayout()->documentSize().height() + 6);
 
-    Ui->Text->setHtml(Description_HTML());
-    Ui->Button_Description->setDisabled(true);
-    Ui->Button_AuthorLicence->setDisabled(false);
-    Ui->Button_Contact->setDisabled(false);
+    on_Button_Description_clicked();
 }
 
 //---------------------------------------------------------------------------
@@ -32,33 +31,9 @@ const char* AboutDialog::NameVersion_HTML()
 }
 
 //---------------------------------------------------------------------------
-const char* AboutDialog::Description_HTML()
-{
-    return "<H3>DESCRIPTION</H3>"
-           ""
-           "TODO";
-}
-
-//---------------------------------------------------------------------------
-const char* AboutDialog::AuthorLicense_HTML()
-{
-    return "<h3>AUTHOR and LICENSE</h3>"
-    ""
-    "TODO";
-}
-
-//---------------------------------------------------------------------------
-const char*AboutDialog:: Contact_HTML()
-{
-    return "<h3>CONTACT</h3>"
-    ""
-    "TODO";
-}
-
-//---------------------------------------------------------------------------
 void AboutDialog::on_Button_Description_clicked()
 {
-    Ui->Text->setHtml(Description_HTML());
+    Ui->Text->setSource(QUrl("qrc:/Documentation/Description.html"));
 
     Ui->Button_Description->setDisabled(true);
     Ui->Button_AuthorLicence->setDisabled(false);
@@ -68,7 +43,7 @@ void AboutDialog::on_Button_Description_clicked()
 //---------------------------------------------------------------------------
 void AboutDialog::on_Button_AuthorLicence_clicked()
 {
-    Ui->Text->setHtml(AuthorLicense_HTML());
+    Ui->Text->setSource(QUrl("qrc:/License.html"));
 
     Ui->Button_Description->setDisabled(false);
     Ui->Button_AuthorLicence->setDisabled(true);
@@ -78,9 +53,15 @@ void AboutDialog::on_Button_AuthorLicence_clicked()
 //---------------------------------------------------------------------------
 void AboutDialog::on_Button_Contact_clicked()
 {
-    Ui->Text->setHtml(Contact_HTML());
+    Ui->Text->setSource(QUrl("qrc:/Documentation/Contact.html"));
 
     Ui->Button_Description->setDisabled(false);
     Ui->Button_AuthorLicence->setDisabled(false);
     Ui->Button_Contact->setDisabled(true);
+}
+
+//---------------------------------------------------------------------------
+void AboutDialog::on_Sponsor1_clicked()
+{
+    QDesktopServices::openUrl(QUrl("https://www.ad-id.org"));
 }

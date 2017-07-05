@@ -19,14 +19,12 @@ private slots:
     void on_Button_Description_clicked();
     void on_Button_AuthorLicence_clicked();
     void on_Button_Contact_clicked();
+    void on_Sponsor1_clicked();
 
 private:
     Ui::AboutDialog* Ui;
 
     const char* NameVersion_HTML();
-    const char* Description_HTML();
-    const char* AuthorLicense_HTML();
-    const char* Contact_HTML();
 };
 
 #endif // ABOUTDIALOG_H

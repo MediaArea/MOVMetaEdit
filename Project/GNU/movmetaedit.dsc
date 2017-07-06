@@ -2,7 +2,7 @@ Format: 1.0
 Source: movmetaedit
 Binary: movmetaedit, movmetaedit-dbg, movmetaedit-gui, movmetaedit-gui-dbg
 Architecture: any
-Version: 0.1
+Version: 0.1-1
 Maintainer: Jerome Martinez <info@mediaarea.net>
 Homepage: https://mediaarea.net
 Standards-Version: 3.7.3

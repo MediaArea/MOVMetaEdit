@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Service
+Name=movmetaedit-gui.desktop
+Encoding=UTF-8
+ServiceTypes=KonqPopupMenu/Plugin,video/*
+Actions=movmetaedit-gui
+X-KDE-Priority=TopLevel
+
+[Desktop Action movmetaedit-gui]
+Name=MOV MetaEdit
+GenericName=Media Editor
+Exec=movmetaedit-gui %u
+Icon=movmetaedit

@@ -86,7 +86,7 @@ popd
 
 # now build GUI
 pushd Project/Qt
-	qmake
+	./prepare
 	%__make %{?jobs:-j%{jobs}}
 popd
 
@@ -100,32 +100,29 @@ pushd Project/Qt
 popd
 
 # icon
-#%__install -dm 755 %{buildroot}%{_datadir}/icons/hicolor/128x128/apps
-#%__install -m 644 Source/Resource/Image/FADGI/Logo128.png \
-#	%{buildroot}%{_datadir}/icons/hicolor/128x128/apps/%{name}.png
-#%__install -dm 755 %{buildroot}%{_datadir}/pixmaps
-#%__install -m 644 Source/Resource/Image/FADGI/Logo.png \
-#	%{buildroot}%{_datadir}/pixmaps/%{name}.png
+%__install -dm 755 %{buildroot}%{_datadir}/icons/hicolor/128x128/apps
+%__install -m 644 Source/Resource/Image/Icon.png \
+	%{buildroot}%{_datadir}/icons/hicolor/128x128/apps/%{name}.png
+%__install -dm 755 %{buildroot}%{_datadir}/pixmaps
+%__install -m 644 Source/Resource/Image/Icon.png \
+	%{buildroot}%{_datadir}/pixmaps/%{name}.png
 
 # menu-entry
-#%__install -dm 755 %{buildroot}/%{_datadir}/applications
-#%__install -m 644 Project/GNU/GUI/movmetaedit-gui.desktop \
-#	%{buildroot}/%{_datadir}/applications
-#%if 0%{?suse_version}
-#  %suse_update_desktop_file -n movmetaedit-gui AudioVideo AudioVideoEditing
-#%endif
-#%__install -dm 755 %{buildroot}/%{_datadir}/apps/konqueror/servicemenus
-#%__install -m 644 Project/GNU/GUI/movmetaedit-gui.kde3.desktop \
-#	%{buildroot}/%{_datadir}/apps/konqueror/servicemenus/movmetaedit-gui.desktop
-#%if 0%{?suse_version}
-#  %suse_update_desktop_file -n %{buildroot}/%{_datadir}/apps/konqueror/servicemenus/movmetaedit-gui.desktop AudioVideo AudioVideoEditing
-#%endif
-#%__install -dm 755 %{buildroot}/%{_datadir}/kde4/services/ServiceMenus/
-#%__install -m 644 Project/GNU/GUI/movmetaedit-gui.kde4.desktop \
-#	%{buildroot}/%{_datadir}/kde4/services/ServiceMenus/movmetaedit-gui.desktop
-#%if 0%{?suse_version}
-#  %suse_update_desktop_file -n %{buildroot}/%{_datadir}/kde4/services/ServiceMenus/movmetaedit-gui.desktop AudioVideo AudioVideoEditing
-#%endif
+%__install -dm 755 %{buildroot}/%{_datadir}/applications
+%__install -m 644 Project/Qt/movmetaedit-gui.desktop %{buildroot}/%{_datadir}/applications
+%if 0%{?suse_version}
+  %suse_update_desktop_file -n movmetaedit-gui AudioVideo AudioVideoEditing
+%endif
+%__install -dm 755 %{buildroot}/%{_datadir}/apps/konqueror/servicemenus
+%__install -m 644 Project/Qt/movmetaedit-gui.kde3.desktop %{buildroot}/%{_datadir}/apps/konqueror/servicemenus/movmetaedit-gui.desktop
+%if 0%{?suse_version}
+  %suse_update_desktop_file -n %{buildroot}/%{_datadir}/apps/konqueror/servicemenus/movmetaedit-gui.desktop AudioVideo AudioVideoEditing
+%endif
+%__install -dm 755 %{buildroot}/%{_datadir}/kde4/services/ServiceMenus/
+%__install -m 644 Project/Qt/movmetaedit-gui.kde4.desktop %{buildroot}/%{_datadir}/kde4/services/ServiceMenus/movmetaedit-gui.desktop
+%if 0%{?suse_version}
+  %suse_update_desktop_file -n %{buildroot}/%{_datadir}/kde4/services/ServiceMenus/movmetaedit-gui.desktop AudioVideo AudioVideoEditing
+%endif
 
 %clean
 [ -d "%{buildroot}" -a "%{buildroot}" != "" ] && %__rm -rf "%{buildroot}"
@@ -136,23 +133,23 @@ popd
 %{_bindir}/movmetaedit
 
 %files gui
-%defattr(-,root,root,-)t
+%defattr(-,root,root,-)
 %doc License.html
 %{_bindir}/movmetaedit-gui
-#%{_datadir}/applications/*.desktop
-#%{_datadir}/pixmaps/*.png
-#%dir %{_datadir}/icons/hicolor
-#%dir %{_datadir}/icons/hicolor/128x128
-#%dir %{_datadir}/icons/hicolor/128x128/apps
-#%{_datadir}/icons/hicolor/128x128/apps/*.png
-#%dir %{_datadir}/apps
-#%dir %{_datadir}/apps/konqueror
-#%dir %{_datadir}/apps/konqueror/servicemenus
-#%{_datadir}/apps/konqueror/servicemenus/*.desktop
-#%dir %{_datadir}/kde4
-#%dir %{_datadir}/kde4/services
-#%dir %{_datadir}/kde4/services/ServiceMenus
-#%{_datadir}/kde4/services/ServiceMenus/*.desktop
+%{_datadir}/applications/*.desktop
+%{_datadir}/pixmaps/*.png
+%dir %{_datadir}/icons/hicolor
+%dir %{_datadir}/icons/hicolor/128x128
+%dir %{_datadir}/icons/hicolor/128x128/apps
+%{_datadir}/icons/hicolor/128x128/apps/*.png
+%dir %{_datadir}/apps
+%dir %{_datadir}/apps/konqueror
+%dir %{_datadir}/apps/konqueror/servicemenus
+%{_datadir}/apps/konqueror/servicemenus/*.desktop
+%dir %{_datadir}/kde4
+%dir %{_datadir}/kde4/services
+%dir %{_datadir}/kde4/services/ServiceMenus
+%{_datadir}/kde4/services/ServiceMenus/*.desktop
 
 %changelog
 * Sun Jan 01 2017 Jerome Martinez <info@mediaarea.net> - 0.1-0

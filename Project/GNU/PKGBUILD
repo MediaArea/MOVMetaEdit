@@ -10,7 +10,7 @@ license=('MIT')
 source=(${pkgname}_${pkgver}-1.tar.gz)
 md5sums=('00000000000000000000000000000000')
 arch=('i686' 'x86_64')
-makedepends=('qt5-base' 'qt5-tools' 'ca-certificates')
+makedepends=('qt5-base' 'qt5-tools' 'ca-certificates' 'libzen')
 
 prepare() {
 
@@ -19,7 +19,7 @@ prepare() {
     ./configure --prefix=/usr
 
     cd "${srcdir}"/movmetaedit/Project/Qt
-    qmake
+    ./prepare
 }
 
 build() {
@@ -32,6 +32,7 @@ build() {
 
 package_movmetaedit() {
     pkgdesc="${pkgdesc} (CLI)"
+    depends=('libzen')
 
     cd "${srcdir}"/movmetaedit/Project/GNU/CLI
     make DESTDIR="${pkgdir}" install
@@ -40,13 +41,13 @@ package_movmetaedit() {
 package_movmetaedit-gui() {
     pkgdesc="${pkgdesc} (GUI)"
     depends=('qt5-base')
-    
-    cd "${srcdir}"/movmetaedit/Project/GNU/Qt
+
+    cd "${srcdir}"/movmetaedit/Project/Qt
     install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit-gui "${pkgdir}"/usr/bin/movmetaedit-gui
 
-#    install -D -m 0644 "${srcdir}"/movmetaedit/Source/Resource/Image/FADGI/Logo128.png "${pkgdir}"/usr/share/icons/hicolor/128x128/apps/movmetaedit-gui.png
-#    install -D -m 0644 "${srcdir}"/movmetaedit/Source/Resource/Image/FADGI/Logo128.png "${pkgdir}"/usr/share/pixmaps/movmetaedit-gui.png
-#    install -D -m 0644 "${srcdir}"/movmetaedit/Project/GNU/GUI/movmetaedit-gui.desktop "${pkgdir}"/usr/share/applications/movmetaedit-gui.desktop
-#    install -D -m 0644 "${srcdir}"/movmetaedit/Project/GNU/GUI/movmetaedit-gui.kde3.desktop "${pkgdir}"/usr/share/apps/konqueror/servicemenus/movmetaedit-gui.desktop
-#    install -D -m 0644 "${srcdir}"/movmetaedit/Project/GNU/GUI/movmetaedit-gui.kde4.desktop "${pkgdir}"/usr/share/kde4/services/ServiceMenus/movmetaedit-gui.desktop
+    install -D -m 0644 "${srcdir}"/movmetaedit/Source/Resource/Image/Icon.png "${pkgdir}"/usr/share/icons/hicolor/128x128/apps/movmetaedit.png
+    install -D -m 0644 "${srcdir}"/movmetaedit/Source/Resource/Image/Icon.png "${pkgdir}"/usr/share/pixmaps/movmetaedit.png
+    install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit-gui.desktop "${pkgdir}"/usr/share/applications/movmetaedit-gui.desktop
+    install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit-gui.kde3.desktop "${pkgdir}"/usr/share/apps/konqueror/servicemenus/movmetaedit-gui.desktop
+    install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit-gui.kde4.desktop "${pkgdir}"/usr/share/kde4/services/ServiceMenus/movmetaedit-gui.desktop
 }

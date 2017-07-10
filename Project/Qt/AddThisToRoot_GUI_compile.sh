@@ -21,14 +21,14 @@ Zen_Make()
 
 #############################################################################
 # MOV_MetaEdit
-if test -e MOV_MetaEdit/Project/Qt/MOVMetaEdit.pro; then
+if test -e MOV_MetaEdit/Project/Qt/movmetaedit-gui.pro; then
  pushd MOV_MetaEdit/Project/Qt
  test -e Makefile && rm Makefile
  ./prepare
  if test -e Makefile; then
   make clean
   Zen_Make
-  if test -e movmetaedit-gui || test -e MOVMetaEdit.app; then
+  if test -e movmetaedit-gui || test -e MOVMetaEdit.app || test -e "MOV MetaEdit.app"; then
    echo MOV_MetaEdit compiled
   else
    echo Problem while compiling MOV_MetaEdit

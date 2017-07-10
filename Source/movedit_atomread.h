@@ -4,14 +4,10 @@
 *  be found in the License.html file in the root of the source tree.
 */
 
-#include <cstdint>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <vector>
-#ifdef _WIN32
-#include <tchar.h>
-#endif
 #include "ZenLib/Dir.h"
 #include "ZenLib/File.h"
 using namespace std;

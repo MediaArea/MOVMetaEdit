@@ -6,14 +6,10 @@
 
 #include "movedit_atomread.h"
 
-#include <cstdint>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <vector>
-#ifdef _WIN32
-#include <tchar.h>
-#endif
 #include "ZenLib/Dir.h"
 #include "ZenLib/File.h"
 using namespace std;

@@ -3,13 +3,14 @@ RequestExecutionLevel admin
 
 ; Some defines
 !define PRODUCT_NAME "MOV MetaEdit"
+!define PRODUCT_NAME_EXE "${PRODUCT_NAME}.exe"
 !define PRODUCT_PUBLISHER "MediaArea.net"
-!define PRODUCT_VERSION "0.1.0"
-!define PRODUCT_VERSION4 "${PRODUCT_VERSION}.0"
-!define PRODUCT_WEB_SITE "https://mediaarea.net"
+!define PRODUCT_VERSION "0.1"
+!define PRODUCT_VERSION4 "${PRODUCT_VERSION}.0.0"
+!define PRODUCT_WEB_SITE "https://mediaarea.net/MOVMetaEdit"
 !define COMPANY_REGISTRY "Software\MediaArea"
-!define PRODUCT_REGISTRY "Software\MediaArea\MOV_MetaEdit"
-!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\MOV_MetaEdit.exe"
+!define PRODUCT_REGISTRY "Software\MediaArea\${PRODUCT_NAME}"
+!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME_EXE}"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
@@ -32,7 +33,7 @@ SetCompressor /FINAL /SOLID lzma
 ; Installer pages
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
-!define MUI_FINISHPAGE_RUN "$INSTDIR\MOV_MetaEdit.exe"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\${PRODUCT_NAME_EXE}"
 !insertmacro MUI_PAGE_FINISH
 ; Uninstaller pages
 !insertmacro MUI_UNPAGE_WELCOME
@@ -58,28 +59,22 @@ BrandingText " "
 ; Modern UI end
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "..\..\MOV_MetaEdit_GUI_${PRODUCT_VERSION}_Windows_i386.exe"
+OutFile "..\..\MOVMetaEdit_GUI_${PRODUCT_VERSION}_Windows_i386.exe"
 InstallDir "$PROGRAMFILES\${PRODUCT_NAME}"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails nevershow
 ShowUnInstDetails nevershow
 
 Function .onInit
-  ${If} ${RunningX64}
-    MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 'You are trying to install the 32-bit version of ${PRODUCT_NAME} on 64-bit Windows.$\r$\nPlease download and use the 64-bit version instead.$\r$\nContinue with the installation of the 32-bit version?' IDYES noprob
-  Quit
-  noprob:
-  ${Else}
-  ${EndIf}
 FunctionEnd
 
 Section "SectionPrincipale" SEC01
   SetOverwrite ifnewer
   SetOutPath "$INSTDIR"
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk" "$INSTDIR\MOV_MetaEdit.exe" "" "" "" "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-  File "/oname=MOV_MetaEdit.exe" "..\..\Project\Qt\release\MOV_MetaEdit.exe"
-;  File "/oname=History.txt" "..\..\History_GUI.txt"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk" "$INSTDIR\${PRODUCT_NAME_EXE}" "" "" "" "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+  File "/oname=${PRODUCT_NAME_EXE}" "..\..\Project\Qt\Win32\${PRODUCT_NAME_EXE}"
+  File "/oname=History.txt" "..\..\History_GUI.txt"
   File "..\..\License.html"
 ;  File  "/oname=ReadMe.txt""..\..\Release\ReadMe_GUI_Windows.txt"
 SectionEnd
@@ -94,11 +89,11 @@ SectionEnd
 
 Section -Post
   WriteUninstaller "$INSTDIR\uninst.exe"
-  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\MOV_MetaEdit.exe"
+  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\${PRODUCT_NAME_EXE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\MOV_MetaEdit.exe"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\${PRODUCT_NAME_EXE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
 SectionEnd
@@ -107,8 +102,8 @@ SectionEnd
 Section Uninstall
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
-  Delete "$INSTDIR\MOV_MetaEdit.exe"
-;  Delete "$INSTDIR\History.txt"
+  Delete "$INSTDIR\${PRODUCT_NAME_EXE}"
+  Delete "$INSTDIR\History.txt"
   Delete "$INSTDIR\License.html"
 ;  Delete "$INSTDIR\ReadMe.txt"
   Delete "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk"

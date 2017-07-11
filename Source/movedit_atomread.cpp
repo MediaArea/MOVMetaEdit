@@ -1,19 +1,15 @@
 /*  Copyright (c) MediaArea.net SARL. All Rights Reserved.
 *
-*  Use of this source code is governed by a BSD-style license that can
+*  Use of this source code is governed by a MIT-style license that can
 *  be found in the License.html file in the root of the source tree.
 */
 
 #include "movedit_atomread.h"
 
-#include <cstdint>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <vector>
-#ifdef _WIN32
-#include <tchar.h>
-#endif
 #include "ZenLib/Dir.h"
 #include "ZenLib/File.h"
 using namespace std;

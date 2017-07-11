@@ -1,0 +1,7 @@
+﻿Version 17.07
+-------------
++ Ad-iD metadata injection
+
+Version 0.1.0
+-------------
++ Modify MOV metadata related to Pixel Aspect Ratio  

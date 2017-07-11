@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\movedit_atomread.cpp">
+    <ClCompile Include="..\..\..\Source\movedit_atomread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\movedit_main.cpp">
+    <ClCompile Include="..\..\..\Source\movedit_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\movedit_structure.cpp">
+    <ClCompile Include="..\..\..\Source\movedit_structure.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\movedit_atomread.h">
+    <ClInclude Include="..\..\..\Source\movedit_atomread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\movedit_structure.h">
+    <ClInclude Include="..\..\..\Source\movedit_structure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

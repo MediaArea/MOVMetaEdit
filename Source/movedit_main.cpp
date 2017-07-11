@@ -1,19 +1,15 @@
 /*  Copyright (c) MediaArea.net SARL. All Rights Reserved.
 *
-*  Use of this source code is governed by a BSD-style license that can
+*  Use of this source code is governed by a MIT-style license that can
 *  be found in the License.html file in the root of the source tree.
 */
 
 #include "movedit_structure.h"
 
-#include <cstdint>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <vector>
-#ifdef _WIN32
-#include <tchar.h>
-#endif
 #include "ZenLib/Dir.h"
 #include "ZenLib/File.h"
 using namespace std;
@@ -21,11 +17,7 @@ using namespace ZenLib;
 
 const size_t BUFFER_SIZE_MAX = 0x10000000;
 
-#ifdef _WIN32
-int _tmain(int argc, _TCHAR* argv[])
-#else
 int main(int argc, char* argv[])
-#endif
 {
     if (argc < 2)
     {
@@ -45,26 +37,13 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    cout << "Args:" << endl;
-#ifdef _WIN32
-    wcout << argv[0] << endl;
-    wcout << argv[1] << endl;
-#else
-    cout << argv[0] << endl;
-    cout << argv[1] << endl;
-#endif
-
     double wscale_New = 0;
     uint16_t par_h_New = 0;
     uint16_t par_v_New = 0;
     bool simulate = false;
     for (int argp = 2; argp < argc; ++argp)
     {
-#ifdef _WIN32
-        wcout << argv[argp] << endl;
-#else
         cout << argv[argp] << endl;
-#endif
 
         if (Ztring(argv[argp]) == __T("-p")
          || Ztring(argv[argp]) == __T("-par"))

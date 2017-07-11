@@ -15,12 +15,19 @@ TARGET = "movmetaedit-gui"
 }
 
 win32 {
+    RC_FILE = movmetaedit-gui.rc
     contains(QT_ARCH, i386) {
         DESTDIR = Win32
     }
     contains(QT_ARCH, x86_64) {
         DESTDIR = x64
     }
+}
+
+macx {
+    LIBS += -framework CoreFoundation
+    QMAKE_INFO_PLIST = ../Mac/Info.plist
+    ICON = ../../Source/Resource/Image/Icon.icns
 }
 
 TEMPLATE = app
@@ -56,6 +63,3 @@ FORMS += \
 
 RESOURCES += ../../Source/Resource/Resource.qrc
 
-macx:QMAKE_INFO_PLIST = ../Mac/Info.plist
-macx:ICON = ../../Source/Resource/Image/Icon.icns
-win32:RC_FILE = movmetaedit-gui.rc

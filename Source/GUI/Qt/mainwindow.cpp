@@ -17,6 +17,10 @@
 #include "tablewidget.h"
 #include "ui_mainwindow.h"
 
+#if defined(__APPLE__) && QT_VERSION < 0x050400
+#include <CoreFoundation/CFURL.h>
+#endif
+
 //---------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *Parent) : QMainWindow(Parent), Ui(new Ui::MainWindow)
 {
@@ -59,7 +63,29 @@ void MainWindow::dropEvent(QDropEvent *Event)
     {
         QList<QUrl> Urls = Event->mimeData()->urls();
         for(QList<QUrl>::const_iterator It = Urls.begin(); It != Urls.end(); It++)
-            C->Open_Files(It->toLocalFile());
+        {
+            QString File_Name;
+#if defined(__APPLE__) && QT_VERSION < 0x050400
+            if (It->url().startsWith("file:///.file/id="))
+            {
+                CFErrorRef Error = 0;
+                CFURLRef Cfurl = It->toCFURL();
+                CFURLRef Absurl = CFURLCreateFilePathURL(kCFAllocatorDefault, Cfurl, &Error);
+
+                if(Error)
+                    continue;
+
+                File_Name = QUrl::fromCFURL(Absurl).toLocalFile();
+                CFRelease(Cfurl);
+                CFRelease(Absurl);
+            }
+            else
+#endif
+            {
+                File_Name = It->toLocalFile();
+            }
+            C->Open_Files(File_Name);
+        }
     }
 
         Ui->Table_Widget->Update_Table();

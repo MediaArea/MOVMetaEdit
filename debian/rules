@@ -8,19 +8,17 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-
 	cd Project/GNU/CLI && chmod u+x autogen
 	cd Project/GNU/CLI && ./autogen
 	cd Project/GNU/CLI && ./configure --prefix=/usr
 
-	cd Project/Qt
 	cd Project/Qt && ./prepare
 
 	touch $@
 
 
 build: build-stamp
-build-stamp: configure-stamp  
+build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
@@ -76,12 +74,13 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 	dh_install --sourcedir=debian/tmp
-	dh_installchangelogs 
+	dh_installchangelogs -p movmetaedit History_CLI.txt
+	dh_installchangelogs -p movmetaedit-gui History_GUI.txt
 	dh_installdocs
 	dh_installexamples
 #	dh_install
 #	dh_installmenu
-#	dh_installdebconf	
+#	dh_installdebconf
 #	dh_installlogrotate
 #	dh_installemacsen
 #	dh_installpam

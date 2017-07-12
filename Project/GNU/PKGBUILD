@@ -34,6 +34,8 @@ package_movmetaedit() {
     pkgdesc="${pkgdesc} (CLI)"
     depends=('libzen')
 
+    install -D -m 0644 History_CLI.txt "${pkgdir}"/usr/share/docs/${pkgname}/History.txt
+    install -D -m 0644 License.html "${pkgdir}"/usr/share/licenses/${pkgname}/License.html
     cd "${srcdir}"/movmetaedit/Project/GNU/CLI
     make DESTDIR="${pkgdir}" install
 }
@@ -42,9 +44,9 @@ package_movmetaedit-gui() {
     pkgdesc="${pkgdesc} (GUI)"
     depends=('qt5-base')
 
-    cd "${srcdir}"/movmetaedit/Project/Qt
+    install -D -m 0644 History_GUI.txt "${pkgdir}"/usr/share/docs/${pkgname}/History.txt
+    install -D -m 0644 License.html "${pkgdir}"/usr/share/licenses/${pkgname}/License.html
     install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit-gui "${pkgdir}"/usr/bin/movmetaedit-gui
-
     install -D -m 0644 "${srcdir}"/movmetaedit/Source/Resource/Image/Icon.png "${pkgdir}"/usr/share/icons/hicolor/128x128/apps/movmetaedit.png
     install -D -m 0644 "${srcdir}"/movmetaedit/Source/Resource/Image/Icon.png "${pkgdir}"/usr/share/pixmaps/movmetaedit.png
     install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit-gui.desktop "${pkgdir}"/usr/share/applications/movmetaedit-gui.desktop

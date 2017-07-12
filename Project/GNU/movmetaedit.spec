@@ -130,11 +130,13 @@ popd
 %files
 %defattr(-,root,root,-)
 %doc License.html
+%doc History_CLI.txt
 %{_bindir}/movmetaedit
 
 %files gui
 %defattr(-,root,root,-)
 %doc License.html
+%doc History_GUI.txt
 %{_bindir}/movmetaedit-gui
 %{_datadir}/applications/*.desktop
 %{_datadir}/pixmaps/*.png

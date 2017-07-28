@@ -9,7 +9,7 @@ Homepage: https://mediaarea.net
 Package: movmetaedit
 Section: utils
 Architecture: any
-Depends: 
+Depends: ${shlibs:Depends}
 Description: MOV MetaEdit provides:
  .
  (To be filled)
@@ -28,7 +28,7 @@ Description: MOV MetaEdit provides:
 Package: movmetaedit-gui
 Section: utils
 Architecture: any
-Depends: libqt4-gui
+Depends: ${shlibs:Depends}
 Description: MOV MetaEdit provides:
  .
  (To be filled)

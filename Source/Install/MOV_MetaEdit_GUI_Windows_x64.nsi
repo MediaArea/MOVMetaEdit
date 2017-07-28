@@ -75,22 +75,22 @@ Function .onInit
 FunctionEnd
 
 Section "SectionPrincipale" SEC01
-  SetOverwrite ifnewer
+  SetOverwrite on
+
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}.lnk" "$INSTDIR\${PRODUCT_NAME_EXE}" "" "" "" "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}"
   SetOutPath "$INSTDIR"
-  CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk" "$INSTDIR\${PRODUCT_NAME_EXE}" "" "" "" "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}"
   File "/oname=${PRODUCT_NAME_EXE}" "..\..\Project\Qt\x64\${PRODUCT_NAME_EXE}"
   File "/oname=History.txt" "..\..\History_GUI.txt"
   File "..\..\License.html"
-;  File  "/oname=ReadMe.txt""..\..\Release\ReadMe_GUI_Windows.txt"
-SectionEnd
 
-Section -AdditionalIcons
-  SetOutPath $INSTDIR
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url" "" "" "" "" "" "Website"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk" "$INSTDIR\uninst.exe" "" "" "" "" "" "Uninstall MOV MetaEdit"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\History.lnk" "$INSTDIR\History.txt" "" "" "" "" "" "History"
+
+  # Delete files that might be present from older installation
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\Website.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}\History.lnk"
+  RMDir  "$SMPROGRAMS\${PRODUCT_NAME}"
 SectionEnd
 
 Section -Post
@@ -104,20 +104,13 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
 SectionEnd
 
-
 Section Uninstall
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\${PRODUCT_NAME_EXE}"
   Delete "$INSTDIR\History.txt"
   Delete "$INSTDIR\License.html"
-;  Delete "$INSTDIR\ReadMe.txt"
-  Delete "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk"
-  Delete "$SMPROGRAMS\${PRODUCT_NAME}\Website.lnk"
-  Delete "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk"
-  Delete "$SMPROGRAMS\${PRODUCT_NAME}\History.lnk"
-
-  RMDir "$SMPROGRAMS\${PRODUCT_NAME}"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME}.lnk"
   RMDir "$INSTDIR"
 
   DeleteRegKey HKLM "${PRODUCT_REGISTRY}"

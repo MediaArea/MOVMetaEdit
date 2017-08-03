@@ -39,6 +39,9 @@
     </property>
     <item row="0" column="0">
      <widget class="TableWidget" name="Table_Widget">
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
+      </property>
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
@@ -149,6 +152,9 @@
    <property name="shortcut">
     <string>Ctrl+F</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="Menu_Help_About">
    <property name="icon">
@@ -164,6 +170,9 @@
    <property name="statusTip">
     <string>About MOV MetaEdit</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="Menu_File_Open_Directory">
    <property name="icon">
@@ -176,10 +185,17 @@
    <property name="statusTip">
     <string>Open directory</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="Menu_File_Close">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Resource/Resource.qrc">
+     <normaloff>:/Image/File_Close.png</normaloff>:/Image/File_Close.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Close</string>
@@ -192,6 +208,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="Menu_File_Close_All">
@@ -206,6 +225,9 @@
    </property>
    <property name="statusTip">
     <string>Close all opened files</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="Menu_File_Save_All">
@@ -222,6 +244,9 @@
    <property name="statusTip">
     <string>Save all modified files</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="Menu_Help_Help">
    <property name="icon">
@@ -230,6 +255,9 @@
    </property>
    <property name="text">
     <string>H&amp;elp...</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
  </widget>

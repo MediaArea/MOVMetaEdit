@@ -9,6 +9,7 @@
 
 #include <QTableWidgetItem>
 #include <QMainWindow>
+#include <QMenu>
 
 #include "core.h"
 
@@ -30,6 +31,7 @@ private:
     void Update_Table();
 
     Ui::MainWindow* Ui;
+    QMenu* Context_Menu;
 
     Core* C;
 
@@ -38,8 +40,10 @@ private slots:
     void on_Menu_File_Open_Directory_triggered();
     void on_Menu_Help_Help_triggered();
     void on_Menu_Help_About_triggered();
+    void on_Menu_File_Close_triggered();
     void on_Menu_File_Close_All_triggered();
     void on_Table_Widget_itemSelectionChanged();
+    void Show_Context_Menu(const QPoint&);
     void Table_Widget_Changed();
 };
 

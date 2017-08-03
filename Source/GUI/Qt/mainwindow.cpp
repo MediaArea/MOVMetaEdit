@@ -30,23 +30,34 @@ MainWindow::MainWindow(QWidget *Parent) : QMainWindow(Parent), Ui(new Ui::MainWi
 
     Ui->Table_Widget->Setup(C);
 
-   connect(Ui->Table_Widget->model(), SIGNAL(rowsInserted(const QModelIndex& , int, int)),
-           this, SLOT(Table_Widget_Changed()));
-   connect(Ui->Table_Widget->model(), SIGNAL(rowsRemoved(const QModelIndex& , int, int)),
-           this, SLOT(Table_Widget_Changed()));
+    connect(Ui->Table_Widget->model(), SIGNAL(rowsInserted(const QModelIndex& , int, int)),
+            this, SLOT(Table_Widget_Changed()));
+    connect(Ui->Table_Widget->model(), SIGNAL(rowsRemoved(const QModelIndex& , int, int)),
+            this, SLOT(Table_Widget_Changed()));
 
-   //Setup toolbar
-   Ui->Tool_Bar->addAction(Ui->Menu_File_Open_Files);
-   Ui->Tool_Bar->addAction(Ui->Menu_File_Open_Directory);
-   Ui->Tool_Bar->addSeparator();
-   Ui->Tool_Bar->addAction(Ui->Menu_File_Save_All);
-   Ui->Tool_Bar->addSeparator();
-   Ui->Tool_Bar->addAction(Ui->Menu_Help_About);
+    //Setup toolbar
+    Ui->Tool_Bar->addAction(Ui->Menu_File_Open_Files);
+    Ui->Tool_Bar->addAction(Ui->Menu_File_Open_Directory);
+    Ui->Tool_Bar->addSeparator();
+    Ui->Tool_Bar->addAction(Ui->Menu_File_Close);
+    Ui->Tool_Bar->addSeparator();
+    Ui->Tool_Bar->addAction(Ui->Menu_File_Save_All);
+    Ui->Tool_Bar->addSeparator();
+    Ui->Tool_Bar->addAction(Ui->Menu_Help_About);
+
+    //Setup context menu
+    Context_Menu = new QMenu(this);
+    Context_Menu->addAction(Ui->Menu_File_Close);
+    //Context_Menu->actions.at(0)->setShortcut(QKeySequence());
+
+    connect(Ui->Table_Widget, SIGNAL(customContextMenuRequested(const QPoint&)),
+            this, SLOT(Show_Context_Menu(const QPoint&)));
 }
 
 //---------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
+    delete Context_Menu;
     delete Ui;
     delete C;
 }
@@ -149,6 +160,32 @@ void MainWindow::on_Menu_Help_About_triggered()
     About->exec();
 }
 
+void MainWindow::on_Menu_File_Close_triggered()
+{
+    bool Auto = false;
+
+    // Get selections
+    QModelIndexList Selected = Ui->Table_Widget->selectionModel()->selectedRows(FILE_COLUMN);
+    for(QModelIndexList::iterator It = Selected.begin(); It != Selected.end(); It++)
+    {
+        QString FileName = It->data(Qt::EditRole).toString();
+        if(!Auto && (*C->Get_Files())[FileName].Modified == true)
+        {
+            int Ret = QMessageBox::warning(this, tr("MOV MetaEdit"),
+                tr("The file %1 has been modified.\n"
+                "Do you want to close anyways?").arg(FileName),
+                QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Cancel);
+
+            if(Ret == QMessageBox::Cancel)
+                return;
+            else if(Ret == QMessageBox::YesToAll)
+                Auto = true;
+        }
+        C->Get_Files()->remove(FileName);
+    }
+    Ui->Table_Widget->Update_Table();
+}
+
 void MainWindow::on_Menu_File_Close_All_triggered()
 {
     FileList* Files = C->Get_Files();
@@ -184,6 +221,12 @@ void MainWindow::on_Table_Widget_itemSelectionChanged()
         Ui->Menu_File_Close->setEnabled(true);
     else
         Ui->Menu_File_Close->setEnabled(false);
+}
+
+//---------------------------------------------------------------------------
+void MainWindow::Show_Context_Menu(const QPoint& Pos)
+{
+    Context_Menu->exec(Ui->Table_Widget->mapToGlobal(Pos));
 }
 
 //---------------------------------------------------------------------------

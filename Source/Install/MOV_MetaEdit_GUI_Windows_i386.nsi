@@ -66,6 +66,9 @@ ShowInstDetails nevershow
 ShowUnInstDetails nevershow
 
 Function .onInit
+  ${If} ${RunningX64}
+    SetRegView 64
+  ${EndIf}
 FunctionEnd
 
 Section "SectionPrincipale" SEC01
@@ -107,6 +110,7 @@ Section Uninstall
   Delete "$SMPROGRAMS\${PRODUCT_NAME}.lnk"
   RMDir "$INSTDIR"
 
+  SetRegView 64
   DeleteRegKey HKLM "${PRODUCT_REGISTRY}"
   DeleteRegKey /ifempty HKLM "${COMPANY_REGISTRY}"
   DeleteRegKey HKCU "${PRODUCT_REGISTRY}"

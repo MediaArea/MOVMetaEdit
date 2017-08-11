@@ -113,6 +113,7 @@ Section Uninstall
   Delete "$SMPROGRAMS\${PRODUCT_NAME}.lnk"
   RMDir "$INSTDIR"
 
+  SetRegView 64
   DeleteRegKey HKLM "${PRODUCT_REGISTRY}"
   DeleteRegKey /ifempty HKLM "${COMPANY_REGISTRY}"
   DeleteRegKey HKCU "${PRODUCT_REGISTRY}"

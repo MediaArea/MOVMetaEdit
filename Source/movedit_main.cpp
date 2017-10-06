@@ -652,7 +652,15 @@ int main(int argc, char* argv[])
 
     //Cleanup
     for (std::vector<Structure*>::iterator Item = Structures.begin(); Item != Structures.end(); Item++)
-        delete *Item;
+    {
+        if (AdID_Requested)
+        {
+            mp4_Handler* H = (mp4_Handler*)(*Item); //Hack for storing mp4_Handler
+            delete H;
+        }
+        else
+            delete *Item;
+    }
 
     if (!ListOpenError.empty() || !ListSeekError.empty() || !ListWritingError.empty())
         return ReturnValue_ERROR; //Error

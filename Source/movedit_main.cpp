@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
             if (!par_h_New || !par_v_New  || !par_ss.eof())
             {
                 cout << "Can not understand PAR value " << argv[argp] << ", it must be a integer:integer value (e.g. '9:10')" << endl;
-                return -1;
+                return ReturnValue_ERROR;
             }
             argp++;
         }
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
             if (wscale_New == 0)
             {
                 cout << "Can not understand width scale value " << argv[argp] << ", it must be a real number" << endl;
-                return -1;
+                return ReturnValue_ERROR;
             }
             argp++;
         }
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
      && AdID_Requested)
     {
         cout << "PAR options and Ad-ID options can not currently be used together" << endl;
-        return -1;
+        return ReturnValue_ERROR;
     }
 
     if (FileNames.empty())
@@ -650,10 +650,15 @@ int main(int argc, char* argv[])
             cout << Item->To_Local() << endl;
     }
 
+    //Cleanup
+    for (std::vector<Structure*>::iterator Item = Structures.begin(); Item != Structures.end(); Item++)
+        delete *Item;
+
     if (!ListOpenError.empty() || !ListSeekError.empty() || !ListWritingError.empty())
-        return -2; //Error
-    if (!ListNotDetected.empty() || !ListNotCorrected.empty())
-        return -1; //Warning
-    return (int)Structures.size();
+        return ReturnValue_ERROR; //Error
+    //if (!ListNotDetected.empty() || !ListNotCorrected.empty())
+    //    return -1; //Warning
+
+    return ReturnValue_OK;
 }
 

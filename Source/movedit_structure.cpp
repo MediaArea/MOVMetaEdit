@@ -20,6 +20,7 @@ Structure::Structure(File* F_, const Ztring &Name_)
     IsOk(true),
     mdatIsPresent(false),
     moovIsPresent(false),
+    freeIsPresent(false),
     Name(Name_),
     F(F_)
 {

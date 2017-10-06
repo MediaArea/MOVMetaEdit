@@ -10,8 +10,12 @@
 #include <iomanip>
 #include <sstream>
 #include <vector>
+#include <stdint.h>
 #include "ZenLib/Dir.h"
 #include "ZenLib/File.h"
+#include "CLI/Help.h"
+#include "Common/AdID.h"
+#include "Common/mp4_Handler.h"
 using namespace std;
 using namespace ZenLib;
 
@@ -20,54 +24,72 @@ const size_t BUFFER_SIZE_MAX = 0x10000000;
 int main(int argc, char* argv[])
 {
     if (argc < 2)
-    {
-        cout << "Usage: " << argv[0] << " FileName [options]" << endl;
-        cout << "Options" << endl;
-        cout << " -p, --par: modify PAR to 9:10 (--> DAR of 4:3)" << endl;
-        cout << " -w, --width-scale: modify width scale to 0.9" << endl;
-        cout << " -s, --simulate: No modification" << endl;
-        cout << endl;
-        cout << "if no option, information is displayed, no modification" << endl;
-        cout << "limitation: 720x480 or 720x486 or 720x576" << endl;
-        cout << endl;
-        cout << "return value:" << endl;
-        cout << ">=0: OK" << endl;
-        cout << "-1: Warning" << endl;
-        cout << "-2: Error" << endl;
-        return -1;
-    }
+        return Usage();
 
+    ZtringList FileNames;
     double wscale_New = 0;
-    uint16_t par_h_New = 0;
-    uint16_t par_v_New = 0;
+    uint32_t par_h_New = 0;
+    uint32_t par_v_New = 0;
     bool simulate = false;
-    for (int argp = 2; argp < argc; ++argp)
-    {
-        cout << argv[argp] << endl;
+    AdID AdID_Content;
+    bool AdID_Requested=false;
 
-        if (Ztring(argv[argp]) == __T("-p")
-         || Ztring(argv[argp]) == __T("-par"))
+    for (int argp = 1; argp < argc; ++argp)
+    {
+        if (Ztring(argv[argp]) == __T("-h")
+         || Ztring(argv[argp]) == __T("--help"))
+            return Help();
+        if (Ztring(argv[argp]) == __T("--help-adid"))
+            return Help_AdID();
+        if (Ztring(argv[argp]) == __T("--help-par"))
+            return Help_PAR();
+
+        if (argp+1<argc && Ztring(argv[argp]) == __T("--adid"))
         {
-            par_h_New = 9;
-            par_v_New = 10;
-            if (par_h_New == 0)
+            AdID_Requested=true;
+            AdID_Content.Set(argv[argp+1]);
+            argp++;
+        }
+        if (argp+1<argc && Ztring(argv[argp]) == __T("--adid-registry"))
+        {
+            AdID_Requested=true;
+            AdID_Content.SetRegistry(argv[argp+1]);
+            argp++;
+        }
+        else if (argp + 1<argc
+         && (Ztring(argv[argp]) == __T("-p")
+          || Ztring(argv[argp]) == __T("--par")
+          || Ztring(argv[argp]) == __T("-par")))
+        {
+            stringstream par_ss;
+            par_ss << argv[argp+1];
+            par_ss >> par_h_New;
+            if (par_ss.peek() == ':')
+            {
+                par_ss.ignore(1);
+                par_ss >> par_v_New;
+            }
+            if (!par_h_New || !par_v_New  || !par_ss.eof())
             {
                 cout << "Can not understand PAR value " << argv[argp] << ", it must be a integer:integer value (e.g. '9:10')" << endl;
                 return -1;
             }
+            argp++;
         }
-        else if (Ztring(argv[argp]) == __T("-w")
-              || Ztring(argv[argp]) == __T("-width-scale"))
+        else if (argp + 1<argc
+         && (Ztring(argv[argp]) == __T("-w")
+          || Ztring(argv[argp]) == __T("--width-scale")
+          || Ztring(argv[argp]) == __T("-width-scale")))
         {
-            //stringstream Scale_Xss;
-            //Scale_Xss << argv[2];
-            //Scale_Xss >> wscale_New;
-            wscale_New = 0.9;
+            stringstream wscale_ss;
+            wscale_ss << argv[argp + 1];
+            wscale_ss >> wscale_New;
             if (wscale_New == 0)
             {
                 cout << "Can not understand width scale value " << argv[argp] << ", it must be a real number" << endl;
                 return -1;
             }
+            argp++;
         }
         else if (Ztring(argv[argp]) == __T("-s")
               || Ztring(argv[argp]) == __T("--simulate"))
@@ -76,19 +98,40 @@ int main(int argc, char* argv[])
         }
         else
         {
-            cout << "Unknown option " << endl;
-            return -1;
+            FileNames.push_back(argv[argp]);
         }
     }
-    cout << endl;
-    cout << endl;
 
-    ZtringList List = Dir::GetAllFileNames(argv[1]);
+    if ((wscale_New || par_h_New || par_v_New)
+     && AdID_Requested)
+    {
+        cout << "PAR options and Ad-ID options can not currently be used together" << endl;
+        return -1;
+    }
+
+    if (FileNames.empty())
+        return Usage();
+    ZtringList List;
+    for (size_t i=0; i<FileNames.size(); i++)
+        List+=Dir::GetAllFileNames(FileNames[i]);
     std::vector<Structure*> Structures;
     for (ZtringList::iterator Item = List.begin(); Item != List.end(); Item++)
     {
-        File F;
         cout << "Parsing " << Item->To_Local() << std::endl;
+        if (AdID_Requested)
+        {
+            mp4_Handler* H=new mp4_Handler;
+            if (!H->Open((*Item).To_Local()))
+            {
+                cout << " Can not open file: " << H->Errors.str() << endl;
+            }
+
+            Structures.push_back((Structure*)H); //Hack for storing mp4_Handler
+
+            continue;
+        }
+
+        File F;
         if (F.Open(*Item, File::Access_Read))
         {
 
@@ -147,6 +190,8 @@ int main(int argc, char* argv[])
     string FileNameFake;
     FileNameFake.resize(Max, __T(' '));
 
+    if (!AdID_Requested)
+    {
     cout << endl;
     cout << "Summary:" << endl;
     cout << "OK = file is correctly detected and does not need to be modified ('Yes') or is correctly detected and need to be modified ('Mod') or is correctly detected and need to be modified but not supported ('No') or there was a problem with it (empty)" << endl;
@@ -155,6 +200,9 @@ int main(int argc, char* argv[])
     cout << "w-scale = (old) width scale of the picture" << endl;
     cout << "w-scale|M = w-scale will be modified ('Y')" << endl;
     cout << FileNameFake << "| OK|  PAR|M|Width|w-scale|M|" << endl;
+    }
+    else
+        cout << FileNameFake << "|OK?| Registry|UniversalAdId value" << endl;
     ZtringList::iterator ItemName = List.begin();
     ZtringList ListNotDetected;
     ZtringList ListNotCorrected;
@@ -166,6 +214,79 @@ int main(int argc, char* argv[])
         // Name
         string Name = ItemName->To_Local();
         Name.resize(Max, __T(' '));
+
+        if (AdID_Requested)
+        {
+            cout << Name << '|';
+
+            mp4_Handler* H = (mp4_Handler*)(*Item); //Hack for storing mp4_Handler
+
+            AdID AdID_Content_Temp=AdID_Content;
+            AdID_Content_Temp.SetName(ItemName->To_Local());
+            bool OK;
+            if (H->Errors.str().empty())
+                OK = AdID_Content_Temp.Validate();
+            else
+                OK = false;
+            if (OK)
+            {
+                if (!H->Errors.str().empty())
+                    OK = false;
+            }
+            if (OK)
+            {
+                H->Set("com.universaladid.idregistry", AdID_Content_Temp.GetRegistry().c_str());
+                H->Set("com.universaladid.idvalue", AdID_Content_Temp.Get().c_str());
+
+                if (!simulate)
+                    H->Save();
+
+                if (!H->PerFile_Error.str().empty())
+                    OK = false;
+            }
+
+            cout<< (OK?"Yes":" No") << '|';
+
+            string Registry;
+            if (OK)
+                Registry = AdID_Content_Temp.GetRegistry();
+            else if (!AdID_Content_Temp.ErrorMessage.empty() || !H->PerFile_Error.str().empty())
+                Registry = H->Get("com.universaladid.idregistry"); // showing it if already present in the file
+            if (Registry.size() < 9)
+                Registry.insert(0, 9 - Registry.size(), ' ');
+
+            cout << Registry << '|';
+
+            if (!AdID_Content_Temp.ErrorMessage.empty())
+            {
+                cout << AdID_Content_Temp.ErrorMessage << endl;
+
+                ItemName++;
+                continue;
+            }
+
+            if (!H->PerFile_Error.str().empty())
+            {
+                string Value = H->Get("com.universaladid.idvalue"); // showing it if already present in the file
+                if (!Value.empty())
+                    cout << Value << ", ";
+
+                string Error=H->PerFile_Error.str();
+                size_t End = Error.find_last_not_of(" \r\n");
+                if (End != string::npos)
+                    Error.resize(End+1);
+                
+                cout << Error << endl;
+
+                ItemName++;
+                continue;
+            }
+
+            cout << AdID_Content_Temp.Get() << endl;
+
+            ItemName++;
+            continue;
+        }
 
         if ((*Item)->IsOk)
         {
@@ -179,7 +300,6 @@ int main(int argc, char* argv[])
             // Test if must be modified
             char pasp_ToModify = ' ';
             char wscale_ToModify = ' ';
-            if (Track->Width == 720 && (Track->Height == 480 || Track->Height == 486 || Track->Height == 576 || Track->Height == 1080))
             {
                 if (par_h_New && !(Video->pasp.h == 9 && Video->pasp.v == 10))
                     pasp_ToModify = 'Y';
@@ -205,10 +325,6 @@ int main(int argc, char* argv[])
                 else
                     cout << "Yes|";
             }
-            else
-            {
-                cout << "Yes|";
-            }
 
             // OK
             File F;
@@ -226,8 +342,9 @@ int main(int argc, char* argv[])
             {
                 stringstream Temp;
                 Temp << Video->pasp.h << ":" << Video->pasp.v;
-                for (size_t Pos = 0; Pos < 5 - Temp.str().size(); ++Pos)
-                    cout << " ";
+                if (Temp.str().size()<5)
+                    for (size_t Pos = 0; Pos < 5 - Temp.str().size(); ++Pos)
+                        cout << " ";
                 cout << Temp.str();
             }
             else

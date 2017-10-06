@@ -16,6 +16,7 @@
 HelpDialog::HelpDialog(QWidget* Parent) : QDialog(Parent), Ui(new Ui::HelpDialog)
 {
     Ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     move(QApplication::desktop()->screenGeometry().width() / 10,
         QApplication::desktop()->screenGeometry().height() / 10);
@@ -34,7 +35,7 @@ void HelpDialog::on_Text1_anchorClicked(const QUrl& Link)
 {
     if (Link == QUrl("qrc:/Documentation/index.html"))
         Ui->Tab_Widget->setCurrentIndex(0);
-    else if (Link == QUrl("qrc:/Documentation/interface.html"))
+    else if (Link == QUrl("qrc:/Documentation/UniversalAdID.html"))
         Ui->Tab_Widget->setCurrentIndex(1);
     else
         QDesktopServices::openUrl(Link);

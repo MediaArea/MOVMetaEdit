@@ -39,7 +39,6 @@ AC_ARG_ENABLE(universal_binary, AC_HELP_STRING([--enable-universal_binary], [Cre
 AC_ARG_ENABLE(arch-ppc,         AC_HELP_STRING([--with-arch-ppc],           [Create Mac PPC Universal binary]),           , enable_arch_ppc=no)
 AC_ARG_ENABLE(arch-i386,        AC_HELP_STRING([--with-arch-i386],          [Create Mac i386 Universal binary]),          , enable_arch_i386=no)
 AC_ARG_ENABLE(arch-x86_64,      AC_HELP_STRING([--enable-arch-x86_64],      [Create Mac x86_64 architecture]),            , enable_arch_x86_64=no)
-AC_ARG_ENABLE(staticlibs,   AC_HELP_STRING([--enable-staticlibs],   [Use static libzen]),      , enable_staticlibs=no)
 
 dnl -------------------------------------------------------------------------
 dnl Arguments - With
@@ -52,31 +51,10 @@ dnl ### Specific flags
 dnl #########################################################################
 
 dnl -------------------------------------------------------------------------
-dnl ZenLib
+dnl Use ZenLib
 dnl
-if test -e ../../../../ZenLib/Project/GNU/Library/libzen.la; then
-	CXXFLAGS="$CXXFLAGS $(../../../../ZenLib/Project/GNU/Library/libzen-config CXXFLAGS)"
-	if test "$enable_staticlibs" = "yes"; then
-		with_zenlib="builtin (static)"
-		LIBS="$LIBS $(../../../../ZenLib/Project/GNU/Library/libzen-config LIBS_Static)"
-	else
-		with_zenlib="builtin"
-		LIBS="$LIBS $(../../../../ZenLib/Project/GNU/Library/libzen-config LIBS)"
-	fi
-else
-	if pkg-config --exists libzen; then
-		CXXFLAGS="$CXXFLAGS $(pkg-config --cflags libzen)"
-		if test "$enable_staticlibs" = "yes"; then
-			with_zenlib="system (static)"
-			LIBS="$LIBS $(pkg-config --variable=Libs_Static libzen)"
-		else
-			with_zenlib="system"
-			LIBS="$LIBS $(pkg-config --libs libzen)"
-		fi
-	else
-		AC_MSG_ERROR([libzen configuration is not found])
-	fi
-fi
+CXXFLAGS="$CXXFLAGS -pthread"
+LDFLAGS="$LDFLAGS -lpthread -pthread"
 
 dnl #########################################################################
 dnl ### C/C++ compiler options used to compile

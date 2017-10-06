@@ -27,7 +27,7 @@ KIND_lower=`echo ${KIND} |awk '{print tolower($0)}'`
 SIGNATURE="MediaArea.net"
 FILES="tmp-${APPNAME}_${KIND}"
 TEMPDMG="tmp-${APPNAME}_${KIND}.dmg"
-FINALDMG="${APPNAME}_${KIND}_${VERSION}_Mac.dmg"
+FINALDMG="${APPNAME/ /}_${KIND}_${VERSION}_Mac.dmg"
 
 # Clean up
 rm -fr "${FILES}-Root"

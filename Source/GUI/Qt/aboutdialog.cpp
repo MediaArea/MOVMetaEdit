@@ -33,7 +33,7 @@ AboutDialog::~AboutDialog()
 //---------------------------------------------------------------------------
 const char* AboutDialog::NameVersion_HTML()
 {
-    return "<a href=\"https://www.mediaarea.net\">MediaArea</a> MOV MetaEdit version " VERSION;
+    return "MOV MetaEdit " VERSION;
 }
 
 //---------------------------------------------------------------------------

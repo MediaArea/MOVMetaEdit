@@ -176,7 +176,7 @@ void Structure::moov_trak_tkhd(atom* Up)
 
     uint16_t Width_Temp = BigEndian2int16u(Up->DataContent + ExtraBytes + 0x4C);
     uint16_t Height_Temp = BigEndian2int16u(Up->DataContent + ExtraBytes + 0x50);
-    if (Width_Temp && Height_Temp > 20) // Test if it is video
+    if (Width_Temp && Height_Temp)
     {
             double WidthScale_BeforeComma = (double)BigEndian2int16u(Up->DataContent + ExtraBytes + 0x28);
             double WidthScale_AfterComma = (double)BigEndian2int16u(Up->DataContent + ExtraBytes + 0x2A);
@@ -185,7 +185,7 @@ void Structure::moov_trak_tkhd(atom* Up)
             Track->WidthScale = WidthScale_BeforeComma + WidthScale_AfterComma / 65536;
             Track->WidthScalePos = Up->StreamOffset + Up->HeaderSize + ExtraBytes + 0x28;
 
-            cout << " Width = " << Track->Width << ", Height = " << Track->Height << ", Width scale = " << setprecision(3) << fixed << setw(7) << Track->WidthScale << endl;
+            //cout << " Width = " << Track->Width << ", Height = " << Track->Height << ", Width scale = " << setprecision(3) << fixed << setw(7) << Track->WidthScale << endl;
     }
 }
 

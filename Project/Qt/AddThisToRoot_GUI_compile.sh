@@ -21,8 +21,8 @@ Zen_Make()
 
 #############################################################################
 # MOV_MetaEdit
-if test -e MOV_MetaEdit/Project/Qt/movmetaedit-gui.pro; then
- pushd MOV_MetaEdit/Project/Qt
+if test -e Project/Qt/movmetaedit-gui.pro; then
+ pushd Project/Qt
  test -e Makefile && rm Makefile
  ./prepare
  if test -e Makefile; then

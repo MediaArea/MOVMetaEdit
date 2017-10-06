@@ -21,6 +21,8 @@ Structure::Structure(File* F_, const Ztring &Name_)
     mdatIsPresent(false),
     moovIsPresent(false),
     freeIsPresent(false),
+    moovOffsetMax((uint64_t)-1),
+    mdatOffset((uint64_t)-1),
     Name(Name_),
     F(F_)
 {
@@ -74,6 +76,12 @@ void Structure::Parse()
     {
         cout << " Can not find the moov atom" << endl;
         IsOk = false; //At least 1 moov
+    }
+
+    if (!mdatIsPresent)
+    {
+        cout << " Can not find the mdat atom" << endl;
+        IsOk = false; //At least 1 mdat
     }
 }
 

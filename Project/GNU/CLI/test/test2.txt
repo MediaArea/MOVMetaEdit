@@ -1,0 +1,3 @@
+movmetaedit --adid ADID01234567 Files/*/*
+movmetaedit --adid ADID012345678 Files/*/*
+movmetaedit --adid ADID01234567 Files/*/*

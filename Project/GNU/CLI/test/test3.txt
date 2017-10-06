@@ -1,0 +1,3 @@
+movmetaedit --adid a --adid-registry a Files/*/*
+movmetaedit --adid aaaaaaaaaaaaaaaaaa --adid-registry aaaaaaaaaaaaaaaaaa Files/*/*
+movmetaedit --adid a --adid-registry a Files/*/*

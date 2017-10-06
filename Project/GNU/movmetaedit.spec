@@ -63,6 +63,10 @@ BuildRequires:  libqt4-devel
 %endif
 %endif
 
+%if 0%{?rhel} >= 7
+BuildRequires:  gnu-free-sans-fonts
+%endif
+
 %description gui
 movmetaedit GUI (Graphical User Interface)
 

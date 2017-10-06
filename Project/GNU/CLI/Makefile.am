@@ -37,3 +37,14 @@ movmetaedit_SOURCES = \
     ../../../Source/ZenLib/int128u.cpp
 
 AM_CPPFLAGS = -std=c++0x -I../../../Source
+
+AM_TESTS_FD_REDIRECT = 9>&2
+
+TESTS = test/test.sh
+
+TESTING_DIR = test/TestingFiles
+
+clone_testing_files: $(TESTING_DIR)
+
+$(TESTING_DIR):
+	git clone https://github.com/MediaArea/MediaArea-RegressionTestingFiles test/TestingFiles

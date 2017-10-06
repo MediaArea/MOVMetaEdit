@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <sstream>
 #include <vector>
+#include <stdint.h>
 #include "ZenLib/Dir.h"
 #include "ZenLib/File.h"
 using namespace std;

@@ -4,13 +4,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOVMetaEdit_CLI", "CLI\MOVMetaEdit_CLI.vcxproj", "{4B0470F1-7EEE-4EB1-B542-33C8D32BCDE3}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94} = {0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOVMetaEdit_GUI", "GUI\MOVMetaEdit_GUI.vcxproj", "{5D87DF68-8F75-4696-8DF7-DF94C373935C}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZenLib", "..\..\..\ZenLib\Project\MSVC2015\Library\ZenLib.vcxproj", "{0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,14 +23,6 @@ Global
 		{4B0470F1-7EEE-4EB1-B542-33C8D32BCDE3}.Release|Win32.Build.0 = Release|Win32
 		{4B0470F1-7EEE-4EB1-B542-33C8D32BCDE3}.Release|x64.ActiveCfg = Release|x64
 		{4B0470F1-7EEE-4EB1-B542-33C8D32BCDE3}.Release|x64.Build.0 = Release|x64
-		{0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94}.Debug|Win32.ActiveCfg = Debug|Win32
-		{0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94}.Debug|Win32.Build.0 = Debug|Win32
-		{0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94}.Debug|x64.ActiveCfg = Debug|x64
-		{0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94}.Debug|x64.Build.0 = Debug|x64
-		{0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94}.Release|Win32.ActiveCfg = Release|Win32
-		{0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94}.Release|Win32.Build.0 = Release|Win32
-		{0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94}.Release|x64.ActiveCfg = Release|x64
-		{0DA1DA7D-F393-4E7C-A7CE-CB5C6A67BC94}.Release|x64.Build.0 = Release|x64
 		{5D87DF68-8F75-4696-8DF7-DF94C373935C}.Debug|Win32.ActiveCfg = Debug|Win32
 		{5D87DF68-8F75-4696-8DF7-DF94C373935C}.Debug|Win32.Build.0 = Debug|Win32
 		{5D87DF68-8F75-4696-8DF7-DF94C373935C}.Debug|x64.ActiveCfg = Debug|x64

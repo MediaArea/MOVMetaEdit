@@ -25,7 +25,7 @@
      </property>
      <widget class="QWidget" name="Tab_Index">
       <attribute name="title">
-       <string>Index</string>
+       <string>Main</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
@@ -51,7 +51,7 @@
      </widget>
      <widget class="QWidget" name="Tab_Interface">
       <attribute name="title">
-       <string>Interface</string>
+       <string>Universal Ad ID</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
@@ -60,7 +60,7 @@
           <widget class="QTextBrowser" name="Text2">
            <property name="source">
             <url>
-             <string>qrc:/Documentation/interface.html</string>
+             <string>qrc:/Documentation/UniversalAdID.html</string>
             </url>
            </property>
            <property name="openExternalLinks">

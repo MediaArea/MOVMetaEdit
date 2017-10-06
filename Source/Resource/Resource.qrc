@@ -12,7 +12,8 @@
         <file>Documentation/Contact.html</file>
         <file>Documentation/Description.html</file>
         <file>Documentation/index.html</file>
-        <file>Documentation/interface.html</file>
+        <file>Documentation/UniversalAdID.html</file>
+        <file>Documentation/UniversalAdID_WithError.png</file>
         <file>Image/Ad-iD.png</file>
     </qresource>
 </RCC>

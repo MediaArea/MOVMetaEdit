@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *Parent) : QMainWindow(Parent), Ui(new Ui::MainWi
     Ui->Tool_Bar->addSeparator();
     Ui->Tool_Bar->addAction(Ui->Menu_File_Save_All);
     Ui->Tool_Bar->addSeparator();
+    Ui->Tool_Bar->addAction(Ui->Menu_Help_Help);
     Ui->Tool_Bar->addAction(Ui->Menu_Help_About);
 
     //Setup context menu
@@ -52,6 +53,11 @@ MainWindow::MainWindow(QWidget *Parent) : QMainWindow(Parent), Ui(new Ui::MainWi
 
     connect(Ui->Table_Widget, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(Show_Context_Menu(const QPoint&)));
+
+    connect(Ui->Table_Widget, SIGNAL(Enable_Save(bool)),
+            Ui->Menu_File_Save_All, SLOT(setEnabled(bool)));
+
+    Ui->Table_Widget->Update_Table();
 }
 
 //---------------------------------------------------------------------------
@@ -103,6 +109,17 @@ void MainWindow::dropEvent(QDropEvent *Event)
 }
 
 //---------------------------------------------------------------------------
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    on_Menu_File_Close_All_triggered();
+
+    if (C->Get_Files()->empty())
+        event->accept();
+    else
+        event->ignore();
+}
+
+//---------------------------------------------------------------------------
 void MainWindow::on_Menu_File_Open_Files_triggered()
 {
     QStringList File_Names;
@@ -140,6 +157,24 @@ void MainWindow::on_Menu_File_Open_Directory_triggered()
         return;
 
     C->Open_Files(File_Name);
+
+    Ui->Table_Widget->Update_Table();
+}
+
+//---------------------------------------------------------------------------
+void MainWindow::on_Menu_File_Save_All_triggered()
+{
+    FileList* Files = C->Get_Files();
+
+    for(FileList::iterator It = Files->begin(); It != Files->end(); It++)
+    {
+        if(It->Modified)
+        {
+            It->Valid = false; //Done for not writing again the same file
+            It->Modified = false;
+            C->Save_File(It.key());
+        }
+    }
 
     Ui->Table_Widget->Update_Table();
 }
@@ -211,7 +246,6 @@ void MainWindow::on_Menu_File_Close_All_triggered()
     Files->clear();
 
     Ui->Table_Widget->Update_Table();
-
 }
 
 //---------------------------------------------------------------------------

@@ -12,6 +12,24 @@
 #include "tablewidget.h"
 
 //***************************************************************************
+// Info
+//***************************************************************************
+
+static const char* ColumnName_Default[MAX_COLUMN] =
+{
+    "File Name",
+    "Registry",
+    "Value",
+};
+
+static const int ColumnSize_Default[MAX_COLUMN] =
+{
+    60,
+    20,
+    20,
+};
+
+//***************************************************************************
 // Helpers
 //***************************************************************************
 
@@ -32,8 +50,13 @@ QValidator::State AdIdValidator::validate(QString& Input, int& Pos) const
     QString Acceptable = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     for(int Pos = 0; Pos < Input.size(); Pos++)
+    {
+        if (Input[Pos] >= 'a' && Input[Pos] <= 'z')
+            Input[Pos] = Input[Pos].toUpper();
+
         if(!Acceptable.contains(Input.at(Pos)))
             return QValidator::Invalid;
+    }
 
     if(Input.size() < 11)
         return QValidator::Intermediate;
@@ -54,32 +77,48 @@ QValidator::State OtherValidator::validate(QString& Input, int& Pos) const
     if(Input.size() > 255)
         return QValidator::Invalid;
 
+    if(Input.isEmpty())
+        return QValidator::Intermediate;
+
     return QValidator::Acceptable;
 }
 
 //---------------------------------------------------------------------------
-ComboBoxDelegate::ComboBoxDelegate(QObject* Parent, Core* C) : QItemDelegate(Parent), C(C)
+NoneValidator::NoneValidator(QObject* Parent) : QValidator(Parent)
 {
 }
 
 //---------------------------------------------------------------------------
-QWidget* ComboBoxDelegate::createEditor(QWidget* Parent,
+QValidator::State NoneValidator::validate(QString& Input, int& Pos) const
+{
+    Q_UNUSED(Pos)
+
+    if(!Input.isEmpty())
+        return QValidator::Invalid;
+
+    return QValidator::Acceptable;
+}
+
+//---------------------------------------------------------------------------
+RegistryDelegate::RegistryDelegate(QObject* Parent, Core* C) : QItemDelegate(Parent), C(C)
+{
+}
+
+//---------------------------------------------------------------------------
+QWidget* RegistryDelegate::createEditor(QWidget* Parent,
                                         const QStyleOptionViewItem& Option,
                                         const QModelIndex& Index) const
 {
     Q_UNUSED(Option)
     Q_UNUSED(Index)
 
-    QComboBox* ComboBox = new QComboBox(Parent);
+    QLineEdit *Editor = new QLineEdit(Parent);
 
-    ComboBox->setEditable(true);
-    ComboBox->setInsertPolicy(QComboBox::InsertAtBottom);
-
-    return ComboBox;
+    return Editor;
 }
 
 //---------------------------------------------------------------------------
-void ComboBoxDelegate::updateEditorGeometry(QWidget* Editor,
+void RegistryDelegate::updateEditorGeometry(QWidget* Editor,
                                             const QStyleOptionViewItem& Option,
                                             const QModelIndex& Index) const
 {
@@ -89,71 +128,48 @@ void ComboBoxDelegate::updateEditorGeometry(QWidget* Editor,
 }
 
 //---------------------------------------------------------------------------
-void ComboBoxDelegate::setEditorData(QWidget* Editor, const QModelIndex& Index) const
+void RegistryDelegate::setEditorData(QWidget* Editor, const QModelIndex& Index) const
 {
-    if(!C)
-        return;
+    qobject_cast<QLineEdit*>(Editor)->setText(Index.data(Qt::EditRole).toString());
+}
 
-    QComboBox* ComboBox = qobject_cast<QComboBox*>(Editor);
+//---------------------------------------------------------------------------
+void RegistryDelegate::setModelData(QWidget* Editor,
+                                    QAbstractItemModel* Model,
+                                    const QModelIndex& Index) const
+{
+    QLineEdit* LineEditor = qobject_cast<QLineEdit*>(Editor);
 
-    QString FileName = Index.sibling(Index.row(), FILE_COLUMN).data().toString();
+    QString OldValue = Model->data(Index, Qt::EditRole).toString();
+    QString Value = LineEditor->text();
 
-    MetaDataList* MetaData = C->Get_MetaData(FileName);
-
-    for(MetaDataList::const_iterator It = MetaData->begin(); It != MetaData->end(); It++)
+    if(Value != OldValue)
     {
-        QString Registry = It.key();
-        QString Value = It.value();
-
-        ComboBox->addItem(Registry, Value);
+        Model->setData(Index, Value);
+        emit Value_Changed(Index.row());
     }
 }
 
 //---------------------------------------------------------------------------
-void ComboBoxDelegate::setModelData(QWidget* Editor,
-                                    QAbstractItemModel* Model,
-                                    const QModelIndex& Index) const
-{
-    if(!C)
-        return;
-
-    QComboBox* ComboBox = qobject_cast<QComboBox*>(Editor);
-
-    QString FileName = Index.sibling(Index.row(), FILE_COLUMN).data().toString();
-    QString Registry = ComboBox->currentText();
-
-    MetaDataList* MetaData = C->Get_MetaData(FileName);
-
-    QString Value = (*MetaData)[Registry];
-
-    Model->setData(Index, Registry);
-    Model->setData(Index.sibling(Index.row(), VALUE_COLUMN), Value);
-}
-
-//---------------------------------------------------------------------------
-ItemDelegate::ItemDelegate(QObject* Parent, Core* C) : QItemDelegate(Parent), C(C)
+ValueDelegate::ValueDelegate(QObject* Parent, Core* C) : QItemDelegate(Parent), C(C)
 {
 }
 
 //---------------------------------------------------------------------------
-QWidget* ItemDelegate::createEditor(QWidget* Parent,
+QWidget* ValueDelegate::createEditor(QWidget* Parent,
                                     const QStyleOptionViewItem& Option,
                                     const QModelIndex& Index) const
 {
     Q_UNUSED(Option)
+    Q_UNUSED(Index)
 
     QLineEdit *Editor = new QLineEdit(Parent);
-
-    if(Index.sibling(Index.row(), REGISTRY_COLUMN).data(Qt::EditRole).toString() == "ad-id.org")
-        Editor->setValidator(new AdIdValidator);
-    else
-        Editor->setValidator(new OtherValidator);
 
     return Editor;
 }
 
 //---------------------------------------------------------------------------
-void ItemDelegate::updateEditorGeometry(QWidget* Editor,
+void ValueDelegate::updateEditorGeometry(QWidget* Editor,
                                         const QStyleOptionViewItem& Option,
                                         const QModelIndex& Index) const
 {
@@ -164,19 +180,16 @@ void ItemDelegate::updateEditorGeometry(QWidget* Editor,
 
 
 //---------------------------------------------------------------------------
-void ItemDelegate::setEditorData(QWidget *Editor, const QModelIndex& Index) const
+void ValueDelegate::setEditorData(QWidget *Editor, const QModelIndex& Index) const
 {
     qobject_cast<QLineEdit*>(Editor)->setText(Index.data(Qt::EditRole).toString());
 }
 
 //---------------------------------------------------------------------------
-void ItemDelegate::setModelData(QWidget* Editor,
+void ValueDelegate::setModelData(QWidget* Editor,
                                 QAbstractItemModel* Model,
                                 const QModelIndex& Index) const
 {
-    if(!C)
-        return;
-
     QLineEdit* LineEditor = qobject_cast<QLineEdit*>(Editor);
 
     QString OldValue = Model->data(Index, Qt::EditRole).toString();
@@ -184,17 +197,7 @@ void ItemDelegate::setModelData(QWidget* Editor,
 
     if(Value != OldValue)
     {
-        QString FileName = Index.sibling(Index.row(), FILE_COLUMN).data(Qt::EditRole).toString();
-        QString Registry = Index.sibling(Index.row(), REGISTRY_COLUMN).data(Qt::EditRole).toString();
-        MetaDataList* MetaData = C->Get_MetaData(FileName);
-
-        if(!MetaData)
-            return;
-
-        MetaData->insert(Registry, Value);
         Model->setData(Index, Value);
-
-        (*C->Get_Files())[FileName].Modified = true;
         emit Value_Changed(Index.row());
     }
 }
@@ -216,10 +219,12 @@ void TableWidget::Setup(Core *C)
     // Setup table widget
     QStringList Header_Labels;
 
-    Header_Labels.append("File Name");
-    Header_Labels.append("Registry");
-    Header_Labels.append("Value");
-    setColumnCount(3);
+    for (int i = 0; i < MAX_COLUMN; i++)
+    {
+        Header_Labels.append(ColumnName_Default[i]);
+        ColumnSize[i] = 0;
+    }
+    setColumnCount(MAX_COLUMN);
     setHorizontalHeaderLabels(Header_Labels);
 #if QT_VERSION < 0x050000
     horizontalHeader()->setResizeMode(QHeaderView::Interactive);
@@ -227,23 +232,51 @@ void TableWidget::Setup(Core *C)
     horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 #endif
 
-    //TODO: load and save user preference
-    setColumnWidth(0, width() * 60 / 100);
-    setColumnWidth(1, width() * 20 / 100);
-    setColumnWidth(2, width() * 20 / 100);
+    ValueDelegate* ValueEditor = new ValueDelegate(NULL, C);
+    connect(ValueEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
 
-    ItemDelegate* ItemEditor = new ItemDelegate(NULL, C);
-    connect(ItemEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
+    RegistryDelegate* RegistryEditor = new RegistryDelegate(NULL, C);
+    connect(RegistryEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
 
-    setItemDelegateForColumn(1, qobject_cast<QAbstractItemDelegate*>(new ComboBoxDelegate(NULL, C)));
-    setItemDelegateForColumn(2, qobject_cast<QAbstractItemDelegate*>(ItemEditor));
+    setItemDelegateForColumn(REGISTRY_COLUMN, qobject_cast<QAbstractItemDelegate*>(RegistryEditor));
+    setItemDelegateForColumn(VALUE_COLUMN, qobject_cast<QAbstractItemDelegate*>(ValueEditor));
 }
 
 //---------------------------------------------------------------------------
-void TableWidget::Set_Modified(int Row, bool Modified)
+void TableWidget::Set_Display(int Row, bool Valid, bool Modified, bool ValueValid)
 {
     if(Row > this->rowCount())
         return;
+
+    if (!Valid)
+    {
+        for (int Col = 1; Col < this->columnCount(); Col++)
+        {
+            Qt::ItemFlags Flags = this->item(Row, Col)->flags();
+            if (Flags.testFlag(Qt::ItemIsEnabled))
+                Flags &= ~Qt::ItemIsEnabled;
+            if (Flags.testFlag(Qt::ItemIsSelectable))
+                Flags &= ~Qt::ItemIsSelectable;
+            item(Row, Col)->setFlags(Flags);
+        }
+        item(Row, REGISTRY_COLUMN)->setBackgroundColor(QColor(255, 63, 63, 127));
+        item(Row, VALUE_COLUMN)->setBackgroundColor(QColor(255, 63, 63, 127));
+        return;
+    }
+
+    item(Row, REGISTRY_COLUMN)->setBackgroundColor(QColor(173, 216, 230, 127));
+
+    if (!ValueValid)
+    {
+        for (int Col = 0; Col < this->columnCount(); Col++)
+        {
+            QFont Font = this->item(Row, Col)->font();
+            Font.setBold(false);
+            this->item(Row, Col)->setFont(Font);
+        }
+        item(Row, VALUE_COLUMN)->setBackgroundColor(QColor(230, 173, 173, 127));
+        return;
+    }
 
     for(int Col = 0; Col < this->columnCount(); Col++)
     {
@@ -251,68 +284,128 @@ void TableWidget::Set_Modified(int Row, bool Modified)
         Font.setBold(Modified);
         this->item(Row, Col)->setFont(Font);
     }
+    item(Row, VALUE_COLUMN)->setBackgroundColor(QColor(173, 216, 230, 127));
 }
 
 //---------------------------------------------------------------------------
 void TableWidget::Update_Table()
 {
+    size_t Valid = 0;
+    bool Modified = false;
+
     //Get opened files
     FileList* Files = C->Get_Files();
 
-    //Get displayed entries
-    QStringList Entries;
+    //Remove deleted entry
     for(int Row = rowCount() - 1; Row >= 0; Row--)
     {
-        QString Entry = item(Row, 0)->data(Qt::DisplayRole).toString();
-
+        QString Entry = item(Row, FILE_COLUMN)->data(Qt::DisplayRole).toString();
         if(Files->find(Entry) == Files->end())
         {
-            //Remove deleted entry
             removeRow(Row);
             continue;
         }
-
-        Entries.append(Entry);
-        //Display modified entries in bold
-        Set_Modified(Row, Files->value(Entry).Modified);
     }
 
     //Display new files
     for(FileList::iterator It = Files->begin(); It != Files->end(); It++)
     {
-        if(!Entries.contains(It.key()))
+        int Row = rowCount();
+        QModelIndexList Matches = model()->match(model()->index(0,0), Qt::DisplayRole, It.key(), -1);
+
+        for(QModelIndexList::iterator It2 = Matches.begin(); It2 != Matches.end(); It2++)
         {
-            QTableWidgetItem* Item = new QTableWidgetItem(It.key());
-            Item->setFlags(Item->flags() ^ Qt::ItemIsEditable);
-
-            insertRow(rowCount());
-            setItem(rowCount() - 1, 0, Item);
-
-            setItem(rowCount() - 1, 1, new QTableWidgetItem("ad-id.org"));
-            setItem(rowCount() - 1, 2, new QTableWidgetItem(It->MetaData["ad-id.org"]));
-
-            Set_Modified(rowCount() - 1, It->Modified);
+            if(It2->column() == FILE_COLUMN)
+            {
+                Row = It2->row();
+                break;
+            }
         }
+
+        if(Row == rowCount())
+            insertRow(rowCount());
+
+        QTableWidgetItem* Name = new QTableWidgetItem(It.key());
+        Name->setFlags(Name->flags() ^ Qt::ItemIsEditable);
+        QTableWidgetItem* Registry;
+        QTableWidgetItem* Value;
+        if (It->Valid)
+        {
+            Registry = new QTableWidgetItem(It->MetaData.first);
+            Registry->setToolTip("Double-click for editing the Universal Ad ID registry of this file.");
+            Value = new QTableWidgetItem(It->MetaData.second);
+            Value->setToolTip("Double-click for editing the Universal Ad ID value of this file.\nA-Z 0-9 only.");
+        }
+        else
+        {
+            Registry = new QTableWidgetItem("(Parsing error)");
+            Value = new QTableWidgetItem(It->H->PerFile_Error.str().c_str());
+        }
+
+        setItem(Row, FILE_COLUMN, Name);
+        setItem(Row, REGISTRY_COLUMN, Registry);
+        setItem(Row, VALUE_COLUMN, Value);
+
+        if (It->Modified && It->ValueValid)
+            Modified = true;
+
+        if (It->Valid)
+            Valid++;
+
+        Set_Display(Row, It->Valid, It->Modified, It->ValueValid);
     }
+
+    if (Valid)
+        setStatusTip(QString::number(Valid)+ " editable files found, double-click on Registry or Value cells for editing then save");
+    else
+        setStatusTip("Drag and drop some MOV/MP4 files");
+
+    emit Enable_Save(Modified);
 }
 
 //---------------------------------------------------------------------------
 void TableWidget::resizeEvent(QResizeEvent* Event)
 {
-    //Do nothing if columns size exceed aviable space
-    if(!horizontalScrollBar()->isVisible())
+    //Changed?
+    bool c = false;
+    bool d = false;
+    for (int i = 0; i < MAX_COLUMN; i++)
     {
-        qreal Total_New = Event->size().width();
-        //Get the current space occupied by each column
-        qreal Total_Old = columnWidth(0) + columnWidth(1) + columnWidth(2);
-        qreal Col0_Percent = columnWidth(0) * 100 / Total_Old;
-        qreal Col1_Percent = columnWidth(1) * 100 / Total_Old;
-        qreal Col2_Percent = columnWidth(1) * 100 / Total_Old;
-
-        setColumnWidth(0, Total_New * Col0_Percent / 100);
-        setColumnWidth(1, Total_New * Col1_Percent / 100);
-        setColumnWidth(2, Total_New * Col2_Percent / 100);
+        if (ColumnSize[i] != columnWidth(i))
+            c = true;
+        if (!ColumnSize[i])
+            d = true;
     }
+    if (d)
+    {
+        //First time
+        int ColumnSize_Default_Total=0;
+        for (int i = 0; i < MAX_COLUMN + 1; i++)
+            ColumnSize_Default_Total += ColumnSize_Default[i];
+        for (int i = 0; i < MAX_COLUMN + 1; i++)
+            ColumnSize_Ratio[i] = ((float)ColumnSize_Default[i]) / ColumnSize_Default_Total;
+        ColumnSize_Ratio[MAX_COLUMN] = 0;
+    }
+    else if (c)
+    {
+        // With small widths, update was having weird behavior due to rounding issues
+        float t = 1;
+        for (int i = 0; i < MAX_COLUMN; i++)
+        {
+            ColumnSize_Ratio[i] = ((float)columnWidth(i)) / size().width();
+            t -= ColumnSize_Ratio[i];
+        }
+        ColumnSize_Ratio[MAX_COLUMN] = t;
+    }
+
+    //Update
+    qreal Total_New = Event->size().width();
+    for (int i = 0; i < MAX_COLUMN+1; i++)
+    {
+        ColumnSize[i] = (int)(Total_New * ColumnSize_Ratio[i]);
+        setColumnWidth(i, ColumnSize[i]);
+    }
+
     //Call base resizeEvent to handle the vertical resizing
     QTableView::resizeEvent(Event);
 }
@@ -320,5 +413,33 @@ void TableWidget::resizeEvent(QResizeEvent* Event)
 //---------------------------------------------------------------------------
 void TableWidget::On_Value_Changed(int Row)
 {
-    Set_Modified(Row, true);
+    if(!C)
+        return;
+
+    QString FileName = item(Row, FILE_COLUMN)->data(Qt::EditRole).toString();
+    QString Registry = item(Row, REGISTRY_COLUMN)->data(Qt::EditRole).toString();
+    QString Value = item(Row, VALUE_COLUMN)->data(Qt::EditRole).toString();
+
+    MetaDataType* MetaData = C->Get_MetaData(FileName);
+
+        if(!MetaData)
+            return;
+
+    (*C->Get_Files())[FileName].Modified = false;
+    MetaData->first = Registry;
+    MetaData->second = Value;
+
+    QValidator::State State = QValidator::Invalid;
+    int Pos = 0;
+    if (Registry == "ad-id.org")
+        State = AdIdValidator().validate(Value, Pos);
+    else if (Registry.isEmpty())
+        State = NoneValidator().validate(Value, Pos);
+    else
+        State = OtherValidator().validate(Value, Pos);
+
+    (*C->Get_Files())[FileName].Modified = *MetaData != (*C->Get_Files())[FileName].Previous;
+    (*C->Get_Files())[FileName].ValueValid = State == QValidator::Acceptable;
+
+    Update_Table();
 }

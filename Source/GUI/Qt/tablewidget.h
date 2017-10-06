@@ -22,9 +22,10 @@
 
 enum COLUMNS
 {
-    FILE_COLUMN = 0,
-    REGISTRY_COLUMN = 1,
-    VALUE_COLUMN = 2
+    FILE_COLUMN,
+    REGISTRY_COLUMN,
+    VALUE_COLUMN,
+    MAX_COLUMN,
 };
 
 //---------------------------------------------------------------------------
@@ -46,12 +47,21 @@ public:
 };
 
 //---------------------------------------------------------------------------
-class ComboBoxDelegate : public QItemDelegate
+class NoneValidator : public QValidator
+{
+    Q_OBJECT
+public:
+    NoneValidator(QObject* Parent = 0);
+    QValidator::State validate(QString& Input, int& Pos) const;
+};
+
+//---------------------------------------------------------------------------
+class RegistryDelegate : public QItemDelegate
 {
     Q_OBJECT
 
 public:
-    ComboBoxDelegate(QObject* Parent = 0, Core* C = 0);
+    RegistryDelegate(QObject* Parent = 0, Core* C = 0);
 
 protected:
     QWidget* createEditor(QWidget* Parent,
@@ -67,15 +77,18 @@ protected:
 
 private:
     Core* C;
+
+signals:
+    void Value_Changed(int Row) const;
 };
 
 //---------------------------------------------------------------------------
-class ItemDelegate : public QItemDelegate
+class ValueDelegate : public QItemDelegate
 {
     Q_OBJECT
 
 public:
-     ItemDelegate(QObject* Parent = 0, Core* C = 0);
+     ValueDelegate(QObject* Parent = 0, Core* C = 0);
 
 protected:
      QWidget* createEditor(QWidget* Parent,
@@ -108,7 +121,7 @@ public:
     TableWidget(QWidget* Parent);
 
     void Setup(Core* C);
-    void Set_Modified(int Row, bool Modified = true);
+    void Set_Display(int Row, bool Valid, bool Modified, bool ValueValid);
     void Update_Table();
 
     void resizeEvent(QResizeEvent* Event);
@@ -116,8 +129,13 @@ public:
 protected slots:
     void On_Value_Changed(int Row);
 
+signals:
+    void Enable_Save(bool Value) const;
+
 private:
     Core* C;
+    int ColumnSize[MAX_COLUMN+1];
+    float ColumnSize_Ratio[MAX_COLUMN+1];
 };
 
 #endif // TABLEWIDGET_H

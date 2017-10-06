@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head> 
+ <title>Universal Ad ID</title> 
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+</head> 
+<body>
+<h3>Universal Ad ID editor</h3>
+<p>After having drag and dropped (or from the "File" menu) some files, the Universal Ad ID view displays information (Universal Ad ID registry and Universal Ad ID value) about each file in a table.<br/>
+Then it is possible to edit Universal Ad ID registry and Universal Ad ID value, and save this metadata.</p>
+
+<p>
+<img src="UniversalAdID_WithError.png" />
+</p>
+
+<h3>Automatic filling</h3>
+<p>
+<ul>
+<li>In case a file is not supported, the line is in red, not modifiable, and a message is displayed</li>
+<li>If a file already has Universal Ad ID metadata, Registry and Value are displayed</li>
+<li>Else if a file name is conforming to Ad-ID criteria (11 or 12 alphanumeric characters), Registry is filled with "ad-id.org" and Value is filled with the file name</li>
+<li>Else Registry is pre-filled with "ad-id.org", and Value cell is in light red (empty Value is not authorized)</li>
+</ul>
+A cell in light red means that the content is not valid (so the file can not be saved).<br/>
+A line in bold means that the metadata is valid and the file can be saved (click on the "Save" button or the "Save" item in the "File" menu)
+</p>
+
+<h3>Rules</h3>
+<p>
+<ul>
+<li>If Registry is empty, Value must be empty (meaning that the Universal Ad ID metadata is removed)</li>
+<li>If Registry is "ad-id.org", Value must conform to Ad-Id rules (11 or 12 alphanumeric characters)</li>
+</ul>
+</p>
+
+</body>
+</html>

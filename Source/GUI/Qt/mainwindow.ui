@@ -37,10 +37,13 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item row="0" column="0">
+    <item row="1" column="0">
      <widget class="TableWidget" name="Table_Widget">
       <property name="contextMenuPolicy">
        <enum>Qt::CustomContextMenu</enum>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::AllEditTriggers</set>
       </property>
       <property name="alternatingRowColors">
        <bool>true</bool>
@@ -59,6 +62,22 @@
       </attribute>
      </widget>
     </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="Name">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Universal Ad ID editor</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="Menu_Bar">
@@ -67,7 +86,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="Menu_File">
@@ -231,6 +250,9 @@
    </property>
   </action>
   <action name="Menu_File_Save_All">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../../Resource/Resource.qrc">
      <normaloff>:/Image/File_Save.png</normaloff>:/Image/File_Save.png</iconset>
@@ -255,6 +277,12 @@
    </property>
    <property name="text">
     <string>H&amp;elp...</string>
+   </property>
+   <property name="toolTip">
+    <string>Documentation</string>
+   </property>
+   <property name="statusTip">
+    <string>Documentation</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>

@@ -650,6 +650,10 @@ int main(int argc, char* argv[])
             cout << Item->To_Local() << endl;
     }
 
+    //Cleanup
+    for (std::vector<Structure*>::iterator Item = Structures.begin(); Item != Structures.end(); Item++)
+        delete *Item;
+
     if (!ListOpenError.empty() || !ListSeekError.empty() || !ListWritingError.empty())
         return ReturnValue_ERROR; //Error
     //if (!ListNotDetected.empty() || !ListNotCorrected.empty())

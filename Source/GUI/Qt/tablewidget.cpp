@@ -438,7 +438,8 @@ void TableWidget::On_Value_Changed(int Row)
     else
         State = OtherValidator().validate(Value, Pos);
 
-    (*C->Get_Files())[FileName].Modified = *MetaData != (*C->Get_Files())[FileName].Previous;
+    bool Modified = *MetaData != (*C->Get_Files())[FileName].Previous && State == QValidator::Acceptable;
+    (*C->Get_Files())[FileName].Modified = Modified;
     (*C->Get_Files())[FileName].ValueValid = State == QValidator::Acceptable;
 
     Update_Table();

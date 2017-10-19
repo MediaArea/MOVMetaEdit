@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -121,4 +121,11 @@ FORMS += \
         ../../Source/GUI/Qt/helpdialog.ui
 
 RESOURCES += ../../Source/Resource/Resource.qrc
+
+OBJECTS_DIR      =  _Automated
+MOC_DIR          =  _Automated
+UI_HEADERS_DIR   =  _Automated
+UI_SOURCES_DIR   =  _Automated
+UI_DIR           =  _Automated
+RCC_DIR          =  _Automated
 

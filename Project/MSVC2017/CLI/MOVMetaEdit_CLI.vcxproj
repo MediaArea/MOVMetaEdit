@@ -1,0 +1,235 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\CLI\Help.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\AdID.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_mdat.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta_hdlr.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta_ilst.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta_keys.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4_Base.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4_Base_parsing.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4_Handler.cpp" />
+    <ClCompile Include="..\..\..\Source\movedit_atomread.cpp" />
+    <ClCompile Include="..\..\..\Source\movedit_main.cpp" />
+    <ClCompile Include="..\..\..\Source\movedit_structure.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Conf.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\CriticalSection.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Dir.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\File.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\FileName.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\InfoMap.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\int128s.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\int128u.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\MemoryDebug.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\OS_Utils.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\PreComp.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Thread.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Translation.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Utils.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Ztring.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\ZtringList.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\ZtringListList.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\ZtringListListF.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Source\CLI\Config.h" />
+    <ClInclude Include="..\..\..\Source\CLI\Help.h" />
+    <ClInclude Include="..\..\..\Source\Common\AdID.h" />
+    <ClInclude Include="..\..\..\Source\Common\mp4\mp4_.h" />
+    <ClInclude Include="..\..\..\Source\Common\mp4_Base.h" />
+    <ClInclude Include="..\..\..\Source\Common\mp4_Handler.h" />
+    <ClInclude Include="..\..\..\Source\movedit_atomread.h" />
+    <ClInclude Include="..\..\..\Source\movedit_structure.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\BitStream.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\BitStream_Fast.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\BitStream_LE.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Conf.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Conf_Internal.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\CriticalSection.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Dir.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\File.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\FileName.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\InfoMap.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\int128s.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\int128u.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\MemoryDebug.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\MemoryUtils.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\OS_Utils.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\PreComp.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Thread.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Trace.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Translation.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Utils.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Ztring.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\ZtringList.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\ZtringListList.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\ZtringListListF.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4B0470F1-7EEE-4EB1-B542-33C8D32BCDE3}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>movedit</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>MOVMetaEdit_CLI</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>MOVMetaEdit</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>MOVMetaEdit</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>MOVMetaEdit</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>MOVMetaEdit</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../Source</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../Source</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../Source</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../Source</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

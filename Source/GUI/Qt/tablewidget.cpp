@@ -380,9 +380,9 @@ void TableWidget::resizeEvent(QResizeEvent* Event)
     {
         //First time
         int ColumnSize_Default_Total=0;
-        for (int i = 0; i < MAX_COLUMN + 1; i++)
+        for (int i = 0; i < MAX_COLUMN; i++)
             ColumnSize_Default_Total += ColumnSize_Default[i];
-        for (int i = 0; i < MAX_COLUMN + 1; i++)
+        for (int i = 0; i < MAX_COLUMN; i++)
             ColumnSize_Ratio[i] = ((float)ColumnSize_Default[i]) / ColumnSize_Default_Total;
         ColumnSize_Ratio[MAX_COLUMN] = 0;
     }
@@ -400,7 +400,7 @@ void TableWidget::resizeEvent(QResizeEvent* Event)
 
     //Update
     qreal Total_New = Event->size().width();
-    for (int i = 0; i < MAX_COLUMN+1; i++)
+    for (int i = 0; i < MAX_COLUMN; i++)
     {
         ColumnSize[i] = (int)(Total_New * ColumnSize_Ratio[i]);
         setColumnWidth(i, ColumnSize[i]);

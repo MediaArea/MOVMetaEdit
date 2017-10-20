@@ -111,26 +111,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -177,7 +177,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.1\5.9.1\msvc2015\include;..\..\..\..\Qt5.9.1\5.9.1\msvc2015\include\QtNetwork;..\..\..\..\Qt5.9.1\5.9.1\msvc2015\include\QtWidgets;..\..\..\..\Qt5.9.1\5.9.1\msvc2015\include\QtGui;..\..\..\..\Qt5.9.1\5.9.1\msvc2015\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtNetwork;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtWidgets;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtGui;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
@@ -185,13 +185,13 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5Networkd.lib;qtmaind.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.1\5.9.1\msvc2015\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.2\5.9.2\msvc2017\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.1\5.9.1\msvc2015</Command>
+      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>Post-Build.bat ..\..\..\..\Qt5.9.1\5.9.1\msvc2015 $(OutDir) $(Configuration)</Command>
+      <Command>Post-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017 $(OutDir) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -199,21 +199,21 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\include;..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\include\QtNetwork;..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\include\QtWidgets;..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\include\QtGui;..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtNetwork;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtWidgets;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtGui;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5Networkd.lib;qtmaind.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64</Command>
+      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>Post-Build.bat ..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64 $(OutDir) $(Configuration)</Command>
+      <Command>Post-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64 $(OutDir) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -223,7 +223,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.1\5.9.1\msvc2015\include;..\..\..\..\Qt5.9.1\5.9.1\msvc2015\include\QtNetwork;..\..\..\..\Qt5.9.1\5.9.1\msvc2015\include\QtWidgets;..\..\..\..\Qt5.9.1\5.9.1\msvc2015\include\QtGui;..\..\..\..\Qt5.9.1\5.9.1\msvc2015\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtNetwork;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtWidgets;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtGui;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -232,13 +232,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;qtmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.1\5.9.1\msvc2015\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.2\5.9.2\msvc2017\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.1\5.9.1\msvc2015</Command>
+      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>Post-Build.bat ..\..\..\..\Qt5.9.1\5.9.1\msvc2015 $(OutDir) $(Configuration)</Command>
+      <Command>Post-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017 $(OutDir) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -248,7 +248,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\include;..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\include\QtNetwork;..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\include\QtWidgets;..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\include\QtGui;..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtNetwork;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtWidgets;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtGui;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -256,14 +256,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64\/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;qtmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64</Command>
+      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>Post-Build.bat ..\..\..\..\Qt5.9.1\5.9.1\msvc2015_64 $(OutDir) $(Configuration)</Command>
+      <Command>Post-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64 $(OutDir) $(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -9,13 +9,18 @@
 #include <QDropEvent>
 #include <QtCore>
 #include <QUrl>
+#include <QNetworkReply>
+#include <QDesktopServices>
 
 #include "core.h"
+#include "config.h"
 #include "mainwindow.h"
 #include "helpdialog.h"
 #include "aboutdialog.h"
 #include "tablewidget.h"
 #include "ui_mainwindow.h"
+
+#include "ZenLib/ZtringListList.h"
 
 #if defined(__APPLE__) && QT_VERSION < 0x050400
 #include <CoreFoundation/CFURL.h>
@@ -58,6 +63,10 @@ MainWindow::MainWindow(QWidget *Parent) : QMainWindow(Parent), Ui(new Ui::MainWi
             Ui->Menu_File_Save_All, SLOT(setEnabled(bool)));
 
     Ui->Table_Widget->Update_Table();
+
+#if !defined(MOVMETAEDIT_NO_VERSION_CHECK)
+    CheckUpdate();
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -258,6 +267,12 @@ void MainWindow::on_Table_Widget_itemSelectionChanged()
 }
 
 //---------------------------------------------------------------------------
+void MainWindow::on_Menu_New_Version_triggered()
+{
+    QDesktopServices::openUrl(QUrl("https://mediaarea.net/MOVMetaEdit"));
+}
+
+//---------------------------------------------------------------------------
 void MainWindow::Show_Context_Menu(const QPoint& Pos)
 {
     Context_Menu->exec(Ui->Table_Widget->mapToGlobal(Pos));
@@ -271,3 +286,76 @@ void MainWindow::Table_Widget_Changed()
     else
         Ui->Menu_File_Close_All->setEnabled(false);
 }
+
+#if !defined(MOVMETAEDIT_NO_VERSION_CHECK)
+//---------------------------------------------------------------------------
+void MainWindow::CheckUpdate()
+{
+    CheckUpdate_Handle = new QNetworkAccessManager(this);
+
+#if QT_VERSION >=0x040700
+    if (!CheckUpdate_Handle->networkAccessible())
+    {
+        CheckUpdate_Handle->deleteLater();
+        CheckUpdate_Handle = NULL;
+        return;
+    }
+#endif
+
+    connect(CheckUpdate_Handle, SIGNAL(finished(QNetworkReply*)), this, SLOT(CheckUpdateReceived(QNetworkReply*)));
+#if defined(_WIN32) || defined(WIN32)
+    CheckUpdate_Handle->get(QNetworkRequest(QUrl("http://mediaarea.net/movmetaedit_check/test_" VERSION ".txt")));
+#else
+    CheckUpdate_Handle->get(QNetworkRequest(QUrl("https://mediaarea.net/movmetaedit_check/test_" VERSION ".txt")));
+#endif
+}
+
+//---------------------------------------------------------------------------
+void MainWindow::CheckUpdateReceived(QNetworkReply* NetworkReply)
+{
+    QByteArray ReplyTemp(NetworkReply->readAll());
+    CheckUpdate_Handle->deleteLater();
+    CheckUpdate_Handle = NULL;
+
+    ZtringListList Reply;
+    ZtringList Version_cur;
+    ZtringList Version_get;
+    Reply.Separator_Set(1, ","); //CSV
+    Reply.Write(Ztring(ReplyTemp.begin(), ReplyTemp.size()));
+
+    Ztring VersionTemp = Reply.FindValue("NewVersion");
+
+    if (VersionTemp.empty())
+        return;
+
+    Version_cur.Separator_Set(0, ".");
+    Version_get.Separator_Set(0, ".");
+
+    Version_cur.Write(Ztring(VERSION));
+    Version_get.Write(VersionTemp);
+
+    for (size_t Pos = 0; Pos < Version_cur.size() || Pos < Version_get.size(); Pos++)
+    {
+        int64u Cur = Pos<Version_cur.size()?Version_cur.Read(Pos).To_int64u():0;
+        int64u Get = Pos<Version_get.size()?Version_get.Read(Pos).To_int64u():0;
+
+        if (Get > Cur)
+        {
+            QString StatutTip = Ui->Menu_New_Version->statusTip()
+              .arg(QString().fromStdString(((VersionTemp.To_UTF8()))));
+
+            Ui->Menu_New_Version->setStatusTip(StatutTip);
+            Ui->Menu_New_Version->setVisible(true);
+
+            //MacOS don't support toplevel menu actions
+#if defined(__APPLE__)
+            Ui->Menu_New_Version->setMenuRole(QAction::ApplicationSpecificRole);
+            Ui->Menu_Bar->addMenu(Ui->Menu_New_Version->text())->addAction(Ui->Menu_New_Version);
+#endif
+            return;
+        }
+        else if (Get < Cur)
+            return;
+    }
+}
+#endif //MOVMETAEDIT_NO_VERSION_CHECK

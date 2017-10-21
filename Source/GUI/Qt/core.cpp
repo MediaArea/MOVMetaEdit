@@ -120,6 +120,9 @@ bool Core::Save_File(const QString& FileName)
     {
         FileInfo &F=Files[FileName];
 
+        if (!F.ValueValid)
+            return false;
+
         Ztring Registry, Value;
         Registry.From_UTF8(F.MetaData.first.toUtf8().constData());
         Value.From_UTF8(F.MetaData.second.toUtf8().constData());

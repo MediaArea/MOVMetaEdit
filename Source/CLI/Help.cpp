@@ -38,7 +38,7 @@ ReturnValue Help()
     STRINGOUT(string("Usage: \" [options] FileNames [options]\"").insert(8, Program_Name));
     TEXTOUT("");
     TEXTOUT("This tool was developed for 2 specific purposes:");
-    TEXTOUT("- Modify PAR (Pixel Aspect Ratio) of NTSC files");
+    TEXTOUT("- Modify PAR (Pixel Aspect Ratio)");
     TEXTOUT("- Inject or edit Ad-ID metadata");
     TEXTOUT("");
     TEXTOUT("Help:");
@@ -51,22 +51,17 @@ ReturnValue Help()
     TEXTOUT("  --version");
     TEXTOUT("      Display version and exit");
     TEXTOUT("");
-    TEXTOUT("Global options");
-    TEXTOUT("  --simulate, -s");
-    TEXTOUT("      Do not modify file (only display of potential modifications)");
+    Help_PAR(false);
+    TEXTOUT("");
+    Help_AdID(false);
     TEXTOUT("");
     TEXTOUT("If no option, aspect ratio information is displayed, no modification");
-    TEXTOUT("");
-    TEXTOUT("Return value:");
-    TEXTOUT(">=0: OK");
-    TEXTOUT("1: Warning");
-    TEXTOUT("2: Error");
 
     return ReturnValue_OK;
 }
 
 //---------------------------------------------------------------------------
-ReturnValue Help_AdID()
+ReturnValue Help_AdID(bool WithExamples)
 {
     TEXTOUT("Options related to Universal Ad ID:");
     TEXTOUT("  --adid VALUE");
@@ -78,17 +73,20 @@ ReturnValue Help_AdID()
     TEXTOUT("      (default is \"ad-id.org\")");
     TEXTOUT("  --simulate, -s");
     TEXTOUT("      Do not modify file (only display of potential modifications)");
+    if (WithExamples)
+    {
     TEXTOUT("");
     TEXTOUT("Examples:");
     STRINGOUT(string(" --adid auto FileName0000.mov").insert(0, Program_Name));
     STRINGOUT(string(" --adid ADID0000000 FileName.mov").insert(0, Program_Name));
     STRINGOUT(string(" --adid-registry example.com --adid ADID0000000 FileName.mov").insert(0, Program_Name));
+    }
 
     return ReturnValue_OK;
 }
 
 //---------------------------------------------------------------------------
-ReturnValue Help_PAR()
+ReturnValue Help_PAR(bool WithExamples)
 {
     TEXTOUT("Options related to pixel aspect ratio:");
     TEXTOUT("  --par, -p VALUE");
@@ -97,10 +95,13 @@ ReturnValue Help_PAR()
     TEXTOUT("      Modify width scale to VALUE, real number");
     TEXTOUT("  --simulate, -s");
     TEXTOUT("      Do not modify file (only display of potential modifications)");
+    if (WithExamples)
+    {
     TEXTOUT("");
     TEXTOUT("Examples:");
     STRINGOUT(string(" --par 9:10 FileName.mov").insert(0, Program_Name));
     STRINGOUT(string(" --width-scale 0.9 FileName.mov").insert(0, Program_Name));
+    }
 
     return ReturnValue_OK;
 }

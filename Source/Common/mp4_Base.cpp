@@ -398,8 +398,11 @@ void mp4_Base::Write ()
             Global->Out_Buffer_File_IsModified=true;
             //if (Global->Out_Buffer_End.Data && Global->mdat->File_Offset+Global->mdat->Size+Global->Out_Buffer_End.Size<Global->In.Size_Get())
             //    Global->Out_Buffer_File_IsModified=false;
-            //if (Global->Out_Buffer_Begin.Size!=Global->mdat->File_Offset)
-            //    Global->Out_Buffer_File_IsModified=false;
+            if (Global->Out_Buffer_Begin.Size!=Global->mdat->File_Offset_Begin)
+            {
+                throw exception_write("(Not yet implemented)"); 
+                Global->Out_Buffer_File_IsModified=false;
+            }
         }
 
         if (Global->Out_Buffer_File_IsModified)

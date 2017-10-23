@@ -293,7 +293,7 @@ void mp4_Base::Write ()
     {
         //Calculating block size
         int64u Block_Size=Block_Size_Get();
-        if (Block_Size>0xFFFFFFF || Chunk.Header.Size == 16)
+        if (Block_Size>0xFFFFFFFFF || Chunk.Header.Size == 16)
         {
             int8u Header[16];
             int32u2BigEndian(Header, 1);

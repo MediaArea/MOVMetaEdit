@@ -136,8 +136,11 @@ popd
 %endif
 %__install -dm 755 %{buildroot}/%{_datadir}/kde4/services/ServiceMenus/
 %__install -m 644 Project/Qt/movmetaedit-gui.kde4.desktop %{buildroot}/%{_datadir}/kde4/services/ServiceMenus/movmetaedit-gui.desktop
+%__install -dm 755 %{buildroot}/%{_datadir}/kservices5/ServiceMenus/
+%__install -m 644 Project/Qt/movmetaedit-gui.kde4.desktop %{buildroot}/%{_datadir}/kservices5/ServiceMenus/movmetaedit-gui.desktop
 %if 0%{?suse_version}
   %suse_update_desktop_file -n %{buildroot}/%{_datadir}/kde4/services/ServiceMenus/movmetaedit-gui.desktop AudioVideo AudioVideoEditing
+  %suse_update_desktop_file -n %{buildroot}/%{_datadir}/kservices5/ServiceMenus/movmetaedit-gui.desktop AudioVideo AudioVideoEditing
 %endif
 
 %clean
@@ -168,6 +171,9 @@ popd
 %dir %{_datadir}/kde4/services
 %dir %{_datadir}/kde4/services/ServiceMenus
 %{_datadir}/kde4/services/ServiceMenus/*.desktop
+%dir %{_datadir}/kservices5
+%dir %{_datadir}/kservices5/ServiceMenus
+%{_datadir}/kservices5/ServiceMenus/*.desktop
 
 %changelog
 * Sun Jan 01 2017 Jerome Martinez <info@mediaarea.net> - 0.1-0

@@ -1,8 +1,8 @@
 #include <winresrc.h>
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,1,0,0
- PRODUCTVERSION 0,1,0,0
+ FILEVERSION 17,10,0,0
+ PRODUCTVERSION 17,10,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -19,12 +19,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "MediaArea.net"
             VALUE "FileDescription", "MOV MetaEdit"
-            VALUE "FileVersion", "0.1.0.0"
+            VALUE "FileVersion", "17.10.0.0"
             VALUE "InternalName", "MOV MetaEdit - GUI"
             VALUE "LegalCopyright", "MediaArea.net"
             VALUE "OriginalFilename", "MOV MetaEdit.exe"
             VALUE "ProductName", "MOV MetaEdit"
-            VALUE "ProductVersion", "0.1.0.0"
+            VALUE "ProductVersion", "17.10.0.0"
         END
     END
     BLOCK "VarFileInfo"

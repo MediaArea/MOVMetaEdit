@@ -4,7 +4,7 @@
 
 # norootforbuild
 
-%define movmetaedit_version		17.10
+%define movmetaedit_version		17.10.1
 
 Name:			movmetaedit
 Version:		%movmetaedit_version
@@ -176,5 +176,5 @@ popd
 %{_datadir}/kservices5/ServiceMenus/*.desktop
 
 %changelog
-* Sun Jan 01 2017 Jerome Martinez <info@mediaarea.net> - 17.10-0
+* Sun Jan 01 2017 Jerome Martinez <info@mediaarea.net> - 17.10.1-0
 - See History.txt for more info and real dates

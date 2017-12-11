@@ -303,11 +303,7 @@ void MainWindow::CheckUpdate()
 #endif
 
     connect(CheckUpdate_Handle, SIGNAL(finished(QNetworkReply*)), this, SLOT(CheckUpdateReceived(QNetworkReply*)));
-#if defined(_WIN32) || defined(WIN32)
-    CheckUpdate_Handle->get(QNetworkRequest(QUrl("http://mediaarea.net/movmetaedit_check/test_" VERSION ".txt")));
-#else
     CheckUpdate_Handle->get(QNetworkRequest(QUrl("https://mediaarea.net/movmetaedit_check/test_" VERSION ".txt")));
-#endif
 }
 
 //---------------------------------------------------------------------------

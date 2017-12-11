@@ -77,6 +77,8 @@ Section "SectionPrincipale" SEC01
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}.lnk" "$INSTDIR\${PRODUCT_NAME_EXE}" "" "" "" "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}"
   SetOutPath "$INSTDIR"
   File "/oname=${PRODUCT_NAME_EXE}" "..\..\Project\Qt\Win32\${PRODUCT_NAME_EXE}"
+  File "..\..\Project\Qt\Win32\libeay32.dll"
+  File "..\..\Project\Qt\Win32\ssleay32.dll"
   File "/oname=History.txt" "..\..\History_GUI.txt"
   File "..\..\License.html"
 
@@ -105,6 +107,8 @@ Section Uninstall
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\${PRODUCT_NAME_EXE}"
+  Delete "$INSTDIR\libeay32.dll"
+  Delete "$INSTDIR\ssleay32.dll"
   Delete "$INSTDIR\History.txt"
   Delete "$INSTDIR\License.html"
   Delete "$SMPROGRAMS\${PRODUCT_NAME}.lnk"

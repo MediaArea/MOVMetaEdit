@@ -4,7 +4,7 @@
 
 # norootforbuild
 
-%define movmetaedit_version		17.10.1
+%global movmetaedit_version		17.10.1
 
 Name:			movmetaedit
 Version:		%movmetaedit_version

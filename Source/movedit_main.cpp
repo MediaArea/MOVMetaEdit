@@ -43,6 +43,8 @@ int main(int argc, char* argv[])
             return Help_AdID();
         if (Ztring(argv[argp]) == __T("--help-par"))
             return Help_PAR();
+        if (Ztring(argv[argp]) == __T("--version"))
+            return Version();
 
         if (argp+1<argc && Ztring(argv[argp]) == __T("--adid"))
         {

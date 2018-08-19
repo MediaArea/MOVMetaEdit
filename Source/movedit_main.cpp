@@ -194,9 +194,14 @@ int main(int argc, char* argv[])
     {
     cout << endl;
     cout << "Summary:" << endl;
-    cout << "OK = file is correctly detected and does not need to be modified ('Yes') or is correctly detected and need to be modified ('Mod') or is correctly detected and need to be modified but not supported ('No') or there was a problem with it (empty)" << endl;
-    cout << "PAR = PAR atom is not present ('No'), not present but can be (or is) inserted ('Can'), present and can be (or is) modified (value of the old PAR)" << endl;
-    cout << "PAR|M = PAR will be modified ('Y') or should be modified but it is not possible due to feature not implemented ('N')" << endl;
+    cout << "OK = file is correctly detected and does not need to be modified ('Yes') or is" << endl;
+    cout << "  correctly detected and need to be modified ('Mod') or is correctly detected" << endl;
+    cout << "  and need to be modified but not supported ('No') or there was a problem with" << endl;
+    cout << "  it (empty)" << endl;
+    cout << "PAR = PAR atom is not present ('No'), not present but can be (or is) inserted" << endl;
+    cout << "  ('Can'), present and can be (or is) modified (value of the old PAR)" << endl;
+    cout << "PAR|M = PAR will be modified ('Y') or should be modified but it is not possible" << endl;
+    cout << "  due to feature not implemented ('N')" << endl;
     cout << "w-scale = (old) width scale of the picture" << endl;
     cout << "w-scale|M = w-scale will be modified ('Y')" << endl;
     cout << FileNameFake << "| OK|  PAR|M|Width|w-scale|M|" << endl;

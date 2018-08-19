@@ -45,7 +45,7 @@ ReturnValue Help()
     TEXTOUT("  --help, -h");
     TEXTOUT("      Display this help and exit");
     TEXTOUT("  --help-par");
-    TEXTOUT("      Display help for modificatons related to pixel aspect ratio");
+    TEXTOUT("      Display help for modifications related to pixel aspect ratio");
     TEXTOUT("  --help-adid");
     TEXTOUT("      Display help for modifications related to Ad-iD");
     TEXTOUT("  --version");
@@ -66,8 +66,8 @@ ReturnValue Help_AdID(bool WithExamples)
     TEXTOUT("Options related to Universal Ad ID:");
     TEXTOUT("  --adid VALUE");
     TEXTOUT("      Add or modify an Universal Ad ID with the specified VALUE");
-    TEXTOUT("      Use VALUE of \"auto\" for filling automaticly from the file name");
-    TEXTOUT("      (e.g. 11-12 alphanumeric characaters for \"ad-id.org\" registry )");
+    TEXTOUT("      Use VALUE of \"auto\" for filling automatically from the file name");
+    TEXTOUT("      (e.g. 11-12 alphanumeric characters for \"ad-id.org\" registry )");
     TEXTOUT("  --adid-registry VALUE");
     TEXTOUT("      Id-iD is stored with the specified VALUE as registry");
     TEXTOUT("      (default is \"ad-id.org\")");

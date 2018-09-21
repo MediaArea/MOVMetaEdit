@@ -12,6 +12,7 @@
 
 //---------------------------------------------------------------------------
 #include "CLI/Help.h"
+#include "GUI/Qt/config.h"
 //---------------------------------------------------------------------------
 
 //***************************************************************************
@@ -113,4 +114,12 @@ ReturnValue Usage()
     STRINGOUT(string("\" --help\" for displaying more information").insert(1, Program_Name));
 
     return ReturnValue_ERROR;
+}
+
+//---------------------------------------------------------------------------
+ReturnValue Version()
+{
+    STRINGOUT(string(Program_Name)+' '+VERSION);
+
+    return ReturnValue_OK;
 }

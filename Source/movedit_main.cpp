@@ -43,6 +43,8 @@ int main(int argc, char* argv[])
             return Help_AdID();
         if (Ztring(argv[argp]) == __T("--help-par"))
             return Help_PAR();
+        if (Ztring(argv[argp]) == __T("--version"))
+            return Version();
 
         if (argp+1<argc && Ztring(argv[argp]) == __T("--adid"))
         {
@@ -50,7 +52,7 @@ int main(int argc, char* argv[])
             AdID_Content.Set(argv[argp+1]);
             argp++;
         }
-        if (argp+1<argc && Ztring(argv[argp]) == __T("--adid-registry"))
+        else if (argp+1<argc && Ztring(argv[argp]) == __T("--adid-registry"))
         {
             AdID_Requested=true;
             AdID_Content.SetRegistry(argv[argp+1]);
@@ -111,19 +113,29 @@ int main(int argc, char* argv[])
 
     if (FileNames.empty())
         return Usage();
+
+    ReturnValue ToReturn=ReturnValue_OK;
+
     ZtringList List;
     for (size_t i=0; i<FileNames.size(); i++)
-        List+=Dir::GetAllFileNames(FileNames[i]);
-    std::vector<Structure*> Structures;
-    for (ZtringList::iterator Item = List.begin(); Item != List.end(); Item++)
     {
-        cout << "Parsing " << Item->To_Local() << std::endl;
+        size_t List_PreviousSize=List.size();
+        List+=Dir::GetAllFileNames(FileNames[i]);
+        if (List.size()==List_PreviousSize)
+            List.push_back(FileNames[i]);
+    }
+    std::vector<Structure*> Structures;
+    for (size_t i = 0; i < List.size(); i++)
+    {
+        Ztring& Item=List[i];
+        cout << "Parsing " << Item.To_Local() << std::endl;
         if (AdID_Requested)
         {
             mp4_Handler* H=new mp4_Handler;
-            if (!H->Open((*Item).To_Local()))
+            if (!H->Open(Item.To_Local()))
             {
                 cout << " Can not open file: " << H->Errors.str() << endl;
+                ToReturn = ReturnValue_ERROR;
             }
 
             Structures.push_back((Structure*)H); //Hack for storing mp4_Handler
@@ -132,17 +144,22 @@ int main(int argc, char* argv[])
         }
 
         File F;
-        if (F.Open(*Item, File::Access_Read))
+        if (F.Open(Item, File::Access_Read))
         {
 
-            Structure* S = new Structure(&F, *Item);
+            Structure* S = new Structure(&F, Item);
             S->Parse();
             Structures.push_back(S);
 
             F.Close();
         }
         else
+        {
             cout << " Can not open file " << endl;
+            List.erase(List.begin()+i);
+            i--;
+            ToReturn = ReturnValue_ERROR;
+        }
     }
 
     // Removing common data in file name
@@ -190,9 +207,16 @@ int main(int argc, char* argv[])
     string FileNameFake;
     FileNameFake.resize(Max, __T(' '));
 
-    if (!AdID_Requested)
+    ZtringList ListNotDetected;
+    ZtringList ListNotCorrected;
+    ZtringList ListOpenError;
+    ZtringList ListSeekError;
+    ZtringList ListWritingError;
+    if (!Structures.empty())
     {
     cout << endl;
+    if (!AdID_Requested)
+    {
     cout << "Summary:" << endl;
     cout << "OK = file is correctly detected and does not need to be modified ('Yes') or is" << endl;
     cout << "  correctly detected and need to be modified ('Mod') or is correctly detected" << endl;
@@ -209,11 +233,6 @@ int main(int argc, char* argv[])
     else
         cout << FileNameFake << "|OK?| Registry|UniversalAdId value" << endl;
     ZtringList::iterator ItemName = List.begin();
-    ZtringList ListNotDetected;
-    ZtringList ListNotCorrected;
-    ZtringList ListOpenError;
-    ZtringList ListSeekError;
-    ZtringList ListWritingError;
     for (std::vector<Structure*>::iterator Item = Structures.begin(); Item != Structures.end(); Item++)
     {
         // Name
@@ -265,6 +284,7 @@ int main(int argc, char* argv[])
             if (!AdID_Content_Temp.ErrorMessage.empty())
             {
                 cout << AdID_Content_Temp.ErrorMessage << endl;
+                ToReturn = ReturnValue_ERROR;
 
                 ItemName++;
                 continue;
@@ -282,6 +302,7 @@ int main(int argc, char* argv[])
                     Error.resize(End+1);
                 
                 cout << Error << endl;
+                ToReturn = ReturnValue_ERROR;
 
                 ItemName++;
                 continue;
@@ -614,6 +635,7 @@ int main(int argc, char* argv[])
 
         ItemName++;
     }
+    } //!Structures.empty()
 
     if (!ListNotDetected.empty())
     {
@@ -621,6 +643,7 @@ int main(int argc, char* argv[])
         cout << "Warning, PAR for these files was not corrected (file not well detected):" << endl;
         for (ZtringList::iterator Item = ListNotDetected.begin(); Item != ListNotDetected.end(); Item++)
             cout << Item->To_Local() << endl;
+        ToReturn = ReturnValue_ERROR;
     }
 
     if (!ListNotCorrected.empty())
@@ -629,6 +652,7 @@ int main(int argc, char* argv[])
         cout << "Warning, PAR for these files was not corrected (feature not implemented):" << endl;
         for (ZtringList::iterator Item = ListNotCorrected.begin(); Item != ListNotCorrected.end(); Item++)
             cout << Item->To_Local() << endl;
+        ToReturn = ReturnValue_ERROR;
     }
 
     if (!ListOpenError.empty())
@@ -637,6 +661,7 @@ int main(int argc, char* argv[])
         cout << "Error, unable to open these files for writing:" << endl;
         for (ZtringList::iterator Item = ListOpenError.begin(); Item != ListOpenError.end(); Item++)
             cout << Item->To_Local() << endl;
+        ToReturn = ReturnValue_ERROR;
     }
 
     if (!ListSeekError.empty())
@@ -645,6 +670,7 @@ int main(int argc, char* argv[])
         cout << "Error, unable to seek in these files:" << endl;
         for (ZtringList::iterator Item = ListSeekError.begin(); Item != ListSeekError.end(); Item++)
             cout << Item->To_Local() << endl;
+        ToReturn = ReturnValue_ERROR;
     }
 
     if (!ListWritingError.empty())
@@ -653,6 +679,7 @@ int main(int argc, char* argv[])
         cout << "Error, write error (files may be corrupted) with these files:" << endl;
         for (ZtringList::iterator Item = ListWritingError.begin(); Item != ListWritingError.end(); Item++)
             cout << Item->To_Local() << endl;
+        ToReturn = ReturnValue_ERROR;
     }
 
     //Cleanup
@@ -667,11 +694,6 @@ int main(int argc, char* argv[])
             delete *Item;
     }
 
-    if (!ListOpenError.empty() || !ListSeekError.empty() || !ListWritingError.empty())
-        return ReturnValue_ERROR; //Error
-    //if (!ListNotDetected.empty() || !ListNotCorrected.empty())
-    //    return -1; //Warning
-
-    return ReturnValue_OK;
+    return ToReturn;
 }
 

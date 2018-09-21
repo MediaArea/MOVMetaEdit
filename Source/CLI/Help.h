@@ -21,5 +21,6 @@ ReturnValue Help();
 ReturnValue Help_AdID(bool WithExamples=true);
 ReturnValue Help_PAR(bool WithExamples=true);
 ReturnValue Usage();
+ReturnValue Version();
 
 #endif

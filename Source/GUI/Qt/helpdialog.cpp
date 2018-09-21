@@ -8,7 +8,7 @@
 #include <QDesktopWidget>
 #include <QApplication>
 
-#include "config.h"
+#include "Common/config.h"
 #include "helpdialog.h"
 #include "ui_helpdialog.h"
 

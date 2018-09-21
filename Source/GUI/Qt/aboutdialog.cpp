@@ -7,7 +7,7 @@
 #include <QAbstractTextDocumentLayout>
 #include <QDesktopServices>
 
-#include "config.h"
+#include "Common/config.h"
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 

@@ -13,7 +13,7 @@
 #include <QDesktopServices>
 
 #include "core.h"
-#include "config.h"
+#include "Common/config.h"
 #include "mainwindow.h"
 #include "helpdialog.h"
 #include "aboutdialog.h"

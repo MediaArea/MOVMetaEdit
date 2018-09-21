@@ -327,7 +327,7 @@ int main(int argc, char* argv[])
             char pasp_ToModify = ' ';
             char wscale_ToModify = ' ';
             {
-                if (par_h_New && !(Video->pasp.h == 9 && Video->pasp.v == 10))
+                if (par_h_New && !(Video->pasp.h == par_h_New && Video->pasp.v == par_v_New))
                     pasp_ToModify = 'Y';
                 if (wscale_New && !(Track->WidthScale >= wscale_New*0.999 && Track->WidthScale <= wscale_New*1.001))
                     wscale_ToModify = 'Y';
@@ -505,8 +505,8 @@ int main(int argc, char* argv[])
                         // Write pasp
                         int32u2BigEndian(Buffer + 0, 16);
                         int32u2BigEndian(Buffer + 4, Element::pasp);
-                        int32u2BigEndian(Buffer + 8, 9);
-                        int32u2BigEndian(Buffer + 12, 10);
+                        int32u2BigEndian(Buffer + 8, par_h_New);
+                        int32u2BigEndian(Buffer + 12, par_v_New);
                         if (!F.GoTo(Video->pasp.Offset))
                         {
                             pasp_ToModify = 'N';

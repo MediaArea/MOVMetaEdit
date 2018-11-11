@@ -37,7 +37,7 @@ pushd "${path_script}/TestingFiles/MOV/For MOVMetaEdit"
 
         if [ ! -z "${GENERATE}" ] ; then
             md5sum Files/*/* > "${md5file}"
-        elif ! md5sum -c "${md5file}" >&${fd} ; then
+        elif ! md5sum -c "${md5file}" >&${fd} 2>&1 ; then
             rcode=1
         fi
 

@@ -220,6 +220,10 @@ public:
         buffer              Out_Buffer_End;
         bool                Out_Buffer_WriteAtEnd;
 
+        #ifdef MACSTORE
+        Ztring              Temp_Path;
+        Ztring              Temp_Name;
+        #endif
         Ztring              File_Name;
         int64u              File_Size;
         Ztring              File_Date;

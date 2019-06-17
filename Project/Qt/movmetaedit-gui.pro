@@ -29,6 +29,12 @@ macx {
     LIBS += -framework CoreFoundation
     QMAKE_INFO_PLIST = ../Mac/Info.plist
     ICON = ../../Source/Resource/Image/Icon.icns
+
+    contains(MACSTORE, yes|1) {
+        QMAKE_CFLAGS += -gdwarf-2
+        QMAKE_CXXFLAGS += -gdwarf-2
+        QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7
+    }
 }
 
 TEMPLATE = app
@@ -79,7 +85,7 @@ SOURCES += \
 		../../Source/ZenLib/Ztring.cpp \
 		../../Source/ZenLib/ZtringList.cpp \
 		../../Source/ZenLib/ZtringListList.cpp \
-		../../Source/ZenLib/ZtringListListF.cpp \
+        ../../Source/ZenLib/ZtringListListF.cpp
 
 HEADERS += \
         ../../Source/GUI/Qt/core.h \
@@ -115,12 +121,19 @@ HEADERS += \
 		../../Source/ZenLib/Ztring.h \
 		../../Source/ZenLib/ZtringList.h \
 		../../Source/ZenLib/ZtringListList.h \
-		../../Source/ZenLib/ZtringListListF.h \
+        ../../Source/ZenLib/ZtringListListF.h
 
 FORMS += \
         ../../Source/GUI/Qt/mainwindow.ui \
         ../../Source/GUI/Qt/aboutdialog.ui \
         ../../Source/GUI/Qt/helpdialog.ui
+
+contains(MACSTORE, yes|1) {
+    DEFINES           += MACSTORE
+    HEADERS           += ../../Source/Common/Mac_Helpers.h
+    OBJECTIVE_SOURCES += ../../Source/Common/Mac_Helpers.mm
+    LIBS              += -framework Foundation
+}
 
 RESOURCES += ../../Source/Resource/Resource.qrc
 

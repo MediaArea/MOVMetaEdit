@@ -11,6 +11,11 @@
 #include <iostream>
 #include "ZenLib/File.h"
 #include "ZenLib/Dir.h"
+
+#ifdef MACSTORE
+#include "Common/Mac_Helpers.h"
+#endif
+
 using namespace std;
 using namespace ZenLib;
 //---------------------------------------------------------------------------
@@ -150,13 +155,29 @@ bool mp4_Handler::Save()
     }
 
     //Old temporary file
+    #if MASTORE
+    if ((Chunks->Global->Temp_Path.size() && (Chunks->Global->Temp_Name.size() && File::Exists(Chunks->Global->Temp_Path+Chunks->Global->Temp_Name) && !File::Delete(Chunks->Global->Temp_Path+Chunks->Global->Temp_Name))
+    #else
     if (File::Exists(Chunks->Global->File_Name+__T(".tmp")) && !File::Delete(Chunks->Global->File_Name+__T(".tmp")))
+    #endif
     {
         Errors<<Chunks->Global->File_Name.To_Local()<<": Old temporary file can't be deleted"<<endl;
         PerFile_Error<<"Old temporary file can't be deleted";
         return false;
     }
-    
+
+    #ifdef MACSTORE
+    if (Chunks->Global->Temp_Name.size())
+        Chunks->Global->Temp_Name=__T("");
+
+    if (Chunks->Global->Temp_Path.size())
+    {
+        if (Dir::Exists(Chunks->Global->Temp_Path))
+            deleteTemporaryDirectory(Chunks->Global->Temp_Path.To_UTF8().c_str());
+
+        Chunks->Global->Temp_Path=__T("");
+    }
+    #endif
     //Parsing
     try
     {
@@ -165,7 +186,23 @@ bool mp4_Handler::Save()
     catch (exception_canceled &)
     {
         Chunks->Global->Out.Close();
+        #ifdef MACSTORE
+        if (Chunks->Global->Temp_Path.size() && Chunks->Global->Temp_Name.size())
+            File::Delete(Chunks->Global->Temp_Path+Chunks->Global->Temp_Name);
+
+        if (Chunks->Global->Temp_Name.size())
+            Chunks->Global->Temp_Name=__T("");
+
+        if (Chunks->Global->Temp_Path.size())
+        {
+            if (Dir::Exists(Chunks->Global->Temp_Path))
+                deleteTemporaryDirectory(Chunks->Global->Temp_Path.To_UTF8().c_str());
+
+            Chunks->Global->Temp_Path=__T("");
+        }
+        #else
         File::Delete(Chunks->Global->File_Name+__T(".tmp"));
+        #endif
         CriticalSectionLocker(Chunks->Global->CS);
         File_IsCanceled=true;
         Chunks->Global->Canceling=false;

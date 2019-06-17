@@ -9,6 +9,12 @@
 #include "Common/mp4/mp4_.h"
 #include <iostream>
 #include <cstring>
+
+#ifdef MACSTORE
+#include "Common/Mac_Helpers.h"
+#include "ZenLib/Dir.h"
+#endif
+
 using namespace std;
 using namespace ZenLib;
 //---------------------------------------------------------------------------
@@ -457,7 +463,14 @@ void mp4_Base::Write ()
             throw exception_write("Not yet implemented");
 
             //Real writing
+            #ifdef MACSTORE
+            Global->Temp_Name=makeUniqueFileName();
+            Global->Temp_Path=makeTemporaryDirectoryForFile(Global->File_Name.To_UTF8().c_str());
+
+            if (!Global->Out.Create(Global->Temp_Path+Global->Temp_Name, false))
+            #else
             if (!Global->Out.Create(Global->File_Name+__T(".tmp"), false))
+            #endif
                 throw exception_write("Can not create temporary file");
 
             //Begin
@@ -493,7 +506,11 @@ void mp4_Base::Write ()
             //Renaming files
             if (!File::Delete(Global->File_Name))
                 throw exception_write("Original file can't be deleted");
+            #ifdef MACSTORE
+            if (!File::Move(Global->Temp_Path+Global->Temp_Name, Global->File_Name))
+            #else
             if (!File::Move(Global->File_Name+__T(".tmp"), Global->File_Name))
+            #endif
                 throw exception_write("Temporary file can't be renamed");
         }
     }
@@ -595,8 +612,15 @@ void mp4_Base::Write_Internal (const int8u* Temp, size_t Temp_Offset)
             {
                 throw exception_write("Not yet implemented");
 
+                #ifdef MACSTORE
+                Global->Temp_Name=makeUniqueFileName();
+                Global->Temp_Path=makeTemporaryDirectoryForFile(Global->File_Name.To_UTF8().c_str());
+                if (!Global->Out.Create(Global->Temp_Path+Global->Temp_Name))
+                    throw exception_write(Ztring(Global->Temp_Path+Global->Temp_Name).To_UTF8()+": temporary file can not be created");
+                #else
                 if (!Global->Out.Create(Global->File_Name+__T(".tmp")))
                     throw exception_write(Global->File_Name.To_UTF8()+": temporary file can not be created");
+                #endif
             }
             if (Global->Out.Write(Temp, Temp_Offset)<Temp_Offset)
                 throw exception_write();

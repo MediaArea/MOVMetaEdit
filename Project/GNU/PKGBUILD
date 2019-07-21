@@ -52,7 +52,7 @@ package_movmetaedit-gui() {
     install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit-gui.kde3.desktop "${pkgdir}"/usr/share/apps/konqueror/servicemenus/movmetaedit-gui.desktop
     install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit-gui.kde4.desktop "${pkgdir}"/usr/share/kde4/services/ServiceMenus/movmetaedit-gui.desktop
     install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit-gui.kde4.desktop "${pkgdir}"/usr/share/kservices5/ServiceMenus/movmetaedit-gui.desktop
-    install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit.metainfo.xml "${pkgdir}"/usr/share/metainfo/movmetaedit-gui.metainfo.xml
+    install -D -m 0644 "${srcdir}"/movmetaedit/Project/Qt/movmetaedit-gui.metainfo.xml "${pkgdir}"/usr/share/metainfo/movmetaedit-gui.metainfo.xml
     install -D -m 0644 "${srcdir}"/movmetaedit/History_GUI.txt "${pkgdir}"/usr/share/docs/${pkgname}/History.txt
     install -D -m 0644 "${srcdir}"/movmetaedit/License.html "${pkgdir}"/usr/share/licenses/${pkgname}/License.html
 }

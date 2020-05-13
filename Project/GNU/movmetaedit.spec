@@ -22,6 +22,9 @@ BuildRequires: 	gcc-c++
 BuildRequires:	pkgconfig
 BuildRequires:  automake
 BuildRequires:  autoconf
+%if 0%{?rhel_version} >= 800 || 0%{?centos_version} >= 800
+BuildRequires:  gdb
+%endif
 %if 0%{?suse_version}
 BuildRequires:	update-desktop-files
 %endif

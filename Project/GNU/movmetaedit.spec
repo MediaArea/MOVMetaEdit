@@ -11,7 +11,7 @@ Version:		%movmetaedit_version
 Release:		1
 Summary:		(To be filled) (CLI)
 Group:			Productivity/Multimedia/Other
-License:		GPL
+License:		MIT
 URL:			http://mediainfo.sourceforge.net/
 Packager:		Jerome Martinez <info@mediaarea.net>
 Source0:		movmetaedit_%{version}-1.tar.gz

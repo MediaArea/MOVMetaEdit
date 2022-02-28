@@ -87,17 +87,14 @@ void mp4_moov_meta_ilst::Read_Internal ()
 //---------------------------------------------------------------------------
 void mp4_moov_meta_ilst::Modify_Internal()
 {
-    if (!Global->moov_meta_ilst_AlreadyPresent && Global->moov_meta_ilst_NewValues.empty())
-    {
-        //Chunk.Content.IsRemovable = true; PROBEM to fix!
-        //return;
-    }
-
-    //if (Global->moov_meta_ilst_NewValues.empty())
-    //    return; //No change
-
     if (Chunk.Content.IsModified)
         return; //Already done, can be done once only
+
+    if (!Global->moov_meta_ilst && Global->moov_meta_ilst_NewValues.empty())
+    {
+        Chunk.Content.IsRemovable=true;
+        return;
+    }
 
     // Creating buffer
     int8u* OldBuffer=Chunk.Content.Buffer;
@@ -169,33 +166,6 @@ void mp4_moov_meta_ilst::Modify_Internal()
     Global->moov_meta_ilst_AlreadyPresent+=Global->moov_meta_ilst_NewValues.size();
     Global->moov_meta_ilst_NewValues.clear();
     delete[] t;
-
-
-
-    /*
-    Chunk.Content.Buffer_Offset=Chunk.Content.Size;
-    size_t Size_ToAdd=0;
-    for (size_t i=0; i<Global->moov_meta_ilst_NewValues.size(); i++)
-        Size_ToAdd+=8+8+8+Global->moov_meta_ilst_NewValues[i].size();
-    int8u* t=new int8u[Chunk.Content.Size+Size_ToAdd];
-    memcpy(t, Chunk.Content.Buffer, Chunk.Content.Size);
-    delete[] Chunk.Content.Buffer;
-    Chunk.Content.Buffer=t;
-    Chunk.Content.Size+=Size_ToAdd;
-
-    for (size_t i=0; i<Global->moov_meta_ilst_NewValues.size(); i++)
-    {
-        Put_B4((int32u)(8+8+8+Global->moov_meta_ilst_NewValues[i].size()));
-        Put_B4((int32u)(1+Global->moov_meta_keys_AlreadyPresent-Global->moov_meta_ilst_NewValues.size()+i)); //1-ordered key position
-        Put_B4((int32u)(8+8+Global->moov_meta_ilst_NewValues[i].size()));
-        Put_B4(0x64617461); //data
-        Put_B4(0x00000001); //UTF-8
-        Put_B4(0x00000000); //No locale
-        Put_String(Global->moov_meta_ilst_NewValues[i].size(), Global->moov_meta_ilst_NewValues[i]);
-    }
-    Global->moov_meta_ilst_AlreadyPresent+=Global->moov_meta_ilst_NewValues.size();
-    Global->moov_meta_ilst_NewValues.clear();
-    */
 
     Chunk.Content.IsModified = true;
     Chunk.Content.Size_IsModified = true;

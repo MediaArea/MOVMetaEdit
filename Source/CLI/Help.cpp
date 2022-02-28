@@ -39,20 +39,20 @@ ReturnValue Help()
     STRINGOUT(string("Usage: \" [options] FileNames [options]\"").insert(8, Program_Name));
     TEXTOUT("");
     TEXTOUT("This tool was developed for 2 specific purposes:");
-    TEXTOUT("- Modify PAR (Pixel Aspect Ratio)");
+    TEXTOUT("- Modify the technical metadata)");
     TEXTOUT("- Inject or edit Ad-ID metadata");
     TEXTOUT("");
     TEXTOUT("Help:");
     TEXTOUT("  --help, -h");
     TEXTOUT("      Display this help and exit");
-    TEXTOUT("  --help-par");
-    TEXTOUT("      Display help for modifications related to pixel aspect ratio");
+    TEXTOUT("  --help-tech");
+    TEXTOUT("      Display help for modifications related to the technical metadata");
     TEXTOUT("  --help-adid");
     TEXTOUT("      Display help for modifications related to Ad-iD");
     TEXTOUT("  --version");
     TEXTOUT("      Display version and exit");
     TEXTOUT("");
-    Help_PAR(false);
+    Help_Tech(false);
     TEXTOUT("");
     Help_AdID(false);
     TEXTOUT("");
@@ -87,13 +87,58 @@ ReturnValue Help_AdID(bool WithExamples)
 }
 
 //---------------------------------------------------------------------------
-ReturnValue Help_PAR(bool WithExamples)
+ReturnValue Help_Tech(bool WithExamples)
 {
     TEXTOUT("Options related to pixel aspect ratio:");
     TEXTOUT("  --par, -p VALUE");
     TEXTOUT("      Modify PAR to VALUE, \"x:y\" format");
     TEXTOUT("  --width-scale, -w VALUE");
     TEXTOUT("      Modify width scale to VALUE, real number");
+    TEXTOUT("Options related to the aperture mode dimensions:");
+    TEXTOUT("  --clean VALUE");
+    TEXTOUT("      Modify the clean aperture dimensions to VALUE, \"WxH\" format");
+    TEXTOUT("  --clean-delete");
+    TEXTOUT("      Delete the clean aperture dimensions atom");
+    TEXTOUT("  --prod VALUE");
+    TEXTOUT("      Modify the production aperture dimensions to VALUE, \"WxH\" format");
+    TEXTOUT("  --prod-delete");
+    TEXTOUT("      Delete the production aperture dimensions atom");
+    TEXTOUT("  --pixels VALUE");
+    TEXTOUT("      Modify the aperture pixels size to VALUE, \"WxH\" format");
+    TEXTOUT("  --pixels-delete");
+    TEXTOUT("      Delete the aperture pixels size atom");
+    TEXTOUT("Options related to the field handling");
+    TEXTOUT("  --field VALUE");
+    TEXTOUT("      Modify the field handling parameter to VALUE, \"fields,detail\" format");
+    TEXTOUT("  --field-delete");
+    TEXTOUT("      Delete the field handling atom");
+    TEXTOUT("Options related to the color parameter:");
+    TEXTOUT("  --color VALUE");
+    TEXTOUT("      Modify the color parameter to VALUE, \"primaries,transfer,matrix\" format");
+    TEXTOUT("  --color-delete");
+    TEXTOUT("      Delete the color atom");
+    TEXTOUT("Options related to the gamma value:");
+    TEXTOUT("  --gamma VALUE");
+    TEXTOUT("      Modify the gamma to VALUE, real number");
+    TEXTOUT("  --gamma-delete");
+    TEXTOUT("      Delete the gamma atom");
+    TEXTOUT("Options related to the clean aperture:");
+    TEXTOUT("  --aperture VALUE");
+    TEXTOUT("      Modify the clean aperture to VALUE, \"with:d,height:d,hOffset:d,vOffset:d\" format");
+    TEXTOUT("      (':d' (denominator) are optionnal')");
+    TEXTOUT("  --aperture-delete");
+    TEXTOUT("      Delete the clean aperture atom");
+    TEXTOUT("Options related to the audio channels description labels:");
+    TEXTOUT("  --channels VALUE");
+    TEXTOUT("      Modify the channels description to VALUE for the specified track, \"[track=]code[,[track=]code...]\" format, e.g L,R or 0=L,1=R,3=Delete");
+    TEXTOUT("      Code can be numeric or any of these predefined keywords: Delete(delete the channel information atom), L, R, C, LFE, Ls, Rs, Lc, Rc, Cs,");
+    TEXTOUT("      Lsd, Rsd, Tcs, Vhl, Vhc, Vhr, Trs, Trs2, Trs3, Lrs, Rrs, Lw, Rw, LFE2, Lt, Rt, HearingImpaired, Narration, M, DialogCentricMix,");
+    TEXTOUT("      CenterSurroundDirect, Haptic, W, X, Y,Z, M2, S, X2, Y2, HeadphonesLeft, HeadphonesRight, ClickTrack, ForeignLanguage,");
+    TEXTOUT("      Discrete, Discrete-1, Discrete-2...");
+    TEXTOUT("      (WARNING existing channels descriptions for the track will be overwritten)");
+    TEXTOUT("  --channels-delete");
+    TEXTOUT("      Delete the channel atom in ALL audio tracks");
+    TEXTOUT("");
     TEXTOUT("  --simulate, -s");
     TEXTOUT("      Do not modify file (only display of potential modifications)");
     if (WithExamples)

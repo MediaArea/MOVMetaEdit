@@ -13,17 +13,17 @@
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void mp4_moov::Read_Internal ()
+void mp4_moov_trak::Read_Internal ()
 {
-    //Filling
-    mp4_Base::global::block_moov* moov=new mp4_Base::global::block_moov;
-    moov->File_Offset=Global->In.Position_Get();
-    Global->moov.push_back(moov);
 
+    //Filling
+    mp4_Base::global::block_moov_trak* trak=new mp4_Base::global::block_moov_trak;
+    Global->moov_trak.push_back(trak);
 
     SUBS_BEGIN();
-        SUB_ELEMENT(moov_trak);
-        SUB_ELEMENT(moov_meta);
+        SUB_ELEMENT(moov_trak_tkhd);
+        SUB_ELEMENT(moov_trak_tapt);
+        SUB_ELEMENT(moov_trak_mdia);
     SUBS_END();
 }
 
@@ -32,20 +32,20 @@ void mp4_moov::Read_Internal ()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-size_t mp4_moov::Insert_Internal (int32u Chunk_Name_Insert)
+size_t mp4_moov_trak::Insert_Internal (int32u Chunk_Name_Insert)
 {
     mp4_Base* NewChunk;
     switch (Chunk_Name_Insert)
     {
-        case Elements::moov_meta :  NewChunk=new mp4_moov_meta(Global); break;
-        default                  :  return Subs.size();
+        case Elements::moov_trak_tapt :  NewChunk=new mp4_moov_trak_tapt(Global); break;
+        default                       :  return Subs.size();
     }
 
     size_t Subs_Pos;
     switch (Chunk_Name_Insert)
     {
-        case Elements::moov_meta :  Subs_Pos=(size_t)-1                                                            ; break;
-        default                  :  return Subs.size();
+        case Elements::moov_trak_tapt :  Subs_Pos=(size_t)-1                    ; break;
+        default                       :  return Subs.size();
     }
 
     NewChunk->Modify();

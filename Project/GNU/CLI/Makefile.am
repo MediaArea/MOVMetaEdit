@@ -6,7 +6,26 @@ movmetaedit_SOURCES = \
     ../../../Source/Common/AdID.cpp \
     ../../../Source/Common/mp4/mp4_.cpp \
     ../../../Source/Common/mp4/mp4_mdat.cpp \
+    ../../../Source/Common/mp4/mp4_free.cpp \
     ../../../Source/Common/mp4/mp4_moov.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_tapt.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_tapt_xxxx.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clap.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_colr.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_gama.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxxSound.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_chan.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_vmhd.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_smhd.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_tkhd.cpp \
     ../../../Source/Common/mp4/mp4_moov_meta.cpp \
     ../../../Source/Common/mp4/mp4_moov_meta_hdlr.cpp \
     ../../../Source/Common/mp4/mp4_moov_meta_ilst.cpp \

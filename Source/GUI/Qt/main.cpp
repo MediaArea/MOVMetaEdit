@@ -5,6 +5,8 @@
 */
 
 #include <QApplication>
+#include <QLocale>
+#include <clocale>
 
 #include "mainwindow.h"
 

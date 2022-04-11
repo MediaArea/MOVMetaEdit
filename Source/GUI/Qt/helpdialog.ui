@@ -49,6 +49,29 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="Tab_Technical">
+      <attribute name="title">
+       <string>Technical Metadata</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="Layout_Technical">
+         <item row="0" column="0">
+          <widget class="QTextBrowser" name="Text2">
+           <property name="source">
+            <url>
+             <string>qrc:/Documentation/Technical.html</string>
+            </url>
+           </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="Tab_Interface">
       <attribute name="title">
        <string>Universal Ad ID</string>
@@ -57,7 +80,7 @@
        <item row="0" column="0">
         <layout class="QGridLayout" name="Layout_Interface">
          <item row="0" column="0">
-          <widget class="QTextBrowser" name="Text2">
+          <widget class="QTextBrowser" name="Text3">
            <property name="source">
             <url>
              <string>qrc:/Documentation/UniversalAdID.html</string>

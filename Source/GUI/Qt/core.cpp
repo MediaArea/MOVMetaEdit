@@ -35,7 +35,20 @@ FileInfo Core::Read_Data(const QString &FileName, bool CheckFileName)
     //UniversalAdId values
     string idregistry = Current.H->Get("com.universaladid.idregistry");
     string idvalue = Current.H->Get("com.universaladid.idvalue");
-    Current.Previous = qMakePair(QString::fromUtf8(idregistry.c_str()), QString::fromUtf8(idvalue.c_str()));;
+    Current.Previous.AdIDRegistry = QString::fromStdString(idregistry);
+    Current.Previous.AdIDValue = QString::fromStdString(idvalue);
+    Current.Previous.clef = QString::fromStdString(Current.H->Get("clef"));
+    Current.Previous.prof = QString::fromStdString(Current.H->Get("prof"));
+    Current.Previous.enof = QString::fromStdString(Current.H->Get("enof"));
+    Current.Previous.pasp = QString::fromStdString(Current.H->Get("pasp"));
+    Current.Previous.wscl = QString::fromStdString(Current.H->Get("wscale"));
+    Current.Previous.fiel = QString::fromStdString(Current.H->Get("fiel"));
+    Current.Previous.colr = QString::fromStdString(Current.H->Get("colr"));
+    Current.Previous.gama = QString::fromStdString(Current.H->Get("gama"));
+    Current.Previous.clap = QString::fromStdString(Current.H->Get("clap"));
+    Current.Previous.chan = QString::fromStdString(Current.H->Get("chan"));
+
+    bool Valid = false;
 
     if (Current.Valid)
     {
@@ -48,9 +61,8 @@ FileInfo Core::Read_Data(const QString &FileName, bool CheckFileName)
             int Pos = 0;
             if (AdIdValidator().validate(BaseName, Pos) == QValidator::Acceptable)
             {
+                Valid = true;
                 idvalue = BaseName.toUtf8().constData();
-                Current.Modified = true;
-                Current.ValueValid = true;
             }
         }
         else
@@ -66,11 +78,23 @@ FileInfo Core::Read_Data(const QString &FileName, bool CheckFileName)
                 State = OtherValidator().validate(Value, Pos);
 
             if (State == QValidator::Acceptable)
-                Current.ValueValid = true;
+                Valid = true;
         }
     }
 
-    Current.MetaData = qMakePair(QString::fromUtf8(idregistry.c_str()), QString::fromUtf8(idvalue.c_str()));;
+    Current.MetaData.AdIDRegistry = QString::fromStdString(idregistry);
+    Current.MetaData.AdIDValue = QString::fromStdString(idvalue);
+    Current.MetaData.AdIDValid = Valid;
+    Current.MetaData.clef = Current.Previous.clef;
+    Current.MetaData.prof = Current.Previous.prof;
+    Current.MetaData.enof = Current.Previous.enof;
+    Current.MetaData.pasp = Current.Previous.pasp;
+    Current.MetaData.wscl = Current.Previous.wscl;
+    Current.MetaData.fiel = Current.Previous.fiel;
+    Current.MetaData.colr = Current.Previous.colr;
+    Current.MetaData.gama = Current.Previous.gama;
+    Current.MetaData.clap = Current.Previous.clap;
+    Current.MetaData.chan = Current.Previous.chan;
 
     return Current;
 }
@@ -120,14 +144,82 @@ bool Core::Save_File(const QString& FileName)
     {
         FileInfo &F=Files[FileName];
 
-        if (!F.ValueValid)
-            return false;
+        if (F.MetaData.AdIDValid && !F.MetaData.AdIDRegistry.isEmpty() && !F.MetaData.AdIDValue.isEmpty() && (F.MetaData.AdIDRegistry != F.Previous.AdIDRegistry || F.MetaData.AdIDValue != F.Previous.AdIDValue))
+        {
+            Ztring Registry, Value;
+            Registry.From_UTF8(F.MetaData.AdIDRegistry.toUtf8().constData());
+            Value.From_UTF8(F.MetaData.AdIDValue.toUtf8().constData());
+            F.H->Set("com.universaladid.idregistry", Registry.To_Local());
+            F.H->Set("com.universaladid.idvalue", Value.To_Local());
+        }
+        if (F.MetaData.clef!=F.Previous.clef)
+        {
+            if (F.MetaData.clef.isEmpty())
+                F.H->Remove("clef");
+            else
+                F.H->Set("clef", F.MetaData.clef.toStdString());
+        }
+        if (F.MetaData.prof!=F.Previous.prof)
+        {
+            if (F.MetaData.prof.isEmpty())
+                F.H->Remove("prof");
+            else
+                F.H->Set("prof", F.MetaData.prof.toStdString());
+        }
+        if (F.MetaData.enof!=F.Previous.enof)
+        {
+            if (F.MetaData.enof.isEmpty())
+                F.H->Remove("enof");
+            else
+                F.H->Set("enof", F.MetaData.enof.toStdString());
+        }
+        if (F.MetaData.pasp!=F.Previous.pasp)
+        {
+            if (F.MetaData.pasp.isEmpty())
+                F.H->Remove("pasp");
+            else
+                F.H->Set("pasp", F.MetaData.pasp.toStdString());
+        }
+        if (F.MetaData.wscl!=F.Previous.wscl)
+        {
+            F.H->Set("wscale", F.MetaData.wscl.toStdString());
+        }
+        if (F.MetaData.fiel!=F.Previous.fiel)
+        {
+            if (F.MetaData.fiel.isEmpty())
+                F.H->Remove("fiel");
+            else
+                F.H->Set("fiel", F.MetaData.fiel.toStdString());
+        }
+        if (F.MetaData.colr!=F.Previous.colr)
+        {
+            if (F.MetaData.colr.isEmpty())
+                F.H->Remove("colr");
+            else
+                F.H->Set("colr", F.MetaData.colr.toStdString());
+        }
+        if (F.MetaData.gama!=F.Previous.gama)
+        {
+            if (F.MetaData.gama.isEmpty())
+                F.H->Remove("gama");
+            else
+                F.H->Set("gama", F.MetaData.gama.toStdString());
+        }
+        if (F.MetaData.clap!=F.Previous.clap)
+        {
+            if (F.MetaData.clap.isEmpty())
+                F.H->Remove("clap");
+            else
+                F.H->Set("clap", F.MetaData.clap.toStdString());
+        }
+        if (F.MetaData.chan!=F.Previous.chan)
+        {
+            if (F.MetaData.chan.isEmpty())
+                F.H->Remove("chan");
+            else
+                F.H->Set("chan", F.MetaData.chan.toStdString());
+        }
 
-        Ztring Registry, Value;
-        Registry.From_UTF8(F.MetaData.first.toUtf8().constData());
-        Value.From_UTF8(F.MetaData.second.toUtf8().constData());
-        F.H->Set("com.universaladid.idregistry", Registry.To_Local());
-        F.H->Set("com.universaladid.idvalue", Value.To_Local());
         F.H->Save();
 
         Files.insert(FileName, Read_Data(FileName, false));

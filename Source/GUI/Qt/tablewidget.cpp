@@ -331,9 +331,9 @@ void TableWidget::Update_Table()
         QTableWidgetItem* Value;
         if (It->Valid)
         {
-            Registry = new QTableWidgetItem(It->MetaData.first);
+            Registry = new QTableWidgetItem(It->MetaData.AdIDRegistry);
             Registry->setToolTip("Double-click for editing the Universal Ad ID registry of this file.");
-            Value = new QTableWidgetItem(It->MetaData.second);
+            Value = new QTableWidgetItem(It->MetaData.AdIDValue);
             Value->setToolTip("Double-click for editing the Universal Ad ID value of this file.\nA-Z 0-9 only.");
         }
         else
@@ -346,13 +346,13 @@ void TableWidget::Update_Table()
         setItem(Row, REGISTRY_COLUMN, Registry);
         setItem(Row, VALUE_COLUMN, Value);
 
-        if (It->Modified && It->ValueValid)
+        if (It->MetaData.AdIDValid &&(It->MetaData.AdIDRegistry != It->Previous.AdIDRegistry || It->MetaData.AdIDValue != It->Previous.AdIDValue))
             Modified = true;
 
         if (It->Valid)
             Valid++;
 
-        Set_Display(Row, It->Valid, It->Modified, It->ValueValid);
+        Set_Display(Row, It->Valid, Modified, It->MetaData.AdIDValid);
     }
 
     if (Valid)
@@ -360,7 +360,7 @@ void TableWidget::Update_Table()
     else
         setStatusTip("Drag and drop some MOV/MP4 files");
 
-    emit Enable_Save(Modified);
+    emit Enable_Save();
 }
 
 //---------------------------------------------------------------------------
@@ -425,9 +425,9 @@ void TableWidget::On_Value_Changed(int Row)
         if(!MetaData)
             return;
 
-    (*C->Get_Files())[FileName].Modified = false;
-    MetaData->first = Registry;
-    MetaData->second = Value;
+    //(*C->Get_Files())[FileName].Modified = false;
+    MetaData->AdIDRegistry = Registry;
+    MetaData->AdIDValue = Value;
 
     QValidator::State State = QValidator::Invalid;
     int Pos = 0;
@@ -438,9 +438,10 @@ void TableWidget::On_Value_Changed(int Row)
     else
         State = OtherValidator().validate(Value, Pos);
 
-    bool Modified = *MetaData != (*C->Get_Files())[FileName].Previous && State == QValidator::Acceptable;
-    (*C->Get_Files())[FileName].Modified = Modified;
-    (*C->Get_Files())[FileName].ValueValid = State == QValidator::Acceptable;
+    MetaData->AdIDValid = State == QValidator::Acceptable;
+    //bool Modified = *MetaData != (*C->Get_Files())[FileName].Previous && State == QValidator::Acceptable;
+    //(*C->Get_Files())[FileName].Modified = Modified;
+    //(*C->Get_Files())[FileName].Meta = State == QValidator::Acceptable;
 
     Update_Table();
 }

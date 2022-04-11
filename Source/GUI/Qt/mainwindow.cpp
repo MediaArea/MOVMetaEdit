@@ -18,6 +18,7 @@
 #include "helpdialog.h"
 #include "aboutdialog.h"
 #include "tablewidget.h"
+#include "techtablewidget.h"
 #include "ui_mainwindow.h"
 
 #include "ZenLib/ZtringListList.h"
@@ -33,12 +34,13 @@ MainWindow::MainWindow(QWidget *Parent) : QMainWindow(Parent), Ui(new Ui::MainWi
 
     C = new Core();
 
+    Ui->Tech_Table_Widget->Setup(C);
     Ui->Table_Widget->Setup(C);
 
-    connect(Ui->Table_Widget->model(), SIGNAL(rowsInserted(const QModelIndex& , int, int)),
-            this, SLOT(Table_Widget_Changed()));
-    connect(Ui->Table_Widget->model(), SIGNAL(rowsRemoved(const QModelIndex& , int, int)),
-            this, SLOT(Table_Widget_Changed()));
+    connect(Ui->Tech_Table_Widget->model(), SIGNAL(rowsInserted(const QModelIndex& , int, int)),
+            this, SLOT(Tech_Table_Widget_Changed()));
+    connect(Ui->Tech_Table_Widget->model(), SIGNAL(rowsRemoved(const QModelIndex& , int, int)),
+            this, SLOT(Tech_Table_Widget_Changed()));
 
     //Setup toolbar
     Ui->Tool_Bar->addAction(Ui->Menu_File_Open_Files);
@@ -48,6 +50,9 @@ MainWindow::MainWindow(QWidget *Parent) : QMainWindow(Parent), Ui(new Ui::MainWi
     Ui->Tool_Bar->addSeparator();
     Ui->Tool_Bar->addAction(Ui->Menu_File_Save_All);
     Ui->Tool_Bar->addSeparator();
+    Ui->Tool_Bar->addAction(Ui->Menu_View_Technical);
+    Ui->Tool_Bar->addAction(Ui->Menu_View_AdId);
+    Ui->Tool_Bar->addSeparator();
     Ui->Tool_Bar->addAction(Ui->Menu_Help_Help);
     Ui->Tool_Bar->addAction(Ui->Menu_Help_About);
 
@@ -56,12 +61,19 @@ MainWindow::MainWindow(QWidget *Parent) : QMainWindow(Parent), Ui(new Ui::MainWi
     Context_Menu->addAction(Ui->Menu_File_Close);
     //Context_Menu->actions.at(0)->setShortcut(QKeySequence());
 
+    connect(Ui->Tech_Table_Widget, SIGNAL(customContextMenuRequested(const QPoint&)),
+            this, SLOT(Show_Context_Menu(const QPoint&)));
+
     connect(Ui->Table_Widget, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(Show_Context_Menu(const QPoint&)));
 
-    connect(Ui->Table_Widget, SIGNAL(Enable_Save(bool)),
-            Ui->Menu_File_Save_All, SLOT(setEnabled(bool)));
+    connect(Ui->Tech_Table_Widget, SIGNAL(Enable_Save()),
+            this, SLOT(Enable_Menu_Save_All()));
 
+    connect(Ui->Table_Widget, SIGNAL(Enable_Save()),
+            this, SLOT(Enable_Menu_Save_All()));
+
+    Ui->Tech_Table_Widget->Update_Table();
     Ui->Table_Widget->Update_Table();
 
 #if !defined(MOVMETAEDIT_NO_VERSION_CHECK)
@@ -114,7 +126,8 @@ void MainWindow::dropEvent(QDropEvent *Event)
         }
     }
 
-        Ui->Table_Widget->Update_Table();
+    Ui->Tech_Table_Widget->Update_Table();
+    Ui->Table_Widget->Update_Table();
 }
 
 //---------------------------------------------------------------------------
@@ -147,6 +160,7 @@ void MainWindow::on_Menu_File_Open_Files_triggered()
         C->Open_Files(File_Names[Pos]);
     }
 
+    Ui->Tech_Table_Widget->Update_Table();
     Ui->Table_Widget->Update_Table();
 }
 
@@ -167,6 +181,7 @@ void MainWindow::on_Menu_File_Open_Directory_triggered()
 
     C->Open_Files(File_Name);
 
+    Ui->Tech_Table_Widget->Update_Table();
     Ui->Table_Widget->Update_Table();
 }
 
@@ -177,14 +192,14 @@ void MainWindow::on_Menu_File_Save_All_triggered()
 
     for(FileList::iterator It = Files->begin(); It != Files->end(); It++)
     {
-        if(It->Modified)
+        if(It->Modified())
         {
             It->Valid = false; //Done for not writing again the same file
-            It->Modified = false;
             C->Save_File(It.key());
         }
     }
 
+    Ui->Tech_Table_Widget->Update_Table();
     Ui->Table_Widget->Update_Table();
 }
 
@@ -209,11 +224,15 @@ void MainWindow::on_Menu_File_Close_triggered()
     bool Auto = false;
 
     // Get selections
-    QModelIndexList Selected = Ui->Table_Widget->selectionModel()->selectedRows(FILE_COLUMN);
+    QModelIndexList Selected;
+    if (Ui->StackedWidget->currentIndex()==0) //TODO: use enum
+        Selected = Ui->Tech_Table_Widget->selectionModel()->selectedRows(FILE_COLUMN);
+    else if (Ui->StackedWidget->currentIndex()==1) //TODO: use enum
+        Selected = Ui->Table_Widget->selectionModel()->selectedRows(FILE_COLUMN);
     for(QModelIndexList::iterator It = Selected.begin(); It != Selected.end(); It++)
     {
         QString FileName = It->data(Qt::EditRole).toString();
-        if(!Auto && (*C->Get_Files())[FileName].Modified == true)
+        if(!Auto && (*C->Get_Files())[FileName].Modified())
         {
             int Ret = QMessageBox::warning(this, tr("MOV MetaEdit"),
                 tr("The file %1 has been modified.\n"
@@ -227,16 +246,18 @@ void MainWindow::on_Menu_File_Close_triggered()
         }
         C->Get_Files()->remove(FileName);
     }
+    Ui->Tech_Table_Widget->Update_Table();
     Ui->Table_Widget->Update_Table();
 }
 
+//---------------------------------------------------------------------------
 void MainWindow::on_Menu_File_Close_All_triggered()
 {
     FileList* Files = C->Get_Files();
 
     for(FileList::iterator It = Files->begin(); It != Files->end(); It++)
     {
-        if(It->Modified)
+        if(It->Modified())
         {
             int Ret = QMessageBox::warning(this, tr("MOV MetaEdit"),
                 tr("The file %1 has been modified.\n"
@@ -254,7 +275,37 @@ void MainWindow::on_Menu_File_Close_All_triggered()
 
     Files->clear();
 
+    Ui->Tech_Table_Widget->Update_Table();
     Ui->Table_Widget->Update_Table();
+}
+
+//---------------------------------------------------------------------------
+void MainWindow::on_Menu_View_Technical_triggered()
+{
+    if (Ui->StackedWidget->currentIndex()!=0) //TODO: use enum
+    {
+        Ui->StackedWidget->setCurrentIndex(0);
+        Ui->Table_Widget->clearSelection();
+    }
+}
+
+//---------------------------------------------------------------------------
+void MainWindow::on_Menu_View_AdId_triggered()
+{
+    if (Ui->StackedWidget->currentIndex()!=1) //TODO: use enum
+    {
+        Ui->StackedWidget->setCurrentIndex(1);
+        Ui->Tech_Table_Widget->clearSelection();
+    }
+}
+
+//---------------------------------------------------------------------------
+void MainWindow::on_Tech_Table_Widget_itemSelectionChanged()
+{
+    if(Ui->Tech_Table_Widget->selectedItems().size())
+        Ui->Menu_File_Close->setEnabled(true);
+    else
+        Ui->Menu_File_Close->setEnabled(false);
 }
 
 //---------------------------------------------------------------------------
@@ -266,6 +317,20 @@ void MainWindow::on_Table_Widget_itemSelectionChanged()
         Ui->Menu_File_Close->setEnabled(false);
 }
 
+
+//---------------------------------------------------------------------------
+void MainWindow::Enable_Menu_Save_All()
+{
+    if (!C)
+        return;
+
+    bool Enable=false;
+    for (FileList::iterator It=C->Get_Files()->begin(); It!= C->Get_Files()->end(); It++)
+        Enable|=It.value().Modified();
+
+    Ui->Menu_File_Save_All->setEnabled(Enable);
+}
+
 //---------------------------------------------------------------------------
 void MainWindow::on_Menu_New_Version_triggered()
 {
@@ -275,13 +340,16 @@ void MainWindow::on_Menu_New_Version_triggered()
 //---------------------------------------------------------------------------
 void MainWindow::Show_Context_Menu(const QPoint& Pos)
 {
-    Context_Menu->exec(Ui->Table_Widget->mapToGlobal(Pos));
+    if (Ui->StackedWidget->currentIndex()==0) //TODO: use enum
+        Context_Menu->exec(Ui->Tech_Table_Widget->mapToGlobal(Pos));
+    else if (Ui->StackedWidget->currentIndex()==1) //TODO: use enum
+        Context_Menu->exec(Ui->Table_Widget->mapToGlobal(Pos));
 }
 
 //---------------------------------------------------------------------------
-void MainWindow::Table_Widget_Changed()
+void MainWindow::Tech_Table_Widget_Changed()
 {
-    if(Ui->Table_Widget->rowCount())
+    if(Ui->Tech_Table_Widget->rowCount())
         Ui->Menu_File_Close_All->setEnabled(true);
     else
         Ui->Menu_File_Close_All->setEnabled(false);

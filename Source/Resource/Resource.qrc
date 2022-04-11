@@ -5,6 +5,8 @@
         <file>Image/File_Open_Files.png</file>
         <file>Image/File_Open_Directory.png</file>
         <file>Image/Options_Prefs.png</file>
+        <file>Image/View_Technical.png</file>
+        <file>Image/View_AdId.png</file>
         <file>Image/Help.png</file>
         <file>Image/About.png</file>
         <file>Image/Icon.png</file>
@@ -12,6 +14,7 @@
         <file>Documentation/Contact.html</file>
         <file>Documentation/Description.html</file>
         <file>Documentation/index.html</file>
+        <file>Documentation/Technical.html</file>
         <file>Documentation/UniversalAdID.html</file>
         <file>Documentation/UniversalAdID_WithError.png</file>
         <file>Image/Ad-iD.png</file>

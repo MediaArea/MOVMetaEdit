@@ -12,23 +12,61 @@
 #include <QPair>
 #include <QString>
 
-typedef QPair<QString, QString> MetaDataType;
+//typedef QPair<QString, QString> MetaDataType;
+struct MetaDataType
+{
+    QString AdIDRegistry;
+    QString AdIDValue;
+    bool AdIDValid;
+    QString clef;
+    QString prof;
+    QString enof;
+    QString pasp;
+    QString wscl;
+    QString fiel;
+    QString colr;
+    QString gama;
+    QString clap;
+    QString chan;
+
+    MetaDataType()
+        : AdIDValid(false)
+    {}
+};
 
 struct FileInfo
 {
     bool         Valid;
-    bool         Modified;
-    bool         ValueValid;
     MetaDataType Previous;
     MetaDataType MetaData;
     mp4_Handler* H;
 
     FileInfo()
         : Valid(false)
-        , Modified(false)
-        , ValueValid(false)
         , H(NULL)
     {}
+
+    bool Modified()
+    {
+        if (MetaData.AdIDValid && 
+           (MetaData.AdIDRegistry != Previous.AdIDRegistry ||
+            MetaData.AdIDValue != Previous.AdIDValue))
+            return true;
+
+        if (MetaData.clef != Previous.clef ||
+            MetaData.prof != Previous.prof ||
+            MetaData.enof != Previous.enof ||
+            MetaData.pasp != Previous.pasp ||
+            MetaData.wscl != Previous.wscl ||
+            MetaData.fiel != Previous.fiel ||
+            MetaData.colr != Previous.colr ||
+            MetaData.gama != Previous.gama ||
+            MetaData.clap != Previous.clap ||
+            MetaData.chan != Previous.chan)
+            return true;
+
+        return false;
+    }
 };
 
 typedef QMap<QString, FileInfo> FileList;

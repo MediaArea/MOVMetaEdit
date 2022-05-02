@@ -15,6 +15,12 @@
 //---------------------------------------------------------------------------
 void mp4_moov_meta_hdlr::Read_Internal ()
 {
+    //Integrity
+    if (Global->moov_meta_hdlr)
+        throw exception_read_block("2 moov meta hdlr blocks");
+    Global->moov_meta_hdlr=new mp4_Base::global::block_moov_meta_hdlr;
+    Global->moov_meta_hdlr->Present=true;
+
     //Reading
     Read_Internal_ReadAllInBuffer();
 
@@ -36,12 +42,24 @@ void mp4_moov_meta_hdlr::Read_Internal ()
 //---------------------------------------------------------------------------
 void mp4_moov_meta_hdlr::Modify_Internal()
 {
+    if (!Global->moov_meta_hdlr && (
+        !Global->moov_meta_ilst &&
+        !Global->moov_meta_keys &&
+        Global->moov_meta_keys_NewKeys.empty() &&
+        Global->moov_meta_ilst_NewValues.empty()))
+    {
+        Chunk.Content.IsRemovable = true;
+        return;
+    }
+
     if (Chunk.Content.Size)
     {
         return; //Nothing to do
     }
 
     //Creating buffer
+    if (Chunk.Content.Buffer)
+        delete[] Chunk.Content.Buffer;
     Chunk.Content.Buffer_Offset = 0;
     Chunk.Content.Size = 24;
     Chunk.Content.Buffer = new int8u[Chunk.Content.Size];

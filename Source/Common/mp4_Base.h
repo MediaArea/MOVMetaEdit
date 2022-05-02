@@ -14,6 +14,7 @@
 #include "ZenLib/File.h"
 #include "ZenLib/CriticalSection.h"
 #include <vector>
+#include <tuple>
 #include <map>
 #include <sstream>
 #include <stdint.h>
@@ -105,6 +106,15 @@ public:
     //Global structure for handling common data
     struct global
     {
+        struct block_moov_meta_hdlr
+        {
+            bool Present;
+
+            block_moov_meta_hdlr()
+            {
+                Present=false;
+            }
+        };
         struct block_moov_meta_list
         {
             int32u size;
@@ -139,6 +149,7 @@ public:
                 , value(value_)
                 , data_Pos(data_Pos_)
                 , data_Size(data_Size_)
+                , ToBeReplacedBy_Modified(false)
             {}
         };
         struct block_moov_meta_key
@@ -179,6 +190,147 @@ public:
                 File_Offset=(int64u)-1;
             }
         };
+        struct block_moov_trak
+        {
+            bool IsVideo;
+            bool IsSound;
+            bool moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present;
+            bool moov_trak_mdia_minf_stbl_stsd_xxxxSound_Present;
+
+            block_moov_trak()
+            {
+                IsVideo=false;
+                IsSound=false;
+                moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present=false;
+                moov_trak_mdia_minf_stbl_stsd_xxxxSound_Present=false;
+            }
+        };
+        struct block_moov_trak_tapt_xxxx
+        {
+            double Width;
+            double Height;
+
+            block_moov_trak_tapt_xxxx()
+            {
+                Width=0;
+                Height=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel
+        {
+            uint8_t    Fields;
+            uint8_t    Detail;
+
+            block_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel()
+            {
+                Fields=0;
+                Detail=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stsd_xxxx_colr
+        {
+            uint16_t    Primaries;
+            uint16_t    Transfer;
+            uint16_t    Matrix;
+
+            block_moov_trak_mdia_minf_stbl_stsd_xxxx_colr()
+            {
+                Primaries=0;
+                Transfer=0;
+                Matrix=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stsd_xxxx_gama
+        {
+            double    Gamma;
+
+            block_moov_trak_mdia_minf_stbl_stsd_xxxx_gama()
+            {
+                Gamma=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp
+        {
+            uint32_t hSpacing;
+            uint32_t vSpacing;
+
+            block_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp()
+            {
+                hSpacing=0;
+                vSpacing=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap
+        {
+            uint32_t Aperture_Width_Num;
+            uint32_t Aperture_Width_Den;
+            uint32_t Aperture_Height_Num;
+            uint32_t Aperture_Height_Den;
+            uint32_t Horizontal_Offset_Num;
+            uint32_t Horizontal_Offset_Den;
+            uint32_t Vertical_Offset_Num;
+            uint32_t Vertical_Offset_Den;
+
+            block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap()
+            {
+                Aperture_Width_Num=0;
+                Aperture_Width_Den=0;
+                Aperture_Height_Num=0;
+                Aperture_Height_Den=0;
+                Horizontal_Offset_Num=0;
+                Horizontal_Offset_Den=0;
+                Vertical_Offset_Num=0;
+                Vertical_Offset_Den=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan
+        {
+            struct description
+            {
+                uint32_t ChannelLabel;
+                uint32_t ChannelFlags;
+                uint32_t Coordinates0;
+                uint32_t Coordinates1;
+                uint32_t Coordinates2;
+
+                description()
+                {
+                    ChannelLabel=0;
+                    ChannelFlags=0;
+                    Coordinates0=0;
+                    Coordinates1=0;
+                    Coordinates2=0;
+                }
+            };
+
+            uint8_t Version;
+            uint32_t Flags;
+            uint32_t ChannelLayoutTag;
+            uint32_t ChannelBitmap;
+            uint32_t NumberChannelDescriptions;
+            vector<description> Descriptions;
+
+            block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan()
+            {
+                Version=0;
+                Flags=0;
+                ChannelLayoutTag=0;
+                ChannelBitmap=0;
+                NumberChannelDescriptions=0;
+            }
+        };
+        struct block_moov_trak_tkhd
+        {
+            double Width_Scale;
+            size_t Width_Scale_Pos;
+
+            block_moov_trak_tkhd()
+            {
+                Width_Scale=0;
+                Width_Scale_Pos=0;
+            }
+        };
+
         struct block_moov_meta_ilst
         {
             vector<block_moov_meta_list> Items;
@@ -230,8 +382,33 @@ public:
         stringstream        Trace;
         block_mdat         *mdat;
         vector<block_moov*> moov;
+        vector<block_moov_trak*> moov_trak;
+        block_moov_trak_tapt_xxxx* moov_trak_tapt_clef;
+        bool                       moov_trak_tapt_clef_Modified;
+        block_moov_trak_tapt_xxxx* moov_trak_tapt_prof;
+        bool                       moov_trak_tapt_prof_Modified;
+        block_moov_trak_tapt_xxxx* moov_trak_tapt_enof;
+        bool                       moov_trak_tapt_enof_Modified;
+        block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap* moov_trak_mdia_minf_stbl_stsd_xxxx_clap;
+        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified;
+        block_moov_trak_mdia_minf_stbl_stsd_xxxx_colr* moov_trak_mdia_minf_stbl_stsd_xxxx_colr;
+        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified;
+        block_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel* moov_trak_mdia_minf_stbl_stsd_xxxx_fiel;
+        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified;
+        block_moov_trak_mdia_minf_stbl_stsd_xxxx_gama* moov_trak_mdia_minf_stbl_stsd_xxxx_gama;
+        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified;
+        block_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp* moov_trak_mdia_minf_stbl_stsd_xxxx_pasp;
+        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified;
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*> moov_trak_mdia_minf_stbl_stsd_xxxx_chan;
+        bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified;
+        block_moov_trak_tkhd* moov_trak_tkhd;
+        bool                  moov_trak_tkhd_Modified;
+        block_moov_meta_hdlr* moov_meta_hdlr;
+        bool                  moov_meta_hdlr_Modified;
         block_moov_meta_ilst* moov_meta_ilst;
+        bool                  moov_meta_ilst_Modified;
         block_moov_meta_keys* moov_meta_keys;
+        bool                  moov_meta_keys_Modified;
         vector<string>      moov_meta_keys_NewKeys;
         size_t              moov_meta_keys_AlreadyPresent;
         vector<string>      moov_meta_ilst_NewValues;
@@ -248,8 +425,31 @@ public:
         {
             File_Size=0;
             mdat=NULL;
+            moov_trak_tapt_clef=NULL;
+            moov_trak_tapt_clef_Modified=false;
+            moov_trak_tapt_prof=NULL;
+            moov_trak_tapt_prof_Modified=false;
+            moov_trak_tapt_enof=NULL;
+            moov_trak_tapt_enof_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_clap=NULL;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_colr=NULL;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_fiel=NULL;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_gama=NULL;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_pasp=NULL;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified=false;
+            moov_trak_tkhd=NULL;
+            moov_trak_tkhd_Modified=false;
+            moov_meta_hdlr=NULL;
+            moov_meta_hdlr_Modified=false;
             moov_meta_ilst=NULL;
+            moov_meta_ilst_Modified=false;
             moov_meta_keys=NULL;
+            moov_meta_keys_Modified=false;
             moov_meta_keys_AlreadyPresent=0;
             moov_meta_ilst_AlreadyPresent=0;
             NewChunksAtTheEnd=false;
@@ -263,8 +463,25 @@ public:
         ~global()
         {
             delete mdat;
+            delete moov_trak_tapt_clef;
+            delete moov_trak_tapt_prof;
+            delete moov_trak_tapt_enof;
+            delete moov_trak_mdia_minf_stbl_stsd_xxxx_clap;
+            delete moov_trak_mdia_minf_stbl_stsd_xxxx_colr;
+            delete moov_trak_mdia_minf_stbl_stsd_xxxx_fiel;
+            delete moov_trak_mdia_minf_stbl_stsd_xxxx_gama;
+            delete moov_trak_mdia_minf_stbl_stsd_xxxx_pasp;
+            delete moov_trak_tkhd;
+            delete moov_meta_hdlr;
             delete moov_meta_ilst;
             delete moov_meta_keys;
+
+            for (size_t Pos=0; Pos<moov_trak.size(); Pos++)
+                delete moov_trak[Pos];
+
+            for(map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_chan.begin();
+                It!=moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end(); It++)
+                delete It->second;
         }
     };
 
@@ -290,6 +507,8 @@ public:
             int8u*  Buffer;
             size_t  Buffer_Offset; //Internal use
             int64u  Size; //Header excluded
+            int64u  Before_Subs_Content_Size;
+            int64u  After_Subs_Content_Size;
             bool    IsModified;
             bool    IsRemovable;
             bool    Size_IsModified;
@@ -299,6 +518,8 @@ public:
                 Buffer=NULL;
                 Buffer_Offset=0;
                 Size=0;
+                Before_Subs_Content_Size=0;
+                After_Subs_Content_Size=0;
                 IsModified=false;
                 IsRemovable=false;
                 Size_IsModified=false;
@@ -313,10 +534,12 @@ public:
         int64u  File_In_Position;
         header  Header;
         content Content;
+        size_t  trak_Index;
 
         block()
         {
             File_In_Position=(int64u)-1;
+            trak_Index=0;
         }
     };
 
@@ -332,7 +555,15 @@ public:
     //---------------------------------------------------------------------------
     //Read/Write
     void Read                   (block &Chunk_In);
-    void Modify                 (int32u Chunk_Name_1, int32u Chunk_Name_2, int32u Chunk_Name_3);
+    void Modify                 (int32u Chunk_Name_1,
+                                 int32u Chunk_Name_2=0x00000000,
+                                 int32u Chunk_Name_3=0x00000000,
+                                 int32u Chunk_Name_4=0x00000000,
+                                 int32u Chunk_Name_5=0x00000000,
+                                 int32u Chunk_Name_6=0x00000000,
+                                 int32u Chunk_Name_7=0x00000000,
+                                 int32u Chunk_Name_8=0x00000000,
+                                 int32u Chunk_Name_9=0x00000000);
     void Modify                 ()                                              {Modify_Internal();};
     void Write                  ();
 
@@ -422,7 +653,15 @@ public: //protected :
     //---------------------------------------------------------------------------
     //Read/Write helpers
     void Read_Internal_ReadAllInBuffer  ();
-    void Modify_Internal_Subs           (int32u Chunk_Name_0, int32u Chunk_Name_1, int32u Chunk_Name_2);
+    void Modify_Internal_Subs           (int32u Chunk_Name_1,
+                                         int32u Chunk_Name_2=0x00000000,
+                                         int32u Chunk_Name_3=0x00000000,
+                                         int32u Chunk_Name_4=0x00000000,
+                                         int32u Chunk_Name_5=0x00000000,
+                                         int32u Chunk_Name_6=0x00000000,
+                                         int32u Chunk_Name_7=0x00000000,
+                                         int32u Chunk_Name_8=0x00000000,
+                                         int32u Chunk_Name_9=0x00000000);
     void Write_Internal_Subs            ();
 
     //***************************************************************************
@@ -451,7 +690,7 @@ public: //protected :
 //***************************************************************************
 
 #define SUBS_BEGIN() \
-    while (Global->In.Position_Get()<Chunk.File_In_Position+Chunk.Header.Size+Chunk.Content.Size) \
+    while (Global->In.Position_Get()+8<Chunk.File_In_Position+Chunk.Header.Size+Chunk.Content.Size) \
     { \
         block NewChunk; \
         NewChunk.Header.Level=Chunk.Header.Level+1; \

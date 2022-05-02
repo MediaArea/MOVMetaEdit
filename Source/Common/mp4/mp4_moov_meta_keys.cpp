@@ -57,7 +57,10 @@ void mp4_moov_meta_keys::Read_Internal ()
 //---------------------------------------------------------------------------
 void mp4_moov_meta_keys::Modify_Internal()
 {
-    if (!Global->moov_meta_keys_AlreadyPresent && Global->moov_meta_keys_NewKeys.empty())
+    if (Chunk.Content.IsModified)
+        return; //Already done, can be done once only
+
+    if (!Global->moov_meta_keys && Global->moov_meta_keys_NewKeys.empty())
     {
         Chunk.Content.IsRemovable = true;
         return;
@@ -82,6 +85,15 @@ void mp4_moov_meta_keys::Modify_Internal()
         Chunk.Content.Buffer_Offset=Chunk.Content.Size;
         int8u* t=new int8u[Chunk.Content.Size+Size_ToAdd];
         memcpy(t, Chunk.Content.Buffer, Chunk.Content.Size);
+
+        //Migrate keys
+        for (size_t Pos=0; Pos<Global->moov_meta_keys->Keys.size(); Pos++)
+        {
+            size_t Offset=(size_t)(Global->moov_meta_keys->Keys[Pos].value-Chunk.Content.Buffer);
+            Global->moov_meta_keys->Keys[Pos].value=t+Offset;
+        }
+
+        //Replace buffer
         delete[] Chunk.Content.Buffer;
         Chunk.Content.Buffer=t;
         Chunk.Content.Size+=Size_ToAdd;

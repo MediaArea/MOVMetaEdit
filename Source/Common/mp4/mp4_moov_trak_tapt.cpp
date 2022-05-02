@@ -13,17 +13,14 @@
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void mp4_moov::Read_Internal ()
+void mp4_moov_trak_tapt::Read_Internal ()
 {
+
     //Filling
-    mp4_Base::global::block_moov* moov=new mp4_Base::global::block_moov;
-    moov->File_Offset=Global->In.Position_Get();
-    Global->moov.push_back(moov);
-
-
     SUBS_BEGIN();
-        SUB_ELEMENT(moov_trak);
-        SUB_ELEMENT(moov_meta);
+        SUB_ELEMENT(moov_trak_tapt_clef);
+        SUB_ELEMENT(moov_trak_tapt_prof);
+        SUB_ELEMENT(moov_trak_tapt_enof);
     SUBS_END();
 }
 
@@ -32,20 +29,24 @@ void mp4_moov::Read_Internal ()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-size_t mp4_moov::Insert_Internal (int32u Chunk_Name_Insert)
+size_t mp4_moov_trak_tapt::Insert_Internal (int32u Chunk_Name_Insert)
 {
     mp4_Base* NewChunk;
     switch (Chunk_Name_Insert)
     {
-        case Elements::moov_meta :  NewChunk=new mp4_moov_meta(Global); break;
-        default                  :  return Subs.size();
+        case Elements::moov_trak_tapt_clef :  NewChunk=new mp4_moov_trak_tapt_clef(Global); break;
+        case Elements::moov_trak_tapt_prof :  NewChunk=new mp4_moov_trak_tapt_prof(Global); break;
+        case Elements::moov_trak_tapt_enof :  NewChunk=new mp4_moov_trak_tapt_enof(Global); break;
+        default                            :  return Subs.size();
     }
 
     size_t Subs_Pos;
     switch (Chunk_Name_Insert)
     {
-        case Elements::moov_meta :  Subs_Pos=(size_t)-1                                                            ; break;
-        default                  :  return Subs.size();
+        case Elements::moov_trak_tapt_clef :  Subs_Pos=(size_t)-1                         ; break;
+        case Elements::moov_trak_tapt_prof :  Subs_Pos=(size_t)-1                         ; break;
+        case Elements::moov_trak_tapt_enof :  Subs_Pos=(size_t)-1                         ; break;
+        default                            :  return Subs.size();
     }
 
     NewChunk->Modify();

@@ -149,12 +149,62 @@ void Structure::moov_trak(atom* Up)
 
         switch (Item->Code)
         {
+            case Element::tapt: moov_trak_tapt(Item); break;
             case Element::tkhd: moov_trak_tkhd(Item); break;
             case Element::mdia: moov_trak_mdia(Item); break;
             default:;
         }
     }
 }
+
+void Structure::moov_trak_tapt(atom* Up)
+{
+    for (;;)
+    {
+        atom* Item = Up->Next();
+        if (Item == NULL)
+            break;
+        if (!Item->IsOk)
+        {
+            IsOk = false;
+            break;
+        }
+
+        switch (Item->Code)
+        {
+        case Element::clef: moov_trak_tapt_clef(Item); break;
+        case Element::prof: moov_trak_tapt_prof(Item); break;
+        case Element::enof: moov_trak_tapt_enof(Item); break;
+        default:;
+        }
+    }
+}
+
+#define moov_trak_tapt_(name) \
+void Structure::moov_trak_tapt_##name(atom* Up) \
+{ \
+    if (!Up->DataLoad()) \
+    { \
+        IsOk = false; \
+        return; \
+    } \
+\
+    if (Up->DataSize != 12) \
+    { \
+        cout << " Can not parse moov_trak_tapt_" #name " (wrong size)"  << " " << Up->DataSize << endl; \
+        return; \
+    } \
+\
+    Track->name.version = (*Up->DataContent + 0); \
+    Track->name.width = BigEndian2int16u(Up->DataContent + 4); \
+    Track->name.height = BigEndian2int16u(Up->DataContent + 8); \
+\
+    cout << #name ": " << Track->name.width << "x" << Track->name.height << endl; \
+}
+
+moov_trak_tapt_(clef)
+moov_trak_tapt_(prof)
+moov_trak_tapt_(enof)
 
 void Structure::moov_trak_tkhd(atom* Up)
 {
@@ -350,7 +400,12 @@ void Structure::moov_trak_mdia_minf_stbl_stsd_xxxxVideo(atom* Up)
 
         switch (Item->Code)
         {
+        case Element::chan: moov_trak_mdia_minf_stbl_stsd_xxxx_chan(Item); break;
+        case Element::clap: moov_trak_mdia_minf_stbl_stsd_xxxx_clap(Item); break;
+        case Element::fiel: moov_trak_mdia_minf_stbl_stsd_xxxx_fiel(Item); break;
         case Element::pasp: moov_trak_mdia_minf_stbl_stsd_xxxx_pasp(Item); break;
+        case Element::colr: moov_trak_mdia_minf_stbl_stsd_xxxx_colr(Item); break;
+        case Element::gama: moov_trak_mdia_minf_stbl_stsd_xxxx_gama(Item); break;
         default:;
         }
     }
@@ -372,6 +427,81 @@ void Structure::moov_trak_mdia_minf_stbl_stsd_xxxxVideo(atom* Up)
     Video->UpTotalSizes.push_back(Up->TotalSize);
 }
 
+void Structure::moov_trak_mdia_minf_stbl_stsd_xxxx_chan(atom* Up)
+{
+    if (!Up->DataLoad())
+    {
+        IsOk = false;
+        return;
+    }
+
+   /* if (Up->DataSize != 32)
+    {
+        cout << " Can not parse moov_trak_mdia_minf_stbl_stsd_xxxx_clap (wrong size)"  << " " << Up->DataSize << endl;
+        return;
+    }
+
+    Video->clap.Offset = Up->StreamOffset + Up->HeaderSize;
+    Video->clap.aperture_width_n = BigEndian2int32u(Up->DataContent + 0);
+    Video->clap.aperture_width_d = BigEndian2int32u(Up->DataContent + 4);
+    Video->clap.aperture_height_n = BigEndian2int32u(Up->DataContent + 8);
+    Video->clap.aperture_height_d = BigEndian2int32u(Up->DataContent + 12);
+    Video->clap.orizontal_offset_n = BigEndian2int32u(Up->DataContent + 16);
+    Video->clap.orizontal_offset_d = BigEndian2int32u(Up->DataContent + 20);
+    Video->clap.vertical_offset_n = BigEndian2int32u(Up->DataContent + 24);
+    Video->clap.vertical_offset_d = BigEndian2int32u(Up->DataContent + 28);*/
+
+    cout << "chan: size=" << Up->DataSize << endl;
+}
+
+void Structure::moov_trak_mdia_minf_stbl_stsd_xxxx_clap(atom* Up)
+{
+    if (!Up->DataLoad())
+    {
+        IsOk = false;
+        return;
+    }
+
+    if (Up->DataSize != 32)
+    {
+        cout << " Can not parse moov_trak_mdia_minf_stbl_stsd_xxxx_clap (wrong size)"  << " " << Up->DataSize << endl;
+        return;
+    }
+
+    Video->clap.Offset = Up->StreamOffset + Up->HeaderSize;
+    Video->clap.aperture_width_n = BigEndian2int32u(Up->DataContent + 0);
+    Video->clap.aperture_width_d = BigEndian2int32u(Up->DataContent + 4);
+    Video->clap.aperture_height_n = BigEndian2int32u(Up->DataContent + 8);
+    Video->clap.aperture_height_d = BigEndian2int32u(Up->DataContent + 12);
+    Video->clap.orizontal_offset_n = BigEndian2int32u(Up->DataContent + 16);
+    Video->clap.orizontal_offset_d = BigEndian2int32u(Up->DataContent + 20);
+    Video->clap.vertical_offset_n = BigEndian2int32u(Up->DataContent + 24);
+    Video->clap.vertical_offset_d = BigEndian2int32u(Up->DataContent + 28);
+
+    //cout << "fiel fields: " << (int)Video->fiel.fields << " details: " << (int)Video->fiel.detail << endl;
+}
+
+void Structure::moov_trak_mdia_minf_stbl_stsd_xxxx_fiel(atom* Up)
+{
+    if (!Up->DataLoad())
+    {
+        IsOk = false;
+        return;
+    }
+
+    if (Up->DataSize != 2)
+    {
+        cout << " Can not parse moov_trak_mdia_minf_stbl_stsd_xxxx_fiel (wrong size)"  << " " << Up->DataSize << endl;
+        return;
+    }
+
+    Video->fiel.Offset = Up->StreamOffset + Up->HeaderSize;
+    Video->fiel.fields = *(Up->DataContent + 0);
+    Video->fiel.detail = *(Up->DataContent + 1);
+
+    //cout << "fiel fields: " << (int)Video->fiel.fields << " details: " << (int)Video->fiel.detail << endl;
+}
+
 void Structure::moov_trak_mdia_minf_stbl_stsd_xxxx_pasp(atom* Up)
 {
     if (!Up->DataLoad())
@@ -389,6 +519,51 @@ void Structure::moov_trak_mdia_minf_stbl_stsd_xxxx_pasp(atom* Up)
     Video->pasp.Offset = Up->StreamOffset + Up->HeaderSize;
     Video->pasp.h = BigEndian2int32u(Up->DataContent + 0);
     Video->pasp.v = BigEndian2int32u(Up->DataContent + 4);
+}
+
+
+void Structure::moov_trak_mdia_minf_stbl_stsd_xxxx_colr(atom* Up)
+{
+    if (!Up->DataLoad())
+    {
+        IsOk = false;
+        return;
+    }
+
+    if (Up->DataSize != 10)
+    {
+        cout << " Can not parse moov_trak_mdia_minf_stbl_stsd_xxxx_colr (wrong size)"  << " " << Up->DataSize << endl;
+        return;
+    }
+
+    Video->colr.Offset = Up->StreamOffset + Up->HeaderSize;
+    Video->colr.type = BigEndian2int32u(Up->DataContent + 0);
+    Video->colr.primary = BigEndian2int16u(Up->DataContent + 4);
+    Video->colr.transfer = BigEndian2int16u(Up->DataContent + 6);
+    Video->colr.matrix = BigEndian2int16u(Up->DataContent + 8);
+
+    //cout << "colr type: 0x" << hex << Video->colr.type << " primary: " << Video->colr.primary << " transfer: " << Video->colr.transfer << " matrix: " << Video->colr.matrix << endl;
+}
+
+void Structure::moov_trak_mdia_minf_stbl_stsd_xxxx_gama(atom* Up)
+{
+    if (!Up->DataLoad())
+    {
+        IsOk = false;
+        return;
+    }
+
+    if (Up->DataSize != 4)
+    {
+        cout << " Can not parse moov_trak_mdia_minf_stbl_stsd_xxxx_gama (wrong size)"  << " " << Up->DataSize << endl;
+        return;
+    }
+
+    Video->gama.Offset = Up->StreamOffset + Up->HeaderSize;
+    Video->gama.gamma = ((double)BigEndian2int32u(Up->DataContent + 0) / (double)(1 << 16));
+
+    //cout << "gama: " << Video->gama.gamma << endl;
+    //cout << "orig: " << temp << ":" << (uint32_t)(Video->gama.gamma * (1 << 16)) << endl;
 }
 
 void Structure::moov_trak_mdia_minf_vmhd(atom* Up)

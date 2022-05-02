@@ -8,7 +8,10 @@
 #include "Common/mp4_Handler.h"
 #include "Common/mp4/mp4_.h"
 #include <sstream>
+#include <iomanip>
+#include <cstdlib>
 #include <iostream>
+#include <algorithm>
 #include "ZenLib/File.h"
 #include "ZenLib/Dir.h"
 
@@ -24,6 +27,189 @@ using namespace ZenLib;
 const string mp4_Handler_EmptyZtring_Const; //Use it when we can't return a reference to a true Ztring, const version
 //---------------------------------------------------------------------------
 
+//***************************************************************************
+// Helpers
+//***************************************************************************
+
+//---------------------------------------------------------------------------
+static string mp4_chan_ChannelDescription (uint32_t ChannelLabel)
+{
+    switch(ChannelLabel)
+    {
+        case   0 : return "(None)";
+        case   1 : return "L";
+        case   2 : return "R";
+        case   3 : return "C";
+        case   4 : return "LFE";
+        case   5 : return "Ls";
+        case   6 : return "Rs";
+        case   7 : return "Lc";
+        case   8 : return "Rc";
+        case   9 : return "Cs";
+        case  10 : return "Lsd";
+        case  11 : return "Rsd";
+        case  12 : return "Tcs";
+        case  13 : return "Vhl";
+        case  14 : return "Vhc";
+        case  15 : return "Vhr";
+        case  16 : return "Trs";
+        case  17 : return "Trs";
+        case  18 : return "Trs";
+        case  33 : return "Lrs";
+        case  34 : return "Rrs";
+        case  35 : return "Lw";
+        case  36 : return "Rw";
+        case  37 : return "LFE2";
+        case  38 : return "Lt";
+        case  39 : return "Rt";
+        case  40 : return "HearingImpaired";
+        case  41 : return "Narration";
+        case  42 : return "M";
+        case  43 : return "DialogCentricMix";
+        case  44 : return "CenterSurroundDirect";
+        case  45 : return "Haptic";
+        case 200 : return "W";
+        case 201 : return "X";
+        case 202 : return "Y";
+        case 203 : return "Z";
+        case 204 : return "M";
+        case 205 : return "S";
+        case 206 : return "X";
+        case 207 : return "Y";
+        case 301 : return "HeadphonesLeft";
+        case 302 : return "HeadphonesRight";
+        case 304 : return "ClickTrack";
+        case 305 : return "ForeignLanguage";
+        case 400 : return "Discrete";
+        default  :
+                    if ((ChannelLabel>>16)==1) //0x10000 to 0x1FFFF, numbered Discrete
+                        return "Discrete-"+Ztring::ToZtring(ChannelLabel&0xFFFF).To_UTF8();
+                    return Ztring::ToZtring(ChannelLabel).To_UTF8();
+    }
+}
+
+//---------------------------------------------------------------------------
+bool mp4_chan_ChannelCode (string ChannelLabel, uint32_t &Code, bool& Delete)
+{
+    Delete=false;
+    Code=0;
+
+    if(ChannelLabel.empty())
+        return false;
+
+    istringstream iss(ChannelLabel);
+    iss >> Code;
+    if (!iss.fail() && iss.eof())
+        return true;
+
+    transform( ChannelLabel.begin(), ChannelLabel.end(), ChannelLabel.begin(), ::tolower);
+    if (ChannelLabel=="delete")
+        Delete=true;
+    else if (ChannelLabel=="")
+        Code=0;
+    else if (ChannelLabel=="l")
+        Code=1;
+    else if (ChannelLabel=="r")
+        Code=2;
+    else if (ChannelLabel=="c")
+        Code=3;
+    else if (ChannelLabel=="lfe")
+        Code=4;
+    else if (ChannelLabel=="ls")
+        Code=5;
+    else if (ChannelLabel=="rs")
+        Code=6;
+    else if (ChannelLabel=="lc")
+        Code=7;
+    else if (ChannelLabel=="rc")
+        Code=8;
+    else if (ChannelLabel=="cs")
+        Code=9;
+    else if (ChannelLabel=="lsd")
+        Code=10;
+    else if (ChannelLabel=="rsd")
+        Code=11;
+    else if (ChannelLabel=="tcs")
+        Code=12;
+    else if (ChannelLabel=="vhl")
+        Code=13;
+    else if (ChannelLabel=="vhc")
+        Code=14;
+    else if (ChannelLabel=="vhr")
+        Code=15;
+    else if (ChannelLabel=="trs")
+        Code=16;
+    else if (ChannelLabel=="trs2")
+        Code=17;
+    else if (ChannelLabel=="trs3")
+        Code=18;
+    else if (ChannelLabel=="lrs")
+        Code=33;
+    else if (ChannelLabel=="rrs")
+        Code=34;
+    else if (ChannelLabel=="lw")
+        Code=35;
+    else if (ChannelLabel=="rw")
+        Code=36;
+    else if (ChannelLabel=="lfe2")
+        Code=37;
+    else if (ChannelLabel=="lt")
+        Code=38;
+    else if (ChannelLabel=="rt")
+        Code=39;
+    else if (ChannelLabel=="hearingimpaired")
+        Code=40;
+    else if (ChannelLabel=="narration")
+        Code=41;
+    else if (ChannelLabel=="m")
+        Code=42;
+    else if (ChannelLabel=="dialogcentricmix")
+        Code=43;
+    else if (ChannelLabel=="centersurrounddirect")
+        Code=44;
+    else if (ChannelLabel=="haptic")
+        Code=45;
+    else if (ChannelLabel=="w")
+        Code=200;
+    else if (ChannelLabel=="x")
+        Code=201;
+    else if (ChannelLabel=="y")
+        Code=202;
+    else if (ChannelLabel=="z")
+        Code=203;
+    else if (ChannelLabel=="m2")
+        Code=204;
+    else if (ChannelLabel=="s")
+        Code=205;
+    else if (ChannelLabel=="x2")
+        Code=206;
+    else if (ChannelLabel=="y2")
+        Code=207;
+    else if (ChannelLabel=="headphonesleft")
+        Code=301;
+    else if (ChannelLabel=="headphonesright")
+        Code=302;
+    else if (ChannelLabel=="clicktrack")
+        Code=304;
+    else if (ChannelLabel=="foreignlanguage")
+        Code=305;
+    else if (ChannelLabel=="discrete")
+        Code=400;
+    else if (ChannelLabel.size()>9 && ChannelLabel.find("discrete-")==0)
+    {
+        uint32_t Number=0;
+        istringstream iss(ChannelLabel.substr(9));
+        iss >> Number;
+        if (iss.fail() || !iss.eof() || Number>0xFFFF)
+            return false;
+
+        Code=0x10000+Number;
+    }
+    else
+        return false;
+
+    return true;
+}
 //***************************************************************************
 // Constructor/Destructor
 //***************************************************************************
@@ -142,10 +328,55 @@ bool mp4_Handler::Save()
     }
 
     //Modifying the blocks in memory
-    Chunks->Modify(Elements::moov, Elements::moov_meta, Elements::moov_meta_hdlr);
-    Chunks->Modify(Elements::moov, Elements::moov_meta, Elements::moov_meta_keys);
-    Chunks->Modify(Elements::moov, Elements::moov_meta, Elements::moov_meta_ilst);
+    if (Chunks->Global->moov_meta_hdlr_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_meta, Elements::moov_meta_hdlr);
+    if (Chunks->Global->moov_meta_keys_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_meta, Elements::moov_meta_keys);
+    if (Chunks->Global->moov_meta_ilst_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_meta, Elements::moov_meta_ilst);
+    if (Chunks->Global->moov_trak_tapt_clef_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tapt, Elements::moov_trak_tapt_clef);
+    if (Chunks->Global->moov_trak_tapt_prof_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tapt, Elements::moov_trak_tapt_prof);
+    if (Chunks->Global->moov_trak_tapt_enof_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tapt, Elements::moov_trak_tapt_enof);
+    if (Chunks->Global->moov_trak_tkhd_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tkhd);
+    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_clap);
+    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_colr);
+    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_fiel);
+    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_gama);
+    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_pasp);
 
+    // Modify chan in all audio tracks
+    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified)
+    {
+        size_t trak_Index=0;
+        for (size_t Pos=0; Pos<Chunks->Subs.size(); Pos++)
+        {
+            if (Chunks->Subs[Pos]->Chunk.Header.Name==Elements::moov)
+            {
+                for (size_t Pos2=0; Pos2<Chunks->Subs[Pos]->Subs.size(); Pos2++)
+                {
+                    if (Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Header.Name==Elements::moov_trak)
+                    {
+                        if(trak_Index<Chunks->Global->moov_trak.size() && Chunks->Global->moov_trak[trak_Index]->IsSound)
+                            Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf,
+                                                                  Elements::moov_trak_mdia_minf_stbl,
+                                                                  Elements::moov_trak_mdia_minf_stbl_stsd,
+                                                                  Elements::moov_trak_mdia_minf_stbl_stsd_xxxxSound,
+                                                                  Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_chan);
+                            trak_Index++;
+                    }
+                }
+            }
+        }
+    }
     //Opening files
     if (!Chunks->Global->In.Open(Chunks->Global->File_Name))
     {
@@ -220,7 +451,7 @@ bool mp4_Handler::Save()
 
     CriticalSectionLocker(Chunks->Global->CS);
     Chunks->Global->Progress=1;
-    
+
     return true;
 }
 
@@ -263,7 +494,124 @@ string mp4_Handler::Get(const string &Field)
         }
         return string();
     }
-        
+    else if (Field=="clef")
+    {
+        if (!Chunks->Global->moov_trak_tapt_clef)
+            return string();
+
+        stringstream ss; ss << Chunks->Global->moov_trak_tapt_clef->Width << "x" << Chunks->Global->moov_trak_tapt_clef->Height;
+        return ss.str();
+    }
+    else if (Field=="prof")
+    {
+        if (!Chunks->Global->moov_trak_tapt_prof)
+            return string();
+
+        stringstream ss; ss << Chunks->Global->moov_trak_tapt_prof->Width << "x" << Chunks->Global->moov_trak_tapt_prof->Height;
+        return ss.str();
+    }
+    else if (Field=="enof")
+    {
+        if (!Chunks->Global->moov_trak_tapt_enof)
+            return string();
+
+        stringstream ss; ss << Chunks->Global->moov_trak_tapt_enof->Width << "x" << Chunks->Global->moov_trak_tapt_enof->Height;
+        return ss.str();
+    }
+    else if (Field=="fiel")
+    {
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel)
+            return string();
+
+        stringstream ss; ss << (uint16_t)Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel->Fields << ","
+                            << (uint16_t)Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel->Detail;
+        return ss.str();
+    }
+    else if (Field=="colr")
+    {
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr)
+            return string();
+
+        stringstream ss; ss << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Primaries << ","
+                            << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Transfer << ","
+                            << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Matrix;
+        return ss.str();
+    }
+    else if (Field=="gama")
+    {
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama)
+            return string();
+
+        stringstream ss; ss << setprecision(3) << fixed << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama->Gamma;
+        return ss.str();
+    }
+    else if (Field=="pasp")
+    {
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp)
+            return string();
+
+        stringstream ss; ss << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp->hSpacing << ":"
+                            << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp->vSpacing;
+        return ss.str();
+    }
+    else if (Field=="chan")
+    {
+        stringstream ss;
+        size_t Index=0;
+
+        for (size_t Pos=0; Pos<Chunks->Global->moov_trak.size(); Pos++)
+        {
+            if (!Chunks->Global->moov_trak[Pos]->IsSound)
+                continue;
+
+            map<size_t, mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*>::iterator It=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(Pos+1);
+            if (It!=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end())
+            {
+                if (!ss.str().empty())
+                    ss << ",";
+
+                ss << Index << ") ";
+                if (It->second->Descriptions.empty())
+                    ss << "(No description)";
+                else if (It->second->Descriptions.size()==1)
+                    ss << It->second->Descriptions[0].ChannelLabel << " - " << mp4_chan_ChannelDescription(It->second->Descriptions[0].ChannelLabel);
+                else
+                    ss << "(Multiples)";
+            }
+            Index++;
+        }
+        return ss.str();
+    }
+    else if (Field=="clap")
+    {
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap)
+            return string();
+
+        stringstream ss;
+        ss << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Width_Num;
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Width_Den!=1)
+            ss << ":" << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Width_Den;
+        ss << "," << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Height_Num;
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Height_Den!=1)
+            ss << ":" << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Height_Den;
+        ss << "," << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Horizontal_Offset_Num;
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Horizontal_Offset_Den!=1)
+            ss << ":" << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Horizontal_Offset_Den;
+        ss << "," << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Vertical_Offset_Num;
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Vertical_Offset_Den!=1)
+            ss << ":" << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Vertical_Offset_Den;
+
+        return ss.str();
+    }
+    else if (Field=="wscale")
+    {
+        if (!Chunks->Global->moov_trak_tkhd)
+            return string();
+
+        stringstream ss; ss << setprecision(3) << fixed << Chunks->Global->moov_trak_tkhd->Width_Scale;
+        return ss.str();
+    }
+
     mp4_Base::global::block_strings** Chunk_Strings=block_strings_Get(Field);
     if (!Chunk_Strings || !*Chunk_Strings)
         return string();
@@ -289,6 +637,9 @@ bool mp4_Handler::Set(const string &Field, const string &Value)
         {
             Chunks->Global->moov_meta_keys_NewKeys.push_back(Field);
             Chunks->Global->moov_meta_ilst_NewValues.push_back(Value);
+            Chunks->Global->moov_meta_hdlr_Modified=true;
+            Chunks->Global->moov_meta_keys_Modified=true;
+            Chunks->Global->moov_meta_ilst_Modified=true;
             return true;
         }
             
@@ -305,6 +656,9 @@ bool mp4_Handler::Set(const string &Field, const string &Value)
         {
             Chunks->Global->moov_meta_keys_NewKeys.push_back(Field);
             Chunks->Global->moov_meta_ilst_NewValues.push_back(Value);
+            Chunks->Global->moov_meta_hdlr_Modified=true;
+            Chunks->Global->moov_meta_keys_Modified=true;
+            Chunks->Global->moov_meta_ilst_Modified=true;
             return true;
         }
         
@@ -320,6 +674,9 @@ bool mp4_Handler::Set(const string &Field, const string &Value)
                 {
                     Item.ToBeReplacedBy=Value;
                     Item.ToBeReplacedBy_Modified=true;
+                    Chunks->Global->moov_meta_hdlr_Modified=true;
+                    Chunks->Global->moov_meta_keys_Modified=true;
+                    Chunks->Global->moov_meta_ilst_Modified=true;
                     return true;
                 }
             }
@@ -328,6 +685,292 @@ bool mp4_Handler::Set(const string &Field, const string &Value)
 
         Chunks->Global->moov_meta_keys_NewKeys.push_back(Field);
         Chunks->Global->moov_meta_ilst_NewValues.push_back(Value);
+        Chunks->Global->moov_meta_hdlr_Modified=true;
+        Chunks->Global->moov_meta_keys_Modified=true;
+        Chunks->Global->moov_meta_ilst_Modified=true;
+        return true;
+    }
+    else if (Field=="clef" || Field=="prof" || Field=="enof")
+    {
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo)
+            return false;
+
+        double Width=0, Height=0;
+        if (sscanf(Value.c_str(), "%lfx%lf", &Width, &Height)!=2)
+            return false;
+
+        if (Field=="clef")
+        {
+            if (!Chunks->Global->moov_trak_tapt_clef)
+                Chunks->Global->moov_trak_tapt_clef=new mp4_Base::global::block_moov_trak_tapt_xxxx();
+
+            Chunks->Global->moov_trak_tapt_clef->Width=Width;
+            Chunks->Global->moov_trak_tapt_clef->Height=Height;
+            Chunks->Global->moov_trak_tapt_clef_Modified=true;
+        }
+        else if (Field=="prof")
+        {
+            if (!Chunks->Global->moov_trak_tapt_prof)
+                Chunks->Global->moov_trak_tapt_prof=new mp4_Base::global::block_moov_trak_tapt_xxxx();
+
+            Chunks->Global->moov_trak_tapt_prof->Width=Width;
+            Chunks->Global->moov_trak_tapt_prof->Height=Height;
+            Chunks->Global->moov_trak_tapt_prof_Modified=true;
+        }
+        else if (Field=="enof")
+        {
+            if (!Chunks->Global->moov_trak_tapt_enof)
+                Chunks->Global->moov_trak_tapt_enof=new mp4_Base::global::block_moov_trak_tapt_xxxx();
+
+            Chunks->Global->moov_trak_tapt_enof->Width=Width;
+            Chunks->Global->moov_trak_tapt_enof->Height=Height;
+            Chunks->Global->moov_trak_tapt_enof_Modified=true;
+        }
+        return true;
+    }
+    else if (Field=="fiel")
+    {
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        uint16_t Fields=0, Detail=0;
+        if (sscanf(Value.c_str(), "%hu,%hu", &Fields, &Detail)!=2 || Fields>0xFF || Detail>0xFF)
+            return false;
+
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel)
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel();
+
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel->Fields=Fields;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel->Detail=Detail;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified=true;
+        return true;
+    }
+    else if (Field=="colr")
+    {
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        uint16_t Primaries=0, Transfer=0, Matrix=0;
+        if (sscanf(Value.c_str(), "%hu,%hu,%hu", &Primaries, &Transfer, &Matrix)!=3)
+        if (!Primaries || !Transfer || !Matrix)
+            return false;
+
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr)
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_colr();
+
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Primaries=Primaries;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Transfer=Transfer;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Matrix=Matrix;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified=true;
+        return true;
+    }
+    else if (Field=="gama")
+    {
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        double Gamma=0;
+        if (sscanf(Value.c_str(), "%lf", &Gamma)!=1)
+            return false;
+
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama)
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_gama();
+
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama->Gamma=Gamma;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified=true;
+        return true;
+    }
+    else if (Field=="pasp")
+    {
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        uint32_t hSpacing=0, vSpacing=0;
+        if (sscanf(Value.c_str(), "%u:%u", &hSpacing, &vSpacing)!=2)
+            return false;
+
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp)
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp();
+
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp->hSpacing=hSpacing;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp->vSpacing=vSpacing;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified=true;
+        return true;
+    }
+    else if (Field=="clap")
+    {
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        uint32_t Aperture_Width_Num=(uint32_t)-1, Aperture_Width_Den=1, Aperture_Height_Num=(uint32_t)-1, Aperture_Height_Den=1;
+        uint32_t Horizontal_Offset_Num=(uint32_t)-1, Horizontal_Offset_Den=1, Vertical_Offset_Num=(uint32_t)-1, Vertical_Offset_Den=1;
+
+        istringstream iss(Value);
+        iss >> Aperture_Width_Num;
+        if (!iss.good())
+            return false;
+        if (iss.peek()==':')
+        {
+            iss.ignore();
+            iss >> Aperture_Width_Den;
+            if (!iss.good())
+                return false;
+        }
+        if (iss.peek()!=',')
+            return false;
+        iss.ignore();
+        iss >> Aperture_Height_Num;
+        if (!iss.good())
+            return false;
+        if (iss.peek()==':')
+        {
+            iss.ignore();
+            iss >> Aperture_Height_Den;
+            if (!iss.good())
+                return false;
+        }
+        if (iss.peek()!=',')
+            return false;
+        iss.ignore();
+        iss >> Horizontal_Offset_Num;
+        if (!iss.good())
+            return false;
+        if (iss.peek()==':')
+        {
+            iss.ignore();
+            iss >> Horizontal_Offset_Den;
+            if (!iss.good())
+                return false;
+        }
+        if (iss.peek()!=',')
+            return false;
+        iss.ignore();
+        iss >> Vertical_Offset_Num;
+        if (iss.fail())
+            return false;
+        if (iss.peek()==':')
+        {
+            iss.ignore();
+            iss >> Vertical_Offset_Den;
+            if (iss.fail())
+                return false;
+        }
+
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap)
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap();
+
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Width_Num=Aperture_Width_Num;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Width_Den=Aperture_Width_Den;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Height_Num=Aperture_Height_Num;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Height_Den=Aperture_Height_Den;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Horizontal_Offset_Num=Horizontal_Offset_Num;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Horizontal_Offset_Den=Horizontal_Offset_Den;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Vertical_Offset_Num=Vertical_Offset_Num;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Vertical_Offset_Den=Vertical_Offset_Den;
+        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified=true;
+        return true;
+    }
+
+    else if (Field=="chan")
+    {
+        bool Ok=true;
+
+
+        size_t Start=0, End=0;
+        do
+        {
+            End=Value.find(',', Start);
+            string Current=Value.substr(Start, End!=string::npos?End-Start:string::npos);
+
+            size_t Equal_Pos=Current.find('=');
+            if (!Equal_Pos || Equal_Pos==string::npos || Equal_Pos+1==Current.size())
+            {
+                Ok=false;
+                break;
+            }
+
+            uint32_t Track;
+            uint32_t Code;
+            bool Delete=false;
+
+            istringstream iss(Current.substr(0, Equal_Pos));
+            iss >> Track;
+            if (iss.fail() || !iss.eof())
+            {
+                Ok=false;
+                break;
+            }
+
+            if (!mp4_chan_ChannelCode(Current.substr(Equal_Pos+1), Code, Delete))
+            {
+                Ok=false;
+                break;
+            }
+
+            size_t Index=0;
+            size_t trak_Index=0;
+            for (size_t Pos=0; Pos<Chunks->Global->moov_trak.size(); Pos++)
+            {
+                if (!Chunks->Global->moov_trak[Pos]->IsSound)
+                    continue;
+
+                if (Index++==Track)
+                {
+                    trak_Index=Pos+1; //Track indexes are 1 based
+                    break;
+                }
+            }
+
+            if (!trak_Index)
+            {
+                Ok=false;
+                continue;
+            }
+
+            if (!Chunks->Global->moov_trak[trak_Index-1]->IsSound || !Chunks->Global->moov_trak[trak_Index-1]->moov_trak_mdia_minf_stbl_stsd_xxxxSound_Present)
+            {
+                Ok=false;
+                continue;
+            }
+
+            if (Delete)
+            {
+                if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(trak_Index)!=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end())
+                {
+                    delete Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index];
+                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.erase(trak_Index);
+                }
+            }
+            else
+            {
+                if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(trak_Index)==Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end())
+                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan;
+
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->NumberChannelDescriptions=1;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->Descriptions.resize(1);
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->Descriptions[0].ChannelLabel=Code;
+            }
+        }
+        while((Start=Value.find_first_not_of(',', End))!=string::npos);
+
+        if (Ok)
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified=true;
+
+        return Ok;
+    }
+
+
+    else if (Field=="wscale")
+    {
+        if (!Chunks->Global->moov_trak_tkhd)
+            return false; // TODO: Error mesg
+
+        double wScale=0;
+        if (sscanf(Value.c_str(), "%lf", &wScale)!=1)
+            return false;
+
+        Chunks->Global->moov_trak_tkhd->Width_Scale=wScale;
+        Chunks->Global->moov_trak_tkhd_Modified=true;
         return true;
     }
 
@@ -345,7 +988,113 @@ bool mp4_Handler::Remove(const string &Field)
         return false;
     }
 
-    return Set(Field, string(), *block_strings_Get(Field), Chunk_Name2_Get(Field), Chunk_Name3_Get(Field)); 
+    if (Field=="clef")
+    {
+        if (Chunks->Global->moov_trak_tapt_clef)
+        {
+            delete Chunks->Global->moov_trak_tapt_clef;
+            Chunks->Global->moov_trak_tapt_clef=NULL;
+            Chunks->Global->moov_trak_tapt_clef_Modified=true;
+        }
+
+        return true;
+    }
+    else if (Field=="prof")
+    {
+        if (Chunks->Global->moov_trak_tapt_prof)
+        {
+            delete Chunks->Global->moov_trak_tapt_prof;
+            Chunks->Global->moov_trak_tapt_prof=NULL;
+            Chunks->Global->moov_trak_tapt_prof_Modified=true;
+        }
+
+        return true;
+    }
+    else if (Field=="enof")
+    {
+        if (Chunks->Global->moov_trak_tapt_enof)
+        {
+            delete Chunks->Global->moov_trak_tapt_enof;
+            Chunks->Global->moov_trak_tapt_enof=NULL;
+            Chunks->Global->moov_trak_tapt_enof_Modified=true;
+        }
+
+        return true;
+    }
+    else if (Field=="fiel")
+    {
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel)
+        {
+            delete Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel=NULL;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified=true;
+        }
+
+        return true;
+    }
+    else if (Field=="colr")
+    {
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr)
+        {
+            delete Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr=NULL;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified=true;
+        }
+
+        return true;
+    }
+    else if (Field=="gama")
+    {
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama)
+        {
+            delete Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama=NULL;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified=true;
+        }
+
+        return true;
+    }
+    else if (Field=="pasp")
+    {
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp)
+        {
+            delete Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp=NULL;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified=true;
+        }
+
+        return true;
+    }
+    else if (Field=="clap")
+    {
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap)
+        {
+            delete Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap=NULL;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified=true;
+        }
+
+        return true;
+    }
+    else if (Field=="chan")
+    {
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.empty())
+        {
+
+            for(map<size_t, mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*>::iterator It=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.begin();
+                It!=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end(); It++)
+                delete It->second;
+
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.clear();
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified=true;
+        }
+
+        return true;
+    }
+    else if (Field=="wscale")
+        return false;
+
+    return Set(Field, string(), *block_strings_Get(Field), Chunk_Name2_Get(Field), Chunk_Name3_Get(Field));
 }
 
 //---------------------------------------------------------------------------

@@ -132,8 +132,8 @@ void mp4_Base::Read (block &Chunk_In)
         if (Global->moov.size()>1)
             throw exception_valid("too many moov atoms");
         //moov must be after mdat
-        if (Global->moov[0]->File_Offset < Global->mdat->File_Offset_Begin)
-            throw exception_read_block("Faststart not yet supported");
+        //if (Global->moov[0]->File_Offset < Global->mdat->File_Offset_Begin)
+        //    throw exception_read_block("Faststart not yet supported");
         if (Global->moov[0]->File_Offset > Global->mdat->File_Offset_Begin && Global->moov[0]->File_Offset < Global->mdat->File_Offset_End)
             throw exception_read_block("moov atom between 2 mdat atoms not yet supported");
         //UniversalAdId fields already present not supported
@@ -242,22 +242,22 @@ void mp4_Base::Read_Internal_ReadAllInBuffer ()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void mp4_Base::Modify (int32u Chunk_Name_1, int32u Chunk_Name_2, int32u Chunk_Name_3)
+void mp4_Base::Modify (int32u Chunk_Name_1, int32u Chunk_Name_2, int32u Chunk_Name_3, int32u Chunk_Name_4, int32u Chunk_Name_5, int32u Chunk_Name_6, int32u Chunk_Name_7, int32u Chunk_Name_8, int32u Chunk_Name_9)
 {
     if (Chunk_Name_1==0x00000000)
         Modify_Internal();
     else
-        Modify_Internal_Subs(Chunk_Name_1, Chunk_Name_2, Chunk_Name_3);
+        Modify_Internal_Subs(Chunk_Name_1, Chunk_Name_2, Chunk_Name_3, Chunk_Name_4, Chunk_Name_5, Chunk_Name_6, Chunk_Name_7, Chunk_Name_8, Chunk_Name_9);
 }
 
 //---------------------------------------------------------------------------
-void mp4_Base::Modify_Internal_Subs (int32u Chunk_Name_1, int32u Chunk_Name_2, int32u Chunk_Name_3)
+void mp4_Base::Modify_Internal_Subs (int32u Chunk_Name_1, int32u Chunk_Name_2, int32u Chunk_Name_3, int32u Chunk_Name_4, int32u Chunk_Name_5, int32u Chunk_Name_6, int32u Chunk_Name_7, int32u Chunk_Name_8, int32u Chunk_Name_9)
 {
     //Parsing subs
     bool Sub_IsFound=false;
     size_t Sub_Pos=0;
     for (; Sub_Pos<Subs.size(); Sub_Pos++)
-        if (Subs[Sub_Pos]->Chunk.Header.Name==Chunk_Name_1)
+        if (Chunk_Name_1==0xFFFFFFFF || Subs[Sub_Pos]->Chunk.Header.Name==Chunk_Name_1)
             break;
     
     //Handling when sub is not present
@@ -265,13 +265,17 @@ void mp4_Base::Modify_Internal_Subs (int32u Chunk_Name_1, int32u Chunk_Name_2, i
     {
         Sub_Pos=Insert_Internal(Chunk_Name_1);
         if (Sub_Pos>=Subs.size())
+        {
+            if (Subs.empty() && !Chunk.Content.Before_Subs_Content_Size && !Chunk.Content.After_Subs_Content_Size)
+                Chunk.Content.IsRemovable=true;
             return; //Inserting is not supported
+        }
         Chunk.Content.IsModified=true;
         Chunk.Content.Size_IsModified=true;
     }
 
     //Modifying
-    Subs[Sub_Pos]->Modify(Chunk_Name_2, Chunk_Name_3, 0x00000000);
+    Subs[Sub_Pos]->Modify(Chunk_Name_2, Chunk_Name_3, Chunk_Name_4, Chunk_Name_5, Chunk_Name_6, Chunk_Name_7, Chunk_Name_8, Chunk_Name_9, 0x00000000);
     if (Subs[Sub_Pos]->Chunk.Content.IsModified)
         Chunk.Content.IsModified=true;
     if (Subs[Sub_Pos]->Chunk.Content.Size_IsModified)
@@ -282,7 +286,7 @@ void mp4_Base::Modify_Internal_Subs (int32u Chunk_Name_1, int32u Chunk_Name_2, i
         Chunk.Content.Size_IsModified=true;
         Subs.erase(Subs.begin()+Sub_Pos);
         Sub_Pos--;
-        if (Subs.empty())
+        if (Subs.empty() && !Chunk.Content.Before_Subs_Content_Size && !Chunk.Content.After_Subs_Content_Size)
             Chunk.Content.IsRemovable=true;
     }
 }
@@ -317,6 +321,8 @@ void mp4_Base::Write ()
     }
     else if (!IsModified())
         return; //Nothing to do if the file is not modifed (Level 0)
+    else
+        Block_Size_Get(); // Trigger free atom size update
 
     //Testing if block order is valid from user preferences
     if (Chunk.Header.Level==0 && Global->NewChunksAtTheEnd)
@@ -372,6 +378,15 @@ void mp4_Base::Write ()
     {
         if (!Subs.empty())
         {
+
+            if (Chunk.Content.Before_Subs_Content_Size)
+            {
+                int64u Content_Size=Chunk.Content.Size;
+                Chunk.Content.Size=Chunk.Content.Before_Subs_Content_Size;
+                Write_Internal();
+                Chunk.Content.Size=Content_Size;
+            }
+
             for (size_t Pos = 0; Pos < Subs.size(); Pos++)
             {
                 bool Out_Buffer_WriteAtEnd_Old = Global->Out_Buffer_WriteAtEnd;
@@ -384,16 +399,39 @@ void mp4_Base::Write ()
                         Pos++;
                 }
             }
+
+            if (Chunk.Content.After_Subs_Content_Size)
+            {
+                int64u Content_Size=Chunk.Content.Size;
+                Chunk.Content.Size=Chunk.Content.After_Subs_Content_Size;
+                Write_Internal();
+                Chunk.Content.Size=Content_Size;
+            }
+
+        }
+        else if (Chunk.Content.Before_Subs_Content_Size || Chunk.Content.After_Subs_Content_Size)
+        {
+            if (Chunk.Content.Before_Subs_Content_Size)
+            {
+                int64u Content_Size=Chunk.Content.Size;
+                Chunk.Content.Size=Chunk.Content.Before_Subs_Content_Size;
+                Write_Internal();
+                Chunk.Content.Size=Content_Size;
+            }
+
+            if (Chunk.Content.After_Subs_Content_Size)
+            {
+                int64u Content_Size=Chunk.Content.Size;
+                Chunk.Content.Size=Chunk.Content.After_Subs_Content_Size;
+                Write_Internal();
+                Chunk.Content.Size=Content_Size;
+            }
         }
         else
-        {
             Write_Internal();
-        }
     }
     else
-    {
         Write_Internal();
-    }
 
     if (Chunk.Header.Level==0 && Global->Out_Buffer_File_TryModification)
     {
@@ -406,8 +444,8 @@ void mp4_Base::Write ()
             //    Global->Out_Buffer_File_IsModified=false;
             if (Global->Out_Buffer_Begin.Size!=Global->mdat->File_Offset_Begin)
             {
-                throw exception_write("(Not yet implemented)"); 
-                Global->Out_Buffer_File_IsModified=false;
+                //throw exception_write("(Not yet implemented)"); 
+                //Global->Out_Buffer_File_IsModified=false;
             }
         }
 
@@ -642,50 +680,51 @@ void mp4_Base::Write_Internal_Subs ()
 //---------------------------------------------------------------------------
 int64u mp4_Base::Block_Size_Get ()
 {
-    if (!Chunk.Content.Size_IsModified || Subs.empty())
+    if ((!Chunk.Content.Size_IsModified || Subs.empty()) && !Chunk.Content.Before_Subs_Content_Size && !Chunk.Content.After_Subs_Content_Size)
     {
         if (!Chunk.Header.Size)
             Chunk.Header.Size = ((Chunk.Header.Size + Chunk.Content.Size) <= 0xFFFFFFFF ? 8 : 16);
         return Chunk.Header.Size + Chunk.Content.Size;
     }
-    
+
     //Parsing subs
-    int64u Size=0;
+    int64u Size=Chunk.Content.Before_Subs_Content_Size+Chunk.Content.After_Subs_Content_Size;
+
     for (size_t Pos=0; Pos<Subs.size(); Pos++)
     {
-        /*
-        if (Pos+1<Subs.size() && Subs[Pos]->Chunk.Header.Name==Elements::free && Subs[Pos+1]->Chunk.Header.Name==Elements::mdat)
+
+        if (Pos>0 && Pos+1<Subs.size() &&
+            Subs[Pos]->Chunk.File_In_Position < Global->mdat->File_Offset_Begin &&
+            Subs[Pos-1]->Chunk.Header.Name==Elements::moov &&
+            Subs[Pos]->Chunk.Header.Name==Elements::free)
             Subs.erase(Subs.begin()+Pos);
-        */
-        if (Pos>0 && Subs[Pos]->Chunk.Header.Name==Elements::mdat && Subs[Pos-1]->Chunk.Header.Name!=Elements::free)
+
+        if (Pos>0 && Pos<Subs.size() &&
+            Subs[Pos]->Chunk.File_In_Position <= Global->mdat->File_Offset_Begin &&
+            Subs[Pos-1]->Chunk.Header.Name==Elements::moov)
         {
             //Padding if we can
-            //if (12+Size+8+8<=Global->mdat->File_Offset || Size>Global->mdat->File_Offset)
+            int64u Next_Atom_Position=Subs[Pos]->Chunk.File_In_Position;
+            if (Size+8<=Next_Atom_Position)
             {
-                /*
                 if (Subs[Pos]->Chunk.Header.Name!=Elements::free)
                     Subs.insert(Subs.begin()+Pos, new mp4_free(Global));
-                Subs[Pos]->Chunk.Header.Level=Subs[Pos+1]->Chunk.Header.Level;
+                Subs[Pos]->Chunk.Header.Level=Subs[Pos-1]->Chunk.Header.Level;
                 Subs[Pos]->Chunk.Header.Name=Elements::free;
-                if (12+Size+8+8<=Global->data->File_Offset)
-                    Subs[Pos]->Chunk.Content.Size=Global->data->File_Offset-(12+Size+8+8); //Header + Size + free header + data header
-                if (Size>Global->data->File_Offset)
-                    Subs[Pos]->Chunk.Content.Size=mp4_free_DefaultSise; //Additional padding of mp4_free_DefaultSise.
+                Subs[Pos]->Chunk.Content.Size=Next_Atom_Position-Size-8;
                 Subs[Pos]->Chunk.Content.Buffer=new int8u[(size_t)Subs[Pos]->Chunk.Content.Size];
                 memset(Subs[Pos]->Chunk.Content.Buffer, 0x00, (size_t)Subs[Pos]->Chunk.Content.Size);
                 Subs[Pos]->Chunk.Content.IsModified=true;
                 Subs[Pos]->Chunk.Content.Size_IsModified=true;
-                */
             }
-            //else if (Subs[Pos]->Chunk.Header.Name==Elements::free)
-            {
-                /*
-                Subs.erase(Subs.begin()+Pos);
-                if (Pos>=Subs.size())
-                    break;
-                */
-            }
+            else if (Size<Next_Atom_Position) // no enough room for free atom
+                throw exception_write("No enough free space before mdat atom");
+            else if (Size>Next_Atom_Position) // moov atom is too big
+                throw exception_write("moov size exceeds free space before mdat atom");
+            //else // Size == Next_Atom_Position
+            // nothing to do
         }
+
         Size+=Subs[Pos]->Block_Size_Get();
     }
 

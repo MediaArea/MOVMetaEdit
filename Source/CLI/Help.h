@@ -19,7 +19,7 @@ void Set_Program_Name(const char* Name);
 //---------------------------------------------------------------------------
 ReturnValue Help();
 ReturnValue Help_AdID(bool WithExamples=true);
-ReturnValue Help_PAR(bool WithExamples=true);
+ReturnValue Help_Tech(bool WithExamples=true);
 ReturnValue Usage();
 ReturnValue Version();
 

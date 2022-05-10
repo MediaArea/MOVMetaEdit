@@ -35,8 +35,10 @@ void HelpDialog::on_Text1_anchorClicked(const QUrl& Link)
 {
     if (Link == QUrl("qrc:/Documentation/index.html"))
         Ui->Tab_Widget->setCurrentIndex(0);
-    else if (Link == QUrl("qrc:/Documentation/UniversalAdID.html"))
+    if (Link == QUrl("qrc:/Documentation/Technical.html"))
         Ui->Tab_Widget->setCurrentIndex(1);
+    else if (Link == QUrl("qrc:/Documentation/UniversalAdID.html"))
+        Ui->Tab_Widget->setCurrentIndex(2);
     else
         QDesktopServices::openUrl(Link);
 }

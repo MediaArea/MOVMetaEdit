@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1240</width>
+    <height>980</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -37,45 +37,122 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item row="1" column="0">
-     <widget class="TableWidget" name="Table_Widget">
-      <property name="contextMenuPolicy">
-       <enum>Qt::CustomContextMenu</enum>
-      </property>
-      <property name="editTriggers">
-       <set>QAbstractItemView::AllEditTriggers</set>
-      </property>
-      <property name="alternatingRowColors">
-       <bool>true</bool>
-      </property>
-      <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectRows</enum>
-      </property>
-      <property name="sortingEnabled">
-       <bool>true</bool>
-      </property>
-      <property name="columnCount">
-       <number>0</number>
-      </property>
-      <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
-      </attribute>
-     </widget>
-    </item>
     <item row="0" column="0">
-     <widget class="QLabel" name="Name">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Universal Ad ID editor</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
+     <widget class="QStackedWidget" name="StackedWidget">
+      <widget class="QWidget" name="Tech_Page">
+        <layout class="QGridLayout" name="Tech_Page_Layout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="1" column="0">
+          <widget class="TechTableWidget" name="Tech_Table_Widget">
+           <property name="contextMenuPolicy">
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::AllEditTriggers</set>
+           </property>
+           <property name="alternatingRowColors">
+            <bool>true</bool>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="sortingEnabled">
+            <bool>true</bool>
+           </property>
+           <property name="columnCount">
+            <number>0</number>
+           </property>
+           <attribute name="verticalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="Name">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Technical MetaData editor</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+      </widget>
+      <widget class="QWidget" name="Adid_Page">
+        <layout class="QGridLayout" name="Adid_Page_Layout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="1" column="0">
+          <widget class="TableWidget" name="Table_Widget">
+           <property name="contextMenuPolicy">
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::AllEditTriggers</set>
+           </property>
+           <property name="alternatingRowColors">
+            <bool>true</bool>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="sortingEnabled">
+            <bool>true</bool>
+           </property>
+           <property name="columnCount">
+            <number>0</number>
+           </property>
+           <attribute name="verticalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="Name">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Universal Ad ID editor</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -86,7 +163,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="Menu_File">
@@ -103,6 +180,13 @@
     <addaction name="separator"/>
     <addaction name="Menu_File_Quit"/>
    </widget>
+   <widget class="QMenu" name="Menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="Menu_View_Technical"/>
+    <addaction name="Menu_View_AdId"/>
+   </widget>
    <widget class="QMenu" name="Menu_Help">
     <property name="title">
      <string>&amp;Help</string>
@@ -111,6 +195,7 @@
     <addaction name="Menu_Help_About"/>
    </widget>
    <addaction name="Menu_File"/>
+   <addaction name="Menu_View"/>
    <addaction name="Menu_Help"/>
    <addaction name="Menu_New_Version"/>
   </widget>
@@ -300,15 +385,49 @@
     <bool>false</bool>
    </property>
   </action>
+  <actiongroup name="Menu_View_ActionGroup">
+  <action name="Menu_View_Technical">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Resource/Resource.qrc">
+     <normaloff>:/Image/View_Technical.png</normaloff>:/Image/View_Technical.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Technical</string>
+   </property>
+   <property name="toolTip">
+    <string>Technical metadata editor</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="Menu_View_AdId">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Resource/Resource.qrc">
+     <normaloff>:/Image/View_AdId.png</normaloff>:/Image/View_AdId.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Ad-Id</string>
+   </property>
+   <property name="toolTip">
+    <string>Ad-Id metadata editor</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
+   </property>
+  </action>
+  </actiongroup>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>TableWidget</class>
-   <extends>QTableWidget</extends>
-   <header>tablewidget.h</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../../Resource/Resource.qrc"/>
  </resources>

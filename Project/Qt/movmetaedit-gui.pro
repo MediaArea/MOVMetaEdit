@@ -57,6 +57,9 @@ SOURCES += \
         ../../Source/GUI/Qt/core.cpp \
         ../../Source/GUI/Qt/mainwindow.cpp \
         ../../Source/GUI/Qt/tablewidget.cpp \
+        ../../Source/GUI/Qt/techtablewidget.cpp \
+        ../../Source/GUI/Qt/chantablewidget.cpp \
+        ../../Source/GUI/Qt/channeldialog.cpp \
         ../../Source/GUI/Qt/aboutdialog.cpp \
         ../../Source/GUI/Qt/helpdialog.cpp\
         ../../Source/Common/AdID.cpp \
@@ -112,6 +115,9 @@ HEADERS += \
         ../../Source/GUI/Qt/core.h \
         ../../Source/GUI/Qt/mainwindow.h \
         ../../Source/GUI/Qt/tablewidget.h \
+        ../../Source/GUI/Qt/techtablewidget.h \
+        ../../Source/GUI/Qt/chantablewidget.h \
+        ../../Source/GUI/Qt/channeldialog.h \
         ../../Source/GUI/Qt/aboutdialog.h \
         ../../Source/GUI/Qt/helpdialog.h \
         ../../Source/GUI/Qt/config.h \
@@ -146,6 +152,7 @@ HEADERS += \
 
 FORMS += \
         ../../Source/GUI/Qt/mainwindow.ui \
+        ../../Source/GUI/Qt/channeldialog.ui \
         ../../Source/GUI/Qt/aboutdialog.ui \
         ../../Source/GUI/Qt/helpdialog.ui
 

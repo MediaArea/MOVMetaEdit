@@ -42,7 +42,7 @@ public:
     //---------------------------------------------------------------------------
     //Per Item
     string          Get                 (const string &Field);
-    bool            Set                 (const string &Field, const string &Value);
+    bool            Set                 (const string &Field, const string &Value, bool Simulate=false);
     bool            Remove              (const string &Field);
     string          History             (const string &Field);
     bool            IsOriginal          (const string &Field, const string &Value);
@@ -105,7 +105,7 @@ private:
 // Helpers
 //***************************************************************************
 
-//---------------------------------------------------------------------------
-bool mp4_chan_ChannelCode (string ChannelLabel, uint32_t &Code, bool& Delete);
+string mp4_chan_ChannelDescription (uint32_t ChannelLabel);
+bool mp4_chan_ChannelCode (string ChannelLabel, uint32_t &Code, bool& Ignore, bool& Delete);
 
 #endif

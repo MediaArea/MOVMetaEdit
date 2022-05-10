@@ -318,6 +318,7 @@ int main(int argc, char* argv[])
 
             size_t start=0, end=0, index=0;
             uint32_t code;
+            bool _ignore;
             bool _delete;
             do
             {
@@ -339,7 +340,7 @@ int main(int argc, char* argv[])
                         break;
                     }
 
-                    if (!mp4_chan_ChannelCode(current.substr(equal_pos+1, current.size()-equal_pos-1), code, _delete))
+                    if (!mp4_chan_ChannelCode(current.substr(equal_pos+1, current.size()-equal_pos-1), code, _ignore, _delete))
                     {
                         Ok=false;
                         break;
@@ -349,7 +350,7 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
-                    if (!mp4_chan_ChannelCode(current, code, _delete))
+                    if (!mp4_chan_ChannelCode(current, code, _ignore, _delete))
                     {
                         Ok=false;
                         break;
@@ -792,19 +793,38 @@ int main(int argc, char* argv[])
 
             string chan = H->Get("chan");
             {
-                size_t start=0, end=0;
+                size_t start=0, sep=0, end=0;
                 do
                 {
+                    sep = chan.find('=', start);
                     end = chan.find(',', start);
-                    string current=chan.substr(start, end - start);
 
-                    size_t track=0;
-                    istringstream(current) >> track;
-                    if (current.size() < 25)
-                        current.insert(0, 25 - current.size(), ' ');
-                    if (start!=0)
-                        cout << endl << string(FileNameFake.size() + 117, ' ') << '|';
-                    cout << current << "|" << ((chan_New.find(track)!=chan_New.end() || chan_Delete) ? ((OK && chan_OK.find(track)!=chan_OK.end() && chan_OK[track]) ? "Y" : "N") : " ") << "|";
+                    string number=chan.substr(start, sep - start);
+                    string value=chan.substr(sep+1, end-sep-1);
+
+                    if (value!="ABSENT")
+                    {
+                        string current = number + ") ";
+
+                        if (value=="NODESCRIPTION")
+                            current += "(No description)";
+                        else if (value=="MULTIPLES")
+                            current += "(Multiples)";
+                        else
+                        {
+                            size_t code=0;
+                            istringstream(value) >> code;
+                            current+=(mp4_chan_ChannelDescription(code));
+                        }
+
+                        size_t track=0;
+                        istringstream(number) >> track;
+                        if (current.size() < 25)
+                            current.insert(0, 25 - current.size(), ' ');
+                        if (start!=0)
+                            cout << endl << string(FileNameFake.size() + 117, ' ') << '|';
+                        cout << current << "|" << ((chan_New.find(track)!=chan_New.end() || chan_Delete) ? ((OK && chan_OK.find(track)!=chan_OK.end() && chan_OK[track]) ? "Y" : "N") : " ") << "|";
+                    }
                 }
                 while((start=chan.find_first_not_of(',', end))!=std::string::npos);
             }

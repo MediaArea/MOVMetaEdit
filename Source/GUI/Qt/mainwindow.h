@@ -53,10 +53,14 @@ private slots:
     void on_Menu_Help_About_triggered();
     void on_Menu_File_Close_triggered();
     void on_Menu_File_Close_All_triggered();
+    void on_Menu_View_Technical_triggered();
+    void on_Menu_View_AdId_triggered();
     void on_Table_Widget_itemSelectionChanged();
+    void on_Tech_Table_Widget_itemSelectionChanged();
     void on_Menu_New_Version_triggered();
+    void Enable_Menu_Save_All();
     void Show_Context_Menu(const QPoint&);
-    void Table_Widget_Changed();
+    void Tech_Table_Widget_Changed();
 #if !defined(MOVMETAEDIT_NO_VERSION_CHECK)
     void CheckUpdateReceived(QNetworkReply*);
 #endif

@@ -1,0 +1,16 @@
+movmetaedit --clean 1920x1080 Files/*/*
+movmetaedit --prod 1920x1080 Files/*/*
+movmetaedit --pixels 1920x1080 Files/*/*
+movmetaedit --field 1,2 Files/*/*
+movmetaedit --color 1,2,3 Files/*/*
+movmetaedit --gamma 1.899999 Files/*/*
+movmetaedit --aperture 100:2,200,300:1,400:2 Files/*/*
+movmetaedit --channels L,R Files/*/*
+movmetaedit --clean-delete Files/*/*
+movmetaedit --prod-delete Files/*/*
+movmetaedit --pixels-delete Files/*/*
+movmetaedit --field-delete Files/*/*
+movmetaedit --color-delete Files/*/*
+movmetaedit --gamma-delete Files/*/*
+movmetaedit --aperture-delete Files/*/*
+movmetaedit --channels-delete Files/*/*

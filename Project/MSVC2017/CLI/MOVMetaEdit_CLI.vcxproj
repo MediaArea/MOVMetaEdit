@@ -43,6 +43,8 @@
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.cpp" />
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_gama.cpp" />
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clli.cpp" />
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_stbl_stsd_xxxxSound.cpp" />
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_chan.cpp" />
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_vmhd.cpp" />
@@ -53,6 +55,7 @@
     <ClCompile Include="..\..\..\Source\movedit_atomread.cpp" />
     <ClCompile Include="..\..\..\Source\movedit_main.cpp" />
     <ClCompile Include="..\..\..\Source\movedit_structure.cpp" />
+    <ClCompile Include="..\..\..\Source\ThirdParty\tfsxml\tfsxml.c" />
     <ClCompile Include="..\..\..\Source\ZenLib\Conf.cpp" />
     <ClCompile Include="..\..\..\Source\ZenLib\CriticalSection.cpp" />
     <ClCompile Include="..\..\..\Source\ZenLib\Dir.cpp" />
@@ -81,6 +84,7 @@
     <ClInclude Include="..\..\..\Source\Common\mp4_Handler.h" />
     <ClInclude Include="..\..\..\Source\movedit_atomread.h" />
     <ClInclude Include="..\..\..\Source\movedit_structure.h" />
+    <ClInclude Include="..\..\..\Source\ThirdParty\tfsxml\tfsxml.h" />
     <ClInclude Include="..\..\..\Source\ZenLib\BitStream.h" />
     <ClInclude Include="..\..\..\Source\ZenLib\BitStream_Fast.h" />
     <ClInclude Include="..\..\..\Source\ZenLib\BitStream_LE.h" />

@@ -81,6 +81,8 @@ SOURCES += \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_gama.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clli.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxxSound.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_chan.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_vmhd.cpp \
@@ -92,6 +94,7 @@ SOURCES += \
         ../../Source/Common/mp4_Base.cpp \
         ../../Source/Common/mp4_Base_parsing.cpp \
         ../../Source/Common/mp4_Handler.cpp \
+        ../../Source/ThirdParty/tfsxml/tfsxml.c \
 		../../Source/ZenLib/Conf.cpp \
 		../../Source/ZenLib/CriticalSection.cpp \
 		../../Source/ZenLib/Dir.cpp \
@@ -125,6 +128,7 @@ HEADERS += \
         ../../Source/Common/mp4_Base.h \
         ../../Source/Common/mp4_Handler.h \
         ../../Source/Common/mp4/mp4_.h \
+        ../../Source/ThirdParty/tfsxml/tfsxml.h \
 		../../Source/ZenLib/BitStream.h \
 		../../Source/ZenLib/BitStream_Fast.h \
 		../../Source/ZenLib/BitStream_LE.h \

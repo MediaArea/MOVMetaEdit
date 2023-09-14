@@ -21,6 +21,8 @@ movmetaedit_SOURCES = \
     ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.cpp \
     ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_gama.cpp \
     ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv.cpp \
+    ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clli.cpp \
     ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxxSound.cpp \
     ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_chan.cpp \
     ../../../Source/Common/mp4/mp4_moov_trak_mdia_minf_vmhd.cpp \
@@ -53,9 +55,10 @@ movmetaedit_SOURCES = \
     ../../../Source/ZenLib/ZtringListList.cpp \
     ../../../Source/ZenLib/ZtringListListF.cpp \
     ../../../Source/ZenLib/int128s.cpp \
-    ../../../Source/ZenLib/int128u.cpp
+    ../../../Source/ZenLib/int128u.cpp \
+    ../../../Source/ThirdParty/tfsxml/tfsxml.c
 
-AM_CPPFLAGS = -std=c++0x -I../../../Source
+AM_CXXFLAGS = -std=c++0x -I../../../Source
 
 AM_TESTS_FD_REDIRECT = 9>&2
 

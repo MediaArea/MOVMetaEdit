@@ -10,6 +10,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cstdlib>
+#include <cmath>
 #include <iostream>
 #include <algorithm>
 #include "ZenLib/File.h"
@@ -30,6 +31,32 @@ const string mp4_Handler_EmptyZtring_Const; //Use it when we can't return a refe
 //***************************************************************************
 // Helpers
 //***************************************************************************
+
+//---------------------------------------------------------------------------
+int tfsxml_next_named(tfsxml_string* tfsxml_priv, tfsxml_string* result, const char* name)
+{
+
+    while (!tfsxml_next(tfsxml_priv, result))
+    {
+        if (!tfsxml_strcmp_charp(*result, name))
+            return 0;
+    }
+
+    return -1;
+}
+
+//---------------------------------------------------------------------------
+int tfsxml_last_named(tfsxml_string* tfsxml_priv, tfsxml_string* result, const char* name)
+{
+    while (!tfsxml_next_named(tfsxml_priv, result, name))
+    {
+        tfsxml_string tfsxml_priv_local = *tfsxml_priv, result_local = *result;
+        if (tfsxml_next_named(&tfsxml_priv_local, &result_local, name))
+            return 0;
+    }
+
+    return -1;
+}
 
 //---------------------------------------------------------------------------
 string mp4_chan_ChannelDescription (uint32_t ChannelLabel)
@@ -226,6 +253,7 @@ mp4_Handler::mp4_Handler ()
     //Configuration
     Overwrite_Reject=false;
     NewChunksAtTheEnd=false;
+    HdrDataFromXmlId=(size_t)-1;
 
     //Internal
     Chunks=NULL;
@@ -358,6 +386,10 @@ bool mp4_Handler::Save()
         Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_gama);
     if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified)
         Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_pasp);
+    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv);
+    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified)
+        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_clli);
 
     // Modify chan in all audio tracks
     if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified)
@@ -566,6 +598,48 @@ string mp4_Handler::Get(const string &Field)
 
         stringstream ss; ss << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp->hSpacing << ":"
                             << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp->vSpacing;
+        return ss.str();
+    }
+    else if (Field=="display_primaries")
+    {
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv)
+            return string();
+
+        stringstream ss;
+        for (size_t c = 0; c < Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries.size(); c++)
+            ss << (c ? "," : "") << setprecision(3) << fixed << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[c];
+
+        return ss.str();
+    }
+    else if (Field=="luminance")
+    {
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv)
+            return string();
+
+        stringstream ss;
+        ss << setprecision(4) << fixed << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[1] << "," 
+           << setprecision(4) << fixed << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[0];
+
+        return ss.str();
+    }
+    else if (Field=="maximum_content_light_level")
+    {
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli)
+            return string();
+
+        stringstream ss;
+        ss << setprecision(4) << fixed << round(Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_content_light_level);
+
+        return ss.str();
+    }
+    else if (Field=="maximum_frame_average_light_level")
+    {
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli)
+            return string();
+
+        stringstream ss;
+        ss << setprecision(4) << fixed << round(Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_frame_average_light_level);
+
         return ss.str();
     }
     else if (Field=="chan")
@@ -827,6 +901,284 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
             Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp->vSpacing=vSpacing;
             Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified=true;
         }
+        return true;
+    }
+    else if (Field=="display_primaries")
+    {
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        double x1=0,y1=0,x2=0,y2=0,x3=0,y3=0, wp_x=0, wp_y=0;
+        if (sscanf(Value.c_str(), "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &x1, &y1, &x2, &y2, &x3, &y3, &wp_x, &wp_y)!=8)
+            return false;
+
+        if (!Simulate)
+        {
+            if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv)
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv();
+
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[0]=x1;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[1]=y1;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[2]=x2;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[3]=y2;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[4]=x3;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[5]=y3;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[6]=wp_x;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[7]=wp_y;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified=true;
+        }
+        return true;
+    }
+    else if (Field=="luminance")
+    {
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        double max=0,min=0;
+        if (sscanf(Value.c_str(), "%lf,%lf", &max, &min)!=2)
+            return false;
+
+        if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv) // Check if primaries values are present
+            return false;
+
+        if (!Simulate)
+        {
+            if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv)
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv();
+
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[0]=max;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[1]=min;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified=true;
+        }
+        return true;
+    }
+    else if (Field=="maximum_content_light_level")
+    {
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        double max=0;
+        if (sscanf(Value.c_str(), "%lf", &max)!=1)
+            return false;
+
+        if (!Simulate)
+        {
+            if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli)
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli();
+
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_content_light_level=max;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified=true;
+        }
+        return true;
+    }
+    else if (Field=="maximum_frame_average_light_level")
+    {
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        double max=0;
+        if (sscanf(Value.c_str(), "%lf", &max)!=1)
+            return false;
+
+        if (!Simulate)
+        {
+            if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli)
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli();
+
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_frame_average_light_level=max;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified=true;
+        }
+        return true;
+    }
+    else if (Field=="hdr_data_from_xml")
+    {
+        string tmp;
+        bool mdcv=false, clli=false;
+        double x1=0, y1=0, x2=0, y2=0, x3=0, y3=0, wp_x=0, wp_y=0, luminance_min=0, luminance_max=0, max_cll=-1, max_fall=-1;
+        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        tfsxml_string tfsxml_priv, tfsxml_priv_backup, result;
+        tfsxml_init(&tfsxml_priv, (const void*)Value.c_str(), Value.size());
+        if (tfsxml_last_named(&tfsxml_priv, &result, "DolbyLabsMDF") || tfsxml_enter(&tfsxml_priv) ||
+            tfsxml_last_named(&tfsxml_priv, &result, "Outputs") || tfsxml_enter(&tfsxml_priv) ||
+            tfsxml_last_named(&tfsxml_priv, &result, "Output") || tfsxml_enter(&tfsxml_priv) ||
+            tfsxml_last_named(&tfsxml_priv, &result, "Video") || tfsxml_enter(&tfsxml_priv) ||
+            tfsxml_last_named(&tfsxml_priv, &result, "Track") || tfsxml_enter(&tfsxml_priv))
+            return false;
+
+        tfsxml_priv_backup = tfsxml_priv;
+
+        if (!tfsxml_last_named(&tfsxml_priv, &result, "Level6") && !tfsxml_enter(&tfsxml_priv))
+        {
+            if (!tfsxml_last_named(&tfsxml_priv, &result, "MaxCLL"))
+            {
+                if (tfsxml_value(&tfsxml_priv, &result))
+                    return false;
+
+                tmp = string(result.buf, result.len);
+                if (sscanf(tmp.c_str(), "%lf", &max_cll)!=1)
+                    return false;
+            }
+    
+            if (!tfsxml_last_named(&tfsxml_priv, &result, "MaxFALL"))
+            {
+                if (tfsxml_value(&tfsxml_priv, &result))
+                    return false;
+
+                tmp = string(result.buf, result.len);
+                if (sscanf(tmp.c_str(), "%lf", &max_fall)!=1)
+                    return false;
+            }
+
+            clli=true;
+        }
+    
+        tfsxml_priv = tfsxml_priv_backup;
+
+        if (tfsxml_last_named(&tfsxml_priv, &result, "PluginNode") || tfsxml_enter(&tfsxml_priv) ||
+            tfsxml_last_named(&tfsxml_priv, &result, "DVGlobalData") || tfsxml_enter(&tfsxml_priv))
+            return false;
+
+        bool display_found = false;
+        while (!tfsxml_next_named(&tfsxml_priv, &result, "MasteringDisplay"))
+        {
+            if (HdrDataFromXmlId!=(size_t)-1)
+            {
+                tfsxml_string tfsxml_priv_local = tfsxml_priv, result_local = result;
+                if (tfsxml_enter(&tfsxml_priv_local) ||
+                    tfsxml_last_named(&tfsxml_priv_local, &result_local, "ID") ||
+                    tfsxml_value(&tfsxml_priv_local, &result_local))
+                    continue;
+
+                tmp = string(result_local.buf, result_local.len);
+                size_t id = 0;
+                if (sscanf(tmp.c_str(), "%lu", &id)!=1)
+                    continue;
+
+                if (id == HdrDataFromXmlId)
+                {
+                    display_found = true;
+                    break;
+                }
+            }
+            else
+            {
+                tfsxml_string tfsxml_priv_local = tfsxml_priv, result_local = result;
+                if (tfsxml_next_named(&tfsxml_priv_local, &result_local, "MasteringDisplay"))
+                {
+                    display_found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!display_found)
+            return false;
+
+        if (tfsxml_enter(&tfsxml_priv))
+            return false;
+
+        tfsxml_priv_backup = tfsxml_priv;
+        if (tfsxml_last_named(&tfsxml_priv, &result, "Primaries") || tfsxml_enter(&tfsxml_priv))
+            return false;
+
+        if (tfsxml_last_named(&tfsxml_priv, &result, "Red"))
+            return false;
+
+        if (tfsxml_value(&tfsxml_priv, &result))
+            return false;
+
+        tmp = string(result.buf, result.len);
+        if (sscanf(tmp.c_str(), "%lf %lf", &x1, &y1)!=2)
+            return false;
+
+        if (tfsxml_last_named(&tfsxml_priv, &result, "Green"))
+            return false;
+
+        if (tfsxml_value(&tfsxml_priv, &result))
+            return false;
+
+        tmp = string(result.buf, result.len);
+        if (sscanf(tmp.c_str(), "%lf %lf", &x2, &y2)!=2)
+            return false;
+
+        if (tfsxml_last_named(&tfsxml_priv, &result, "Blue"))
+            return false;
+
+        if (tfsxml_value(&tfsxml_priv, &result))
+            return false;
+
+        tmp = string(result.buf, result.len);
+        if (sscanf(tmp.c_str(), "%lf %lf", &x3, &y3)!=2)
+            return false;
+
+        tfsxml_priv = tfsxml_priv_backup;
+        if (tfsxml_last_named(&tfsxml_priv, &result, "WhitePoint"))
+            return false;
+
+        if (tfsxml_value(&tfsxml_priv, &result))
+            return false;
+
+        tmp = string(result.buf, result.len);
+        if (sscanf(tmp.c_str(), "%lf %lf", &wp_x, &wp_y)!=2)
+            return false;
+
+        tfsxml_priv = tfsxml_priv_backup;
+        if (tfsxml_last_named(&tfsxml_priv, &result, "PeakBrightness"))
+            return false;
+
+        if (tfsxml_value(&tfsxml_priv, &result))
+            return false;
+
+        tmp = string(result.buf, result.len);
+        if (sscanf(tmp.c_str(), "%lf", &luminance_max)!=1)
+            return false;
+
+        tfsxml_priv = tfsxml_priv_backup;
+        if (tfsxml_last_named(&tfsxml_priv, &result, "MinimumBrightness"))
+            return false;
+
+        if (tfsxml_value(&tfsxml_priv, &result))
+            return false;
+
+        tmp = string(result.buf, result.len);
+        if (sscanf(tmp.c_str(), "%lf", &luminance_min)!=1)
+            return false;
+
+        mdcv=true;
+
+        if (!Simulate)
+        {
+            if (mdcv)
+            {
+                if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv)
+                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv();
+
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[4]=x1;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[5]=y1;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[0]=x2;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[1]=y2;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[2]=x3;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[3]=y3;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[6]=wp_x;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[7]=wp_y;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[0]=luminance_max;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[1]=luminance_min;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified=true;
+            }
+
+            if (clli)
+            {
+                if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli)
+                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli();
+
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_content_light_level=max_cll;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_frame_average_light_level=max_fall;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified=true;
+            }
+        }
+
         return true;
     }
     else if (Field=="clap")
@@ -1106,6 +1458,28 @@ bool mp4_Handler::Remove(const string &Field)
 
         return true;
     }
+    else if (Field=="mdcv")
+    {
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv)
+        {
+            delete Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv=NULL;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified=true;
+        }
+
+        return true;
+    }
+    else if (Field=="clli")
+    {
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli)
+        {
+            delete Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli=NULL;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified=true;
+        }
+
+        return true;
+    }
     else if (Field=="clap")
     {
         if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap)
@@ -1132,7 +1506,7 @@ bool mp4_Handler::Remove(const string &Field)
 
         return true;
     }
-    else if (Field=="wscale")
+    else if (Field=="wscale" || Field=="display_primaries" || Field=="luminance")
         return false;
 
     return Set(Field, string(), *block_strings_Get(Field), Chunk_Name2_Get(Field), Chunk_Name3_Get(Field));

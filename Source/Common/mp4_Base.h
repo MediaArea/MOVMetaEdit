@@ -15,6 +15,7 @@
 #include "ZenLib/CriticalSection.h"
 #include <vector>
 #include <tuple>
+#include <array>
 #include <map>
 #include <sstream>
 #include <stdint.h>
@@ -260,6 +261,30 @@ public:
                 vSpacing=0;
             }
         };
+        struct block_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv
+        {
+            std::array<double, 8> Primaries;
+            std::array<double, 2> Luminance;
+
+            block_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv()
+            {
+                Primaries.fill(0);
+                Luminance.fill(-1);
+            }
+        };
+
+        struct block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli
+        {
+            double maximum_content_light_level;
+            double maximum_frame_average_light_level;
+
+            block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli()
+            {
+                maximum_content_light_level=0;
+                maximum_frame_average_light_level=0;
+            }
+        };
+
         struct block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap
         {
             uint32_t Aperture_Width_Num;
@@ -399,6 +424,10 @@ public:
         bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified;
         block_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp* moov_trak_mdia_minf_stbl_stsd_xxxx_pasp;
         bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified;
+        block_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv* moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv;
+        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified;
+        block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli* moov_trak_mdia_minf_stbl_stsd_xxxx_clli;
+        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified;
         map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*> moov_trak_mdia_minf_stbl_stsd_xxxx_chan;
         bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified;
         block_moov_trak_tkhd* moov_trak_tkhd;
@@ -441,6 +470,10 @@ public:
             moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxx_pasp=NULL;
             moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv=NULL;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_clli=NULL;
+            moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified=false;
             moov_trak_tkhd=NULL;
             moov_trak_tkhd_Modified=false;
@@ -471,6 +504,8 @@ public:
             delete moov_trak_mdia_minf_stbl_stsd_xxxx_fiel;
             delete moov_trak_mdia_minf_stbl_stsd_xxxx_gama;
             delete moov_trak_mdia_minf_stbl_stsd_xxxx_pasp;
+            delete moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv;
+            delete moov_trak_mdia_minf_stbl_stsd_xxxx_clli;
             delete moov_trak_tkhd;
             delete moov_meta_hdlr;
             delete moov_meta_ilst;

@@ -17,6 +17,7 @@
 #include <bitset>
 #include "Common/mp4_Handler.h"
 #include "Common/mp4/mp4_.h"
+#include "ThirdParty/tfsxml/tfsxml.h"
 using namespace ZenLib;
 using namespace std;
 class mp4;
@@ -66,6 +67,7 @@ public:
     //Configuration
     bool            Overwrite_Reject;
     bool            NewChunksAtTheEnd;
+    size_t          HdrDataFromXmlId;
     void            Options_Update();
 
     //---------------------------------------------------------------------------
@@ -107,5 +109,7 @@ private:
 
 string mp4_chan_ChannelDescription (uint32_t ChannelLabel);
 bool mp4_chan_ChannelCode (string ChannelLabel, uint32_t &Code, bool& Ignore, bool& Delete);
+int tfsxml_next_named(tfsxml_string* tfsxml_priv, tfsxml_string* result, const char* name);
+int tfsxml_last_named(tfsxml_string* tfsxml_priv, tfsxml_string* result, const char* name);
 
 #endif

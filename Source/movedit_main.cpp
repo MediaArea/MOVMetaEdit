@@ -50,12 +50,24 @@ int main(int argc, char* argv[])
     std::string pasp_New=string();
     bool        pasp_Delete=false;
     bool        pasp_OK=true;
+    bool        mdcv_Delete=false;
+    bool        clli_Delete=false;
     std::string clap_New=string();
     bool        clap_Delete=false;
     bool        clap_OK=true;
     std::map<size_t, std::string> chan_New;
     std::map<size_t, bool>        chan_OK;
     bool        chan_Delete=false;
+    std::string display_primaries_New=string();
+    bool        display_primaries_OK=true;
+    std::string luminance_New=string();
+    bool        luminance_OK=true;
+    std::string maximum_content_light_level_New=string();
+    bool        maximum_content_light_level_OK=true;
+    std::string maximum_frame_average_light_level_New=string();
+    bool        maximum_frame_average_light_level_OK=true;
+    std::string hdr_data_from_xml_New=string();
+    size_t      hdr_data_from_xml_Id=(size_t)-1;
     std::string wscale_New=string();
     bool        wscale_OK=true;
 
@@ -308,13 +320,124 @@ int main(int argc, char* argv[])
             clap_New=string();
             clap_Delete=true;
         }
+        else if (argp + 1 < argc &&
+                (Ztring(argv[argp]) == __T("-display-primaries") ||
+                 Ztring(argv[argp]) == __T("--display-primaries")))
+        {
+            double x1=0, y1=0, x2=0, y2=0, x3=0, y3=0, wp_x=0, wp_y=0;
+            if (sscanf(argv[argp + 1], "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &x1, &y1, &x2, &y2, &x3, &y3, &wp_x, &wp_y)!=8)
+            {
+                cout << "Can not understand display primaries value " << argv[argp] << ", it must be in x,y,x,y,x,y,x,y format" << endl;
+                return ReturnValue_ERROR;
+            }
+            display_primaries_New=argv[argp + 1];
+            mdcv_Delete=false;
+            argp++;
+        }
+        else if (argp + 1 < argc &&
+                (Ztring(argv[argp]) == __T("-luminance") ||
+                 Ztring(argv[argp]) == __T("--luminance")))
+        {
+            double max=0, min=0;
+            if (sscanf(argv[argp + 1], "%lf,%lf", &max, &min)!=2)
+            {
+                cout << "Can not understand display luminance value " << argv[argp] << ", it must be in max,min format" << endl;
+                return ReturnValue_ERROR;
+            }
+            luminance_New=argv[argp + 1];
+            mdcv_Delete=false;
+            argp++;
+        }
+        else if (argp + 1 < argc &&
+                (Ztring(argv[argp]) == __T("-maximum-content-light-level") ||
+                 Ztring(argv[argp]) == __T("--maximum-content-light-level")))
+        {
+            double max=0;
+            if (sscanf(argv[argp + 1], "%lf", &max)!=1)
+            {
+                cout << "Can not understand maximum content light level value " << argv[argp] << ", it must be an integer number" << endl;
+                return ReturnValue_ERROR;
+            }
+            maximum_content_light_level_New=argv[argp + 1];
+            clli_Delete=false;
+            argp++;
+        }
+        else if (argp + 1 < argc &&
+                (Ztring(argv[argp]) == __T("-maximum-frame-average-light-level") ||
+                 Ztring(argv[argp]) == __T("--maximum-frame-average-light-level")))
+        {
+            double max=0;
+            if (sscanf(argv[argp + 1], "%lf", &max)!=1)
+            {
+                cout << "Can not understand maximum frame average light level value " << argv[argp] << ", it must be an integer number" << endl;
+                return ReturnValue_ERROR;
+            }
+            maximum_frame_average_light_level_New=argv[argp + 1];
+            clli_Delete=false;
+            argp++;
+        }
+        else if (argp + 1 < argc &&
+                (Ztring(argv[argp]) == __T("-from") ||
+                 Ztring(argv[argp]) == __T("--from")))
+        {
+            Ztring FileName(argv[argp + 1]);
 
+            File F;
+            if (F.Open(FileName, File::Access_Read))
+            {
+                size_t FileSize = F.Size_Get();
+                int8u* Buffer = new int8u[FileSize]();
+                if (F.Read(Buffer, FileSize) < FileSize)
+                {
+                    F.Close();
+                    cout << "Can not read file " << argv[argp + 1] << endl;
+                    return ReturnValue_ERROR;
+                }
+                hdr_data_from_xml_New = string((char*)Buffer, FileSize);
+                delete[] Buffer;
+            }
+            else
+            {
+                cout << "Can not open file " << argv[argp + 1] << endl;
+                return ReturnValue_ERROR;
+            }
+            F.Close();
+            mdcv_Delete=false;
+            clli_Delete=false;
+            argp++;
+        }
+        else if (argp + 1 < argc &&
+                (Ztring(argv[argp]) == __T("-from-id") ||
+                 Ztring(argv[argp]) == __T("--from-id")))
+        {
+            size_t id=0;
+            if (sscanf(argv[argp + 1], "%lu", &id)!=1)
+            {
+                cout << "Can not understand from id value " << argv[argp] << ", it must be an integer number" << endl;
+                return ReturnValue_ERROR;
+            }
+            hdr_data_from_xml_Id=id;
+            argp++;
+        }
+        else if ((Ztring(argv[argp]) == __T("-mdcv-delete")
+               || Ztring(argv[argp]) == __T("--mdcv-delete")))
+        {
+            display_primaries_New.clear();
+            luminance_New.clear();
+            mdcv_Delete=true;
+        }
+        else if ((Ztring(argv[argp]) == __T("-clli-delete")
+               || Ztring(argv[argp]) == __T("--clli-delete")))
+        {
+            maximum_content_light_level_New.clear();
+            maximum_frame_average_light_level_New.clear();
+            clli_Delete=true;
+        }
         else if ((Ztring(argv[argp]) == __T("-channels")
                || Ztring(argv[argp]) == __T("--channels")))
         {
             bool Ok=true;
             string chan(argv[argp + 1]);
-            
 
             size_t start=0, end=0, index=0;
             uint32_t code;
@@ -370,7 +493,6 @@ int main(int argc, char* argv[])
             chan_Delete=false;
             argp++;
         }
-
         else if ((Ztring(argv[argp]) == __T("-channels-delete")
                || Ztring(argv[argp]) == __T("--channels-delete")))
         {
@@ -411,10 +533,58 @@ int main(int argc, char* argv[])
          !colr_New.empty() || colr_Delete ||
          !clap_New.empty() || clap_Delete ||
          !chan_New.empty() || chan_Delete ||
+         mdcv_Delete ||
+         clli_Delete ||
+         !luminance_New.empty() ||
+         !display_primaries_New.empty() ||
+         !maximum_content_light_level_New.empty() ||
+         !maximum_frame_average_light_level_New.empty() ||
+         !hdr_data_from_xml_New.empty() ||
          !wscale_New.empty()) && AdID_Requested)
     {
         cout << "Core options and Ad-ID options can not currently be used together" << endl;
         return ReturnValue_ERROR;
+    }
+
+    if (hdr_data_from_xml_Id!=(size_t)-1)
+    {
+        bool display_found = false;
+        tfsxml_string tfsxml_priv, result;
+        tfsxml_init(&tfsxml_priv, (const void *)hdr_data_from_xml_New.c_str(), hdr_data_from_xml_New.size());
+        if (!tfsxml_last_named(&tfsxml_priv, &result, "DolbyLabsMDF") && !tfsxml_enter(&tfsxml_priv) &&
+            !tfsxml_last_named(&tfsxml_priv, &result, "Outputs") && !tfsxml_enter(&tfsxml_priv) &&
+            !tfsxml_last_named(&tfsxml_priv, &result, "Output") && !tfsxml_enter(&tfsxml_priv) &&
+            !tfsxml_last_named(&tfsxml_priv, &result, "Video") && !tfsxml_enter(&tfsxml_priv) &&
+            !tfsxml_last_named(&tfsxml_priv, &result, "Track") && !tfsxml_enter(&tfsxml_priv) &&
+            !tfsxml_last_named(&tfsxml_priv, &result, "PluginNode") && !tfsxml_enter(&tfsxml_priv) &&
+            !tfsxml_last_named(&tfsxml_priv, &result, "DVGlobalData") && !tfsxml_enter(&tfsxml_priv))
+        {
+            while (!tfsxml_next_named(&tfsxml_priv, &result, "MasteringDisplay"))
+            {
+                tfsxml_string tfsxml_priv_local = tfsxml_priv, result_local = result;
+                if (tfsxml_enter(&tfsxml_priv_local) ||
+                    tfsxml_last_named(&tfsxml_priv_local, &result_local, "ID") ||
+                    tfsxml_value(&tfsxml_priv_local, &result_local))
+                    continue;
+
+                string tmp(result_local.buf, result_local.len);
+                size_t id = 0;
+                if (sscanf(tmp.c_str(), "%lu", &id) != 1)
+                    continue;
+
+                if (hdr_data_from_xml_Id == id)
+                {
+                    display_found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!display_found)
+        {
+            cout << "Provided MasteringDisplay ID not found in xml" << endl;
+            return ReturnValue_ERROR;
+        }
     }
 
     if (FileNames.empty())
@@ -525,7 +695,7 @@ int main(int argc, char* argv[])
     cout << "  it (empty)" << endl;
     cout << "M = The field will be modified ('Y') or should be modified but it is not possible" << endl;
     cout << "  due to feature not implemented ('N')" << endl;
-    cout << FileNameFake << "|OK?|Clean Ap.|M| Prod Ap.|M| Enc. Ap.|M|      PAR|M|w-scale|M|Field|M|   Color|M|Gamma|M|                 Aperture|M|                 Channels|M|" << endl;
+    cout << FileNameFake << "|OK?|Clean Ap.|M| Prod Ap.|M| Enc. Ap.|M|      PAR|M|                              Display Primaries|M|          Luminance|M|    Max content light lev.|M| Max frame avg. light lev.|M|w-scale|M|Field|M|   Color|M|Gamma|M|                 Aperture|M|                 Channels|M|" << endl;
     }
     else
         cout << FileNameFake << "|OK?| Registry|UniversalAdId value" << endl;
@@ -673,6 +843,56 @@ int main(int argc, char* argv[])
                 else if (pasp_Delete)
                     H->Remove("pasp");
 
+                if (hdr_data_from_xml_Id!=(size_t)-1)
+                    H->HdrDataFromXmlId=hdr_data_from_xml_Id;
+
+                if (!hdr_data_from_xml_New.empty())
+                {
+                    if(!H->Set("hdr_data_from_xml", hdr_data_from_xml_New))
+                    {
+                        display_primaries_OK=false;
+                        luminance_OK=false;
+                        maximum_content_light_level_OK=false;
+                        maximum_frame_average_light_level_OK=false;
+                        ToReturn=ReturnValue_ERROR;
+                    }
+                }
+                if (!display_primaries_New.empty())
+                {
+                    if(!H->Set("display_primaries", display_primaries_New))
+                    {
+                        display_primaries_OK=false;
+                        ToReturn=ReturnValue_ERROR;
+                    }
+                }
+                if (!luminance_New.empty())
+                {
+                    if(!H->Set("luminance", luminance_New))
+                    {
+                        luminance_OK=false;
+                        ToReturn=ReturnValue_ERROR;
+                    }
+                }
+                if (!maximum_content_light_level_New.empty())
+                {
+                    if(!H->Set("maximum_content_light_level", maximum_content_light_level_New))
+                    {
+                        maximum_content_light_level_OK=false;
+                        ToReturn=ReturnValue_ERROR;
+                    }
+                }
+                if (!maximum_frame_average_light_level_New.empty())
+                {
+                    if(!H->Set("maximum_frame_average_light_level", maximum_frame_average_light_level_New))
+                    {
+                        maximum_frame_average_light_level_OK=false;
+                        ToReturn=ReturnValue_ERROR;
+                    }
+                }
+                else if (mdcv_Delete)
+                    H->Remove("mdcv");
+                else if (clli_Delete)
+                    H->Remove("clli");
                 if (!wscale_New.empty())
                 {
                     if(!H->Set("wscale", wscale_New))
@@ -766,6 +986,26 @@ int main(int argc, char* argv[])
                pasp.insert(0, 9 - pasp.size(), ' ');
              cout << pasp << "|" << ((!pasp_New.empty() || pasp_Delete) ? ((OK && pasp_OK) ? "Y" : "N") : " ") << "|";
 
+            string display_primaries = H->Get("display_primaries");
+            if (display_primaries.size() < 47)
+               display_primaries.insert(0, 47 - display_primaries.size(), ' ');
+             cout << display_primaries << "|" << ((!display_primaries_New.empty() || !hdr_data_from_xml_New.empty() || mdcv_Delete) ? ((OK && display_primaries_OK) ? "Y" : "N") : " ") << "|";
+
+            string luminance = H->Get("luminance");
+            if (luminance.size() < 19)
+               luminance.insert(0, 19 - luminance.size(), ' ');
+             cout << luminance << "|" << ((!luminance_New.empty() || !hdr_data_from_xml_New.empty() || mdcv_Delete) ? ((OK && luminance_OK) ? "Y" : "N") : " ") << "|";
+
+            string maximum_content_light_level = H->Get("maximum_content_light_level");
+            if (maximum_content_light_level.size() < 26)
+               maximum_content_light_level.insert(0, 26 - maximum_content_light_level.size(), ' ');
+             cout << maximum_content_light_level << "|" << ((!maximum_content_light_level_New.empty() || !hdr_data_from_xml_New.empty() || clli_Delete) ? ((OK && maximum_content_light_level_OK) ? "Y" : "N") : " ") << "|";
+
+            string maximum_frame_average_light_level = H->Get("maximum_frame_average_light_level");
+            if (maximum_frame_average_light_level.size() < 26)
+               maximum_frame_average_light_level.insert(0, 26 - maximum_frame_average_light_level.size(), ' ');
+             cout << maximum_frame_average_light_level << "|" << ((!maximum_frame_average_light_level_New.empty() || !hdr_data_from_xml_New.empty() || clli_Delete) ? ((OK && maximum_frame_average_light_level_OK) ? "Y" : "N") : " ") << "|";
+
             string wscale = H->Get("wscale");
             if (wscale.size() < 7)
                wscale.insert(0, 7 - wscale.size(), ' ');
@@ -822,7 +1062,7 @@ int main(int argc, char* argv[])
                         if (current.size() < 25)
                             current.insert(0, 25 - current.size(), ' ');
                         if (start!=0)
-                            cout << endl << string(FileNameFake.size() + 117, ' ') << '|';
+                            cout << endl << string(FileNameFake.size() + 247, ' ') << '|';
                         cout << current << "|" << ((chan_New.find(track)!=chan_New.end() || chan_Delete) ? ((OK && chan_OK.find(track)!=chan_OK.end() && chan_OK[track]) ? "Y" : "N") : " ") << "|";
                     }
                 }
@@ -833,7 +1073,6 @@ int main(int argc, char* argv[])
             ItemName++;
             continue;
         }
-
     }
     } //!Structures.empty()
 

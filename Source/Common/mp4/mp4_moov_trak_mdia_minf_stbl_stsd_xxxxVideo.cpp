@@ -69,6 +69,8 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo::Read_Internal ()
         SUB_ELEMENT(moov_trak_mdia_minf_stbl_stsd_xxxx_fiel);
         SUB_ELEMENT(moov_trak_mdia_minf_stbl_stsd_xxxx_gama);
         SUB_ELEMENT(moov_trak_mdia_minf_stbl_stsd_xxxx_pasp);
+        SUB_ELEMENT(moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv);
+        SUB_ELEMENT(moov_trak_mdia_minf_stbl_stsd_xxxx_clli);
     SUBS_END();
 
     if (Subs.size() && Subs.back()->Chunk.File_In_Position+Subs.back()->Chunk.Header.Size+Subs.back()->Chunk.Content.Size<Chunk.File_In_Position+Chunk.Header.Size+Chunk.Content.Size)
@@ -90,6 +92,8 @@ size_t mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo::Insert_Internal (int32u Chun
         case Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_fiel :  NewChunk=new mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel(Global); break;
         case Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_gama :  NewChunk=new mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_gama(Global); break;
         case Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_pasp :  NewChunk=new mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp(Global); break;
+        case Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv :  NewChunk=new mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv(Global); break;
+        case Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_clli :  NewChunk=new mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clli(Global); break;
         default                                                :  return Subs.size();
     }
 
@@ -101,6 +105,8 @@ size_t mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo::Insert_Internal (int32u Chun
         case Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_fiel :  Subs_Pos=(size_t)-1                                             ; break;
         case Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_gama :  Subs_Pos=(size_t)-1                                             ; break;
         case Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_pasp :  Subs_Pos=(size_t)-1                                             ; break;
+        case Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv :  Subs_Pos=(size_t)-1                                             ; break;
+        case Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_clli :  Subs_Pos=(size_t)-1                                             ; break;
         default                                                :  return Subs.size();
     }
 

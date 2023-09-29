@@ -54,6 +54,8 @@ namespace Elements
     const uint32_t moov_trak_mdia_minf_stbl_stsd_xxxx_fiel = 0x6669656C;
     const uint32_t moov_trak_mdia_minf_stbl_stsd_xxxx_gama = 0x67616D61;
     const uint32_t moov_trak_mdia_minf_stbl_stsd_xxxx_pasp = 0x70617370;
+    const uint32_t moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv = 0x6D646376;
+    const uint32_t moov_trak_mdia_minf_stbl_stsd_xxxx_clli = 0x636C6C69;
     const uint32_t moov_trak_mdia_minf_stbl_stsd_xxxxSound = 0xFFFFFFFF;
     const uint32_t moov_trak_mdia_minf_stbl_stsd_xxxx_chan = 0x6368616E;
     const uint32_t moov_trak_mdia_minf_vmhd = 0x766D6864;
@@ -120,6 +122,8 @@ CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_colr);
 CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_fiel);
 CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_gama);
 CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_pasp);
+CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv);
+CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_clli);
 CHUNK_I(7, moov_trak_mdia_minf_stbl_stsd_xxxxSound);
 CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_chan);
 CHUNK__(5, moov_trak_mdia_minf_vmhd);

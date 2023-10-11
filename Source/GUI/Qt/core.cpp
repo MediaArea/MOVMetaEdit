@@ -47,6 +47,10 @@ FileInfo Core::Read_Data(const QString &FileName, bool CheckFileName)
     Current.Previous.gama = QString::fromStdString(Current.H->Get("gama"));
     Current.Previous.clap = QString::fromStdString(Current.H->Get("clap"));
     Current.Previous.chan = QString::fromStdString(Current.H->Get("chan"));
+    Current.Previous.mdcv_primaries = QString::fromStdString(Current.H->Get("display_primaries"));
+    Current.Previous.mdcv_luminance = QString::fromStdString(Current.H->Get("luminance"));
+    Current.Previous.clli_maxcll = QString::fromStdString(Current.H->Get("maximum_content_light_level"));
+    Current.Previous.clli_maxfall = QString::fromStdString(Current.H->Get("maximum_frame_average_light_level"));
 
     bool Valid = false;
 
@@ -95,6 +99,10 @@ FileInfo Core::Read_Data(const QString &FileName, bool CheckFileName)
     Current.MetaData.gama = Current.Previous.gama;
     Current.MetaData.clap = Current.Previous.clap;
     Current.MetaData.chan = Current.Previous.chan;
+    Current.MetaData.mdcv_primaries = Current.Previous.mdcv_primaries;
+    Current.MetaData.mdcv_luminance = Current.Previous.mdcv_luminance;
+    Current.MetaData.clli_maxcll = Current.Previous.clli_maxcll;
+    Current.MetaData.clli_maxfall = Current.Previous.clli_maxfall;
 
     return Current;
 }
@@ -218,6 +226,42 @@ bool Core::Save_File(const QString& FileName)
                 F.H->Remove("chan");
             else
                 F.H->Set("chan", F.MetaData.chan.toStdString());
+        }
+        if (F.MetaData.mdcv_primaries!=F.Previous.mdcv_primaries)
+        {
+            if (F.MetaData.mdcv_primaries.isEmpty() && F.MetaData.mdcv_luminance.isEmpty())
+                F.H->Remove("mdcv");
+            else if (F.MetaData.mdcv_primaries.isEmpty())
+                F.H->Set("display_primaries", "0,0,0,0,0,0,0,0");
+            else
+                F.H->Set("display_primaries", F.MetaData.mdcv_primaries.toStdString());
+        }
+        if (F.MetaData.mdcv_luminance!=F.Previous.mdcv_luminance)
+        {
+            if (F.MetaData.mdcv_primaries.isEmpty() && F.MetaData.mdcv_luminance.isEmpty())
+                F.H->Remove("mdcv");
+            else if (F.MetaData.mdcv_primaries.isEmpty())
+                F.H->Set("luminance", "-1,-1");
+            else
+                F.H->Set("luminance", F.MetaData.mdcv_luminance.toStdString());
+        }
+        if (F.MetaData.clli_maxcll!=F.Previous.clli_maxcll)
+        {
+            if (F.MetaData.clli_maxcll.isEmpty() && F.MetaData.clli_maxfall.isEmpty())
+                F.H->Remove("clli");
+            else if (F.MetaData.clli_maxcll.isEmpty())
+                F.H->Set("maximum_content_light_level", "0");
+            else
+                F.H->Set("maximum_content_light_level", F.MetaData.clli_maxcll.toStdString());
+        }
+        if (F.MetaData.clli_maxfall!=F.Previous.clli_maxfall)
+        {
+            if (F.MetaData.clli_maxfall.isEmpty() && F.MetaData.clli_maxcll.isEmpty())
+                F.H->Remove("clli");
+            else if (F.MetaData.clli_maxfall.isEmpty())
+                F.H->Set("maximum_frame_average_light_level", "0");
+            else
+                F.H->Set("maximum_frame_average_light_level", F.MetaData.clli_maxfall.toStdString());
         }
 
         F.H->Save();

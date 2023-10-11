@@ -30,6 +30,10 @@ static const char* ColumnName_Default[TechTableWidget::MAX_COLUMN] =
     "Color",
     "Gamma",
     "Aperture",
+    "Display Primaries",
+    "Luminance",
+    "Max. CLL",
+    "Max. FALL",
     "Channels",
 };
 
@@ -45,6 +49,10 @@ static const int ColumnSize_Default[TechTableWidget::MAX_COLUMN] =
     60,
     15,
     30,
+    70,
+    30,
+    20,
+    20,
     20,
 };
 
@@ -311,6 +319,53 @@ QValidator::State CleanApertureValidator::validate(QString& Input, int& Pos) con
 }
 
 //---------------------------------------------------------------------------
+PrimariesValidator::PrimariesValidator(QObject* Parent) : QValidator(Parent)
+{
+}
+
+//---------------------------------------------------------------------------
+QValidator::State PrimariesValidator::validate(QString& Input, int& Pos) const
+{
+    Q_UNUSED(Pos)
+
+    if (Input.isEmpty())
+        return QValidator::Acceptable;
+
+    QValidator::State State=QValidator::Intermediate;
+
+    QDoubleValidator Validator;
+    Validator.setLocale(QLocale(QLocale::C));
+
+    QStringList Values = Input.split(',');
+    if (Values.size() > 8)
+    {
+        State =  QValidator::Invalid;
+    }
+    else if (Values.size() > 0)
+    {
+        for (int Pos=0; Pos<Values.size(); Pos++)
+        {
+            int Cursor=0;
+            QValidator::State Cur = Validator.validate(Values[Pos], Cursor);
+
+            if (Cur == QValidator::Invalid)
+            {
+                State = QValidator::Invalid;
+                break;
+            }
+            else if (Pos==0 || State >= Cur)
+                State = Cur;
+        }
+
+        if (Values.size() < 8 && State == QValidator::Acceptable)
+            State = QValidator::Intermediate;
+    }
+    Input=Values.join(',');
+
+    return State;
+}
+
+//---------------------------------------------------------------------------
 ApertureDelegate::ApertureDelegate(QObject* Parent, Core* C) : QItemDelegate(Parent), C(C)
 {
 }
@@ -428,6 +483,7 @@ QWidget* DoubleDelegate::createEditor(QWidget* Parent,
     Q_UNUSED(Index)
 
     QDoubleValidator* Validator=new QDoubleValidator();
+    Validator->setLocale(QLocale(QLocale::C));
     Validator->setBottom(0.0);
 
     QLineEdit *Editor = new QLineEdit(Parent);
@@ -956,6 +1012,267 @@ void CleanApertureDelegate::setModelData(QWidget* Editor,
 }
 
 //---------------------------------------------------------------------------
+PrimariesDelegate::PrimariesDelegate(QObject* Parent, Core* C) : QItemDelegate(Parent), C(C)
+{
+}
+
+//---------------------------------------------------------------------------
+QWidget* PrimariesDelegate::createEditor(QWidget* Parent,
+                                             const QStyleOptionViewItem& Option,
+                                             const QModelIndex& Index) const
+{
+    Q_UNUSED(Option)
+    Q_UNUSED(Index)
+
+    QTableWidget *Editor = new QTableWidget(Parent);
+
+    Editor->setColumnCount(2);
+    Editor->setHorizontalHeaderLabels(QStringList { "X", "Y" });
+    Editor->setRowCount(4);
+    Editor->setVerticalHeaderLabels(QStringList { "Red", "Green", "Blue", "White Point" });
+
+    Editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    Editor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    for(int Row = 0; Row < Editor->rowCount(); Row++)
+    {
+        for(int Col = 0; Col < Editor->columnCount(); Col++)
+        {
+            QLineEdit* LineEditor = new QLineEdit(Editor);
+            QDoubleValidator* DoubleValidator = new QDoubleValidator(LineEditor);
+
+            DoubleValidator->setLocale(QLocale(QLocale::C));
+            LineEditor->setValidator(DoubleValidator);
+            Editor->setCellWidget(Row, Col, LineEditor);
+        }
+    }
+
+    return Editor;
+}
+
+//---------------------------------------------------------------------------
+void PrimariesDelegate::updateEditorGeometry(QWidget* Editor,
+                                                 const QStyleOptionViewItem& Option,
+                                                 const QModelIndex& Index) const
+{
+    Q_UNUSED(Index)
+
+    QTableWidget* TableWidget = qobject_cast<QTableWidget*>(Editor);
+
+    int Width = TableWidget->contentsMargins().left() +
+        TableWidget->contentsMargins().right() +
+        TableWidget->verticalHeader()->length();
+
+    for (int Col = 0; Col < TableWidget->columnCount(); Col++)
+        Width += TableWidget->columnWidth(Col);
+
+    int Height = TableWidget->contentsMargins().top() +
+        TableWidget->contentsMargins().bottom() +
+        TableWidget->horizontalHeader()->height();
+
+    for (int Row = 0; Row < TableWidget->rowCount(); Row++)
+        Height += TableWidget->rowHeight(Row);
+
+    int wOffset = qobject_cast<QWidget*>(parent())->width() -
+        Option.rect.x() -
+        Width;
+
+    if (wOffset > 0)
+        wOffset = 0;
+    else
+        wOffset -= 20;
+
+    int hOffset = qobject_cast<QWidget*>(parent())->height() -
+        Option.rect.y() -
+        Height;
+
+    if (hOffset > 0)
+        hOffset = 0;
+    else
+        hOffset -= 20;
+
+    TableWidget->setGeometry(Option.rect.x() + wOffset, Option.rect.y() + hOffset, Width, Height);
+}
+
+//---------------------------------------------------------------------------
+void PrimariesDelegate::setEditorData(QWidget* Editor, const QModelIndex& Index) const
+{
+    QTableWidget* TableWidget = qobject_cast<QTableWidget*>(Editor);
+
+    QStringList Values = Index.data(Qt::EditRole).toString().split(',');
+    qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 0))->setText(Values.value(0));
+    qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 1))->setText(Values.value(1));
+    qobject_cast<QLineEdit*>(TableWidget->cellWidget(1, 0))->setText(Values.value(2));
+    qobject_cast<QLineEdit*>(TableWidget->cellWidget(1, 1))->setText(Values.value(3));
+    qobject_cast<QLineEdit*>(TableWidget->cellWidget(2, 0))->setText(Values.value(4));
+    qobject_cast<QLineEdit*>(TableWidget->cellWidget(2, 1))->setText(Values.value(5));
+    qobject_cast<QLineEdit*>(TableWidget->cellWidget(3, 0))->setText(Values.value(6));
+    qobject_cast<QLineEdit*>(TableWidget->cellWidget(3, 1))->setText(Values.value(7));
+}
+
+//---------------------------------------------------------------------------
+void PrimariesDelegate::setModelData(QWidget* Editor,
+                                         QAbstractItemModel* Model,
+                                         const QModelIndex& Index) const
+{
+    QTableWidget* TableWidget = qobject_cast<QTableWidget*>(Editor);
+
+    QString rX = qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 0))->text().trimmed();
+    QString rY = qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 1))->text().trimmed();
+    QString gX = qobject_cast<QLineEdit*>(TableWidget->cellWidget(1, 0))->text().trimmed();
+    QString gY = qobject_cast<QLineEdit*>(TableWidget->cellWidget(1, 1))->text().trimmed();
+    QString bX = qobject_cast<QLineEdit*>(TableWidget->cellWidget(2, 0))->text().trimmed();
+    QString bY = qobject_cast<QLineEdit*>(TableWidget->cellWidget(2, 1))->text().trimmed();
+    QString wX = qobject_cast<QLineEdit*>(TableWidget->cellWidget(3, 0))->text().trimmed();
+    QString wY = qobject_cast<QLineEdit*>(TableWidget->cellWidget(3, 1))->text().trimmed();
+
+    QStringList Values { rX, rY, gX, gY, bX, bY, wX, wY };
+
+    bool Empty=true;
+    for (QString& Value : Values)
+    {
+        if (Value.isEmpty())
+            Value = "0";
+        else
+            Empty=false;
+        
+    }
+
+    if (Empty)
+        Values.clear();
+
+    QString OldValue = Model->data(Index, Qt::EditRole).toString();
+    QString Value = Values.join(',');
+
+    if(Value != OldValue)
+    {
+        Model->setData(Index, Value);
+        emit Value_Changed(Index.row());
+    }
+}
+
+//---------------------------------------------------------------------------
+LuminanceDelegate::LuminanceDelegate(QObject* Parent, Core* C) : QItemDelegate(Parent), C(C)
+{
+}
+
+//---------------------------------------------------------------------------
+QWidget* LuminanceDelegate::createEditor(QWidget* Parent,
+                                             const QStyleOptionViewItem& Option,
+                                             const QModelIndex& Index) const
+{
+    Q_UNUSED(Option)
+    Q_UNUSED(Index)
+
+    QTableWidget *Editor = new QTableWidget(Parent);
+
+    Editor->setColumnCount(2);
+    Editor->setHorizontalHeaderLabels(QStringList { "Min", "Max" });
+    Editor->setRowCount(1);
+    Editor->verticalHeader()->setVisible(false);
+
+    Editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    Editor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    for(int Row = 0; Row < Editor->rowCount(); Row++)
+    {
+        for(int Col = 0; Col < Editor->columnCount(); Col++)
+        {
+            QLineEdit* LineEditor = new QLineEdit(Editor);
+            QDoubleValidator* DoubleValidator = new QDoubleValidator(LineEditor);
+
+            DoubleValidator->setLocale(QLocale(QLocale::C));
+            LineEditor->setValidator(DoubleValidator);
+            Editor->setCellWidget(Row, Col, LineEditor);
+        }
+    }
+
+    return Editor;
+}
+
+//---------------------------------------------------------------------------
+void LuminanceDelegate::updateEditorGeometry(QWidget* Editor,
+                                                 const QStyleOptionViewItem& Option,
+                                                 const QModelIndex& Index) const
+{
+    Q_UNUSED(Index)
+
+    QTableWidget* TableWidget = qobject_cast<QTableWidget*>(Editor);
+
+    int Width = TableWidget->contentsMargins().left() +
+        TableWidget->contentsMargins().right() +
+        TableWidget->verticalHeader()->length();
+
+    for (int Col = 0; Col < TableWidget->columnCount(); Col++)
+        Width += TableWidget->columnWidth(Col);
+
+    int Height = TableWidget->contentsMargins().top() +
+        TableWidget->contentsMargins().bottom() +
+        TableWidget->horizontalHeader()->height();
+
+    for (int Row = 0; Row < TableWidget->rowCount(); Row++)
+        Height += TableWidget->rowHeight(Row);
+
+    int wOffset = qobject_cast<QWidget*>(parent())->width() -
+        Option.rect.x() -
+        Width;
+
+    if (wOffset > 0)
+        wOffset = 0;
+    else
+        wOffset -= 20;
+
+    int hOffset = qobject_cast<QWidget*>(parent())->height() -
+        Option.rect.y() -
+        Height;
+
+    if (hOffset > 0)
+        hOffset = 0;
+    else
+        hOffset -= 20;
+
+    TableWidget->setGeometry(Option.rect.x() + wOffset, Option.rect.y() + hOffset, Width, Height);
+}
+
+//---------------------------------------------------------------------------
+void LuminanceDelegate::setEditorData(QWidget* Editor, const QModelIndex& Index) const
+{
+    QTableWidget* TableWidget = qobject_cast<QTableWidget*>(Editor);
+
+    QStringList Values = Index.data(Qt::EditRole).toString().split(',');
+    qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 0))->setText(Values.value(0));
+    qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 1))->setText(Values.value(1));
+}
+
+//---------------------------------------------------------------------------
+void LuminanceDelegate::setModelData(QWidget* Editor,
+                                         QAbstractItemModel* Model,
+                                         const QModelIndex& Index) const
+{
+    QTableWidget* TableWidget = qobject_cast<QTableWidget*>(Editor);
+
+    QString Min = qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 0))->text().trimmed();
+    QString Max = qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 1))->text().trimmed();
+
+    if (Min.isEmpty() && !Max.isEmpty())
+        Min = "0";
+    if (Max.isEmpty() && !Min.isEmpty())
+        Max = "0";
+
+    QStringList Values { Min, Max };
+    Values.removeAll({});
+
+    QString OldValue = Model->data(Index, Qt::EditRole).toString();
+    QString Value = Values.join(',');
+
+    if(Value != OldValue)
+    {
+        Model->setData(Index, Value);
+        emit Value_Changed(Index.row());
+    }
+}
+
+//---------------------------------------------------------------------------
 
 //***************************************************************************
 // TableWidget
@@ -1001,6 +1318,11 @@ void TechTableWidget::Setup(Core *C)
     CleanApertureDelegate* CleanApertureEditor = new CleanApertureDelegate(this, C);
     connect(CleanApertureEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
 
+    PrimariesDelegate* PrimariesEditor = new PrimariesDelegate(this, C);
+    connect(PrimariesEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
+
+    LuminanceDelegate* LuminanceEditor = new LuminanceDelegate(this, C);
+    connect(PrimariesEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
 
     setItemDelegateForColumn(CLEF_COLUMN, qobject_cast<QAbstractItemDelegate*>(ApertureEditor));
     setItemDelegateForColumn(PROF_COLUMN, qobject_cast<QAbstractItemDelegate*>(ApertureEditor));
@@ -1011,6 +1333,10 @@ void TechTableWidget::Setup(Core *C)
     setItemDelegateForColumn(COLR_COLUMN, qobject_cast<QAbstractItemDelegate*>(Comma3Editor));
     setItemDelegateForColumn(GAMA_COLUMN, qobject_cast<QAbstractItemDelegate*>(DoubleEditor));
     setItemDelegateForColumn(CLAP_COLUMN, qobject_cast<QAbstractItemDelegate*>(CleanApertureEditor));
+    setItemDelegateForColumn(DPRI_COLUMN, qobject_cast<QAbstractItemDelegate*>(PrimariesEditor));
+    setItemDelegateForColumn(DLUM_COLUMN, qobject_cast<QAbstractItemDelegate*>(LuminanceEditor));
+    setItemDelegateForColumn(MCLL_COLUMN, qobject_cast<QAbstractItemDelegate*>(DoubleEditor));
+    setItemDelegateForColumn(MFAL_COLUMN, qobject_cast<QAbstractItemDelegate*>(DoubleEditor));
 }
 
 //---------------------------------------------------------------------------
@@ -1019,7 +1345,9 @@ void TechTableWidget::Set_Display(int Row, bool Valid)
    if(Row > this->rowCount())
         return;
 
-        QString FileName = item(Row, FILE_COLUMN)->data(Qt::EditRole).toString();
+    QString FileName = item(Row, FILE_COLUMN)->data(Qt::EditRole).toString();
+
+    string str = this->item(Row, MFAL_COLUMN)->text().toStdString();
 
     if (!Valid)
     {
@@ -1105,6 +1433,30 @@ void TechTableWidget::Set_Display(int Row, bool Valid)
             Font.setBold(true);
             this->item(Row, CLAP_COLUMN)->setFont(Font);
         }
+        if (F.MetaData.mdcv_primaries != F.Previous.mdcv_primaries)
+        {
+            QFont Font = this->item(Row, DPRI_COLUMN)->font();
+            Font.setBold(true);
+            this->item(Row, DPRI_COLUMN)->setFont(Font);
+        }
+        if (F.MetaData.mdcv_luminance != F.Previous.mdcv_luminance)
+        {
+            QFont Font = this->item(Row, DLUM_COLUMN)->font();
+            Font.setBold(true);
+            this->item(Row, DLUM_COLUMN)->setFont(Font);
+        }
+        if (F.MetaData.clli_maxcll != F.Previous.clli_maxcll)
+        {
+            QFont Font = this->item(Row, MCLL_COLUMN)->font();
+            Font.setBold(true);
+            this->item(Row, MCLL_COLUMN)->setFont(Font);
+        }
+        if (F.MetaData.clli_maxfall != F.Previous.clli_maxfall)
+        {
+            QFont Font = this->item(Row, MFAL_COLUMN)->font();
+            Font.setBold(true);
+            this->item(Row, MFAL_COLUMN)->setFont(Font);
+        }
         if (F.MetaData.chan != F.Previous.chan)
         {
             QFont Font = this->item(Row, CHAN_COLUMN)->font();
@@ -1173,6 +1525,14 @@ void TechTableWidget::Update_Table()
         gama->setToolTip("Double-click for editing this field, rean number.");
         QTableWidgetItem* clap = new QTableWidgetItem(It->MetaData.clap);
         clap->setToolTip("Double-click for editing this field, \"with:d,height:d,hOffset:d,vOffset:d\" format.\n(':d' (denominator) are optionnal')");
+        QTableWidgetItem* dpri = new QTableWidgetItem(It->MetaData.mdcv_primaries);
+        dpri->setToolTip("Double-click for editing this field, \"red x,red y,green x,green y,blue x,blu y,white point x,white point y\" format.");
+        QTableWidgetItem* dlum = new QTableWidgetItem(It->MetaData.mdcv_luminance);
+        dlum->setToolTip("Double-click for editing this field, \"min,max\" format.");
+        QTableWidgetItem* mcll = new QTableWidgetItem(It->MetaData.clli_maxcll);
+        mcll->setToolTip("Double-click for editing this field, real number.");
+        QTableWidgetItem* mfal = new QTableWidgetItem(It->MetaData.clli_maxfall);
+        mfal->setToolTip("Double-click for editing this field, real number.");
         QTableWidgetItem* chan = new QTableWidgetItem("...");
         chan->setData(Qt::UserRole, It->MetaData.chan);
         chan->setFlags(chan->flags() ^ Qt::ItemIsEditable);
@@ -1189,6 +1549,10 @@ void TechTableWidget::Update_Table()
         setItem(Row, COLR_COLUMN, colr);
         setItem(Row, GAMA_COLUMN, gama);
         setItem(Row, CLAP_COLUMN, clap);
+        setItem(Row, DPRI_COLUMN, dpri);
+        setItem(Row, DLUM_COLUMN, dlum);
+        setItem(Row, MCLL_COLUMN, mcll);
+        setItem(Row, MFAL_COLUMN, mfal);
         setItem(Row, CHAN_COLUMN, chan);
 
         if (It->Valid)
@@ -1206,6 +1570,8 @@ void TechTableWidget::Update_Table()
 //---------------------------------------------------------------------------
 void TechTableWidget::resizeEvent(QResizeEvent* Event)
 {
+    int Target = size().width() > 1920 ? size().width() : 1920;
+
     //Changed?
     bool c = false;
     bool d = false;
@@ -1232,14 +1598,14 @@ void TechTableWidget::resizeEvent(QResizeEvent* Event)
         float t = 1;
         for (int i = 0; i < MAX_COLUMN; i++)
         {
-            ColumnSize_Ratio[i] = ((float)columnWidth(i)) / size().width();
+            ColumnSize_Ratio[i] = ((float)columnWidth(i)) / Target;
             t -= ColumnSize_Ratio[i];
         }
         ColumnSize_Ratio[MAX_COLUMN] = t;
     }
 
     //Update
-    qreal Total_New = Event->size().width();
+    qreal Total_New = Target;
     for (int i = 0; i < MAX_COLUMN; i++)
     {
         ColumnSize[i] = (int)(Total_New * ColumnSize_Ratio[i]);
@@ -1251,7 +1617,7 @@ void TechTableWidget::resizeEvent(QResizeEvent* Event)
 }
 
 //---------------------------------------------------------------------------
-bool TechTableWidget::edit (const QModelIndex& Index, EditTrigger Trigger, QEvent* Event)
+bool TechTableWidget::edit(const QModelIndex& Index, EditTrigger Trigger, QEvent* Event)
 {
     if ((Trigger==DoubleClicked || Trigger==AnyKeyPressed) && Index.column()==CHAN_COLUMN)
     {
@@ -1295,6 +1661,10 @@ void TechTableWidget::On_Value_Changed(int Row)
     MetaData->colr = item(Row, COLR_COLUMN)->data(Qt::UserRole).toString();
     MetaData->gama = item(Row, GAMA_COLUMN)->data(Qt::EditRole).toString();
     MetaData->clap = item(Row, CLAP_COLUMN)->data(Qt::EditRole).toString();
+    MetaData->mdcv_primaries = item(Row, DPRI_COLUMN)->data(Qt::EditRole).toString();
+    MetaData->mdcv_luminance = item(Row, DLUM_COLUMN)->data(Qt::EditRole).toString();
+    MetaData->clli_maxcll = item(Row, MCLL_COLUMN)->data(Qt::EditRole).toString();
+    MetaData->clli_maxfall = item(Row, MFAL_COLUMN)->data(Qt::EditRole).toString();
     MetaData->chan = item(Row, CHAN_COLUMN)->data(Qt::UserRole).toString();
 
     emit Enable_Save();

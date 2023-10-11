@@ -48,6 +48,15 @@ public:
 };
 
 //---------------------------------------------------------------------------
+class PrimariesValidator : public QValidator
+{
+    Q_OBJECT
+public:
+    PrimariesValidator(QObject* Parent = 0);
+    QValidator::State validate(QString& Input, int& Pos) const;
+};
+
+//---------------------------------------------------------------------------
 class ApertureDelegate : public QItemDelegate
 {
     Q_OBJECT
@@ -217,6 +226,60 @@ signals:
     void Value_Changed(int Row) const;
 };
 
+//---------------------------------------------------------------------------
+class PrimariesDelegate : public QItemDelegate
+{
+    Q_OBJECT
+
+public:
+    PrimariesDelegate(QObject* Parent = 0, Core* C = 0);
+
+protected:
+    QWidget* createEditor(QWidget* Parent,
+                          const QStyleOptionViewItem& Option,
+                          const QModelIndex& Index) const;
+
+    void updateEditorGeometry(QWidget* Editor,
+                              const QStyleOptionViewItem& Option,
+                              const QModelIndex& Index) const;
+
+    void setEditorData(QWidget* Editor, const QModelIndex& Index) const;
+    void setModelData(QWidget* Editor, QAbstractItemModel* Model, const QModelIndex& Index) const;
+
+private:
+    Core* C;
+
+signals:
+    void Value_Changed(int Row) const;
+};
+
+//---------------------------------------------------------------------------
+class LuminanceDelegate : public QItemDelegate
+{
+    Q_OBJECT
+
+public:
+    LuminanceDelegate(QObject* Parent = 0, Core* C = 0);
+
+protected:
+    QWidget* createEditor(QWidget* Parent,
+                          const QStyleOptionViewItem& Option,
+                          const QModelIndex& Index) const;
+
+    void updateEditorGeometry(QWidget* Editor,
+                              const QStyleOptionViewItem& Option,
+                              const QModelIndex& Index) const;
+
+    void setEditorData(QWidget* Editor, const QModelIndex& Index) const;
+    void setModelData(QWidget* Editor, QAbstractItemModel* Model, const QModelIndex& Index) const;
+
+private:
+    Core* C;
+
+signals:
+    void Value_Changed(int Row) const;
+};
+
 //***************************************************************************
 // TableWidget
 //***************************************************************************
@@ -238,6 +301,10 @@ public:
         COLR_COLUMN,
         GAMA_COLUMN,
         CLAP_COLUMN,
+        DPRI_COLUMN,
+        DLUM_COLUMN,
+        MCLL_COLUMN,
+        MFAL_COLUMN,
         CHAN_COLUMN,
         MAX_COLUMN,
     };

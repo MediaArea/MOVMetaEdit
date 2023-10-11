@@ -617,8 +617,8 @@ string mp4_Handler::Get(const string &Field)
             return string();
 
         stringstream ss;
-        ss << setprecision(4) << fixed << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[1] << "," 
-           << setprecision(4) << fixed << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[0];
+        ss << setprecision(4) << fixed << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[0] << ","
+           << setprecision(4) << fixed << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[1];
 
         return ss.str();
     }
@@ -937,6 +937,11 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
         double max=0,min=0;
         if (sscanf(Value.c_str(), "%lf,%lf", &max, &min)!=2)
             return false;
+
+        if (max < min)
+        {
+             double temp(max); max=min; min=temp;
+        }
 
         if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv) // Check if primaries values are present
             return false;

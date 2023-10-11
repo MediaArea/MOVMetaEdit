@@ -28,7 +28,10 @@ struct MetaDataType
     QString gama;
     QString clap;
     QString chan;
-
+    QString mdcv_primaries;
+    QString mdcv_luminance;
+    QString clli_maxcll;
+    QString clli_maxfall;
     MetaDataType()
         : AdIDValid(false)
     {}
@@ -62,7 +65,11 @@ struct FileInfo
             MetaData.colr != Previous.colr ||
             MetaData.gama != Previous.gama ||
             MetaData.clap != Previous.clap ||
-            MetaData.chan != Previous.chan)
+            MetaData.chan != Previous.chan ||
+            MetaData.mdcv_primaries != Previous.mdcv_primaries ||
+            MetaData.mdcv_luminance != Previous.mdcv_luminance ||
+            MetaData.clli_maxcll != Previous.clli_maxcll ||
+            MetaData.clli_maxfall != Previous.clli_maxfall)
             return true;
 
         return false;

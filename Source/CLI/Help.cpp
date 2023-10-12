@@ -132,7 +132,7 @@ ReturnValue Help_Tech(bool WithExamples)
     TEXTOUT("  --display-primaries VALUE");
     TEXTOUT("      Modify the display primaries and white-point to VALUE, \"rx,ry,gx,gy,bx,by,wpx,wpy\" format");
     TEXTOUT("  --luminance VALUE");
-    TEXTOUT("      Modify the luminance to VALUE, \"min,max\" format");
+    TEXTOUT("      Modify the luminance to VALUE, \"max,min\" format");
     TEXTOUT("      (display primaries must be already presents in file or specified in the command-line)");
     TEXTOUT("  --mdcv-delete");
     TEXTOUT("      Delete the mdcv atom (display primaries and luminance)");

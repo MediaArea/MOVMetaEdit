@@ -34,9 +34,9 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv::Read_Internal()
 
     int32u Temp;
     Get_B4(Temp);
-    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[1] = (double)Temp/10000;
-    Get_B4(Temp);
     Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[0] = (double)Temp/10000;
+    Get_B4(Temp);
+    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[1] = (double)Temp/10000;
 }
 
 //***************************************************************************
@@ -64,8 +64,8 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv::Modify_Internal()
     for (size_t c = 0; c < 8; c++)
         Put_B2((int16u)round(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Primaries[c]*50000));
 
-    Put_B4((int32u)round(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[1]*10000));
     Put_B4((int32u)round(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[0]*10000));
+    Put_B4((int32u)round(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv->Luminance[1]*10000));
 
     Chunk.Content.IsModified=true;
     Chunk.Content.Size_IsModified=true;

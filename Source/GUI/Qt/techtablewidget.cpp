@@ -1167,24 +1167,21 @@ QWidget* LuminanceDelegate::createEditor(QWidget* Parent,
     QTableWidget *Editor = new QTableWidget(Parent);
 
     Editor->setColumnCount(2);
-    Editor->setHorizontalHeaderLabels(QStringList { "Min", "Max" });
+    Editor->setHorizontalHeaderLabels(QStringList { "Max", "Min" });
     Editor->setRowCount(1);
     Editor->verticalHeader()->setVisible(false);
 
     Editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     Editor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    for(int Row = 0; Row < Editor->rowCount(); Row++)
+    for(int Col = 0; Col < Editor->columnCount(); Col++)
     {
-        for(int Col = 0; Col < Editor->columnCount(); Col++)
-        {
-            QLineEdit* LineEditor = new QLineEdit(Editor);
-            QDoubleValidator* DoubleValidator = new QDoubleValidator(LineEditor);
+        QLineEdit* LineEditor = new QLineEdit(Editor);
+        QDoubleValidator* DoubleValidator = new QDoubleValidator(LineEditor);
 
-            DoubleValidator->setLocale(QLocale(QLocale::C));
-            LineEditor->setValidator(DoubleValidator);
-            Editor->setCellWidget(Row, Col, LineEditor);
-        }
+        DoubleValidator->setLocale(QLocale(QLocale::C));
+        LineEditor->setValidator(DoubleValidator);
+        Editor->setCellWidget(0, Col, LineEditor);
     }
 
     return Editor;
@@ -1251,15 +1248,15 @@ void LuminanceDelegate::setModelData(QWidget* Editor,
 {
     QTableWidget* TableWidget = qobject_cast<QTableWidget*>(Editor);
 
-    QString Min = qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 0))->text().trimmed();
-    QString Max = qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 1))->text().trimmed();
+    QString Max = qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 0))->text().trimmed();
+    QString Min = qobject_cast<QLineEdit*>(TableWidget->cellWidget(0, 1))->text().trimmed();
 
     if (Min.isEmpty() && !Max.isEmpty())
         Min = "0";
     if (Max.isEmpty() && !Min.isEmpty())
         Max = "0";
 
-    QStringList Values { Min, Max };
+    QStringList Values { Max, Min };
     Values.removeAll({});
 
     QString OldValue = Model->data(Index, Qt::EditRole).toString();
@@ -1322,7 +1319,7 @@ void TechTableWidget::Setup(Core *C)
     connect(PrimariesEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
 
     LuminanceDelegate* LuminanceEditor = new LuminanceDelegate(this, C);
-    connect(PrimariesEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
+    connect(LuminanceEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
 
     setItemDelegateForColumn(CLEF_COLUMN, qobject_cast<QAbstractItemDelegate*>(ApertureEditor));
     setItemDelegateForColumn(PROF_COLUMN, qobject_cast<QAbstractItemDelegate*>(ApertureEditor));

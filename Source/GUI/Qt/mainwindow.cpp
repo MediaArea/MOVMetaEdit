@@ -59,7 +59,51 @@ MainWindow::MainWindow(QWidget *Parent) : QMainWindow(Parent), Ui(new Ui::MainWi
     //Setup context menu
     Context_Menu = new QMenu(this);
     Context_Menu->addAction(Ui->Menu_File_Close);
-    //Context_Menu->actions.at(0)->setShortcut(QKeySequence());
+
+    //Setup tech view menu
+    QStringList HiddenColumns = QSettings().value("techtablewidget/hiddencolumns", QStringList()).toStringList();
+    Ui->Menu_View_Tech_Clef->setData((int)TechTableWidget::CLEF_COLUMN);
+    Ui->Menu_View_Tech_Clef->setChecked(!HiddenColumns.contains("clef"));
+    connect(Ui->Menu_View_Tech_Clef, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Prof->setData((int)TechTableWidget::PROF_COLUMN);
+    Ui->Menu_View_Tech_Prof->setChecked(!HiddenColumns.contains("prof"));
+    connect(Ui->Menu_View_Tech_Prof, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Enof->setData((int)TechTableWidget::ENOF_COLUMN);
+    Ui->Menu_View_Tech_Enof->setChecked(!HiddenColumns.contains("enof"));
+    connect(Ui->Menu_View_Tech_Enof, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Pasp->setData((int)TechTableWidget::PASP_COLUMN);
+    Ui->Menu_View_Tech_Pasp->setChecked(!HiddenColumns.contains("pasp"));
+    connect(Ui->Menu_View_Tech_Pasp, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Wscl->setData((int)TechTableWidget::WSCL_COLUMN);
+    Ui->Menu_View_Tech_Wscl->setChecked(!HiddenColumns.contains("wscl"));
+    connect(Ui->Menu_View_Tech_Wscl, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Fiel->setData((int)TechTableWidget::FIEL_COLUMN);
+    Ui->Menu_View_Tech_Fiel->setChecked(!HiddenColumns.contains("fiel"));
+    connect(Ui->Menu_View_Tech_Fiel, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Colr->setData((int)TechTableWidget::COLR_COLUMN);
+    Ui->Menu_View_Tech_Colr->setChecked(!HiddenColumns.contains("colr"));
+    connect(Ui->Menu_View_Tech_Colr, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Gama->setData((int)TechTableWidget::GAMA_COLUMN);
+    Ui->Menu_View_Tech_Gama->setChecked(!HiddenColumns.contains("gama"));
+    connect(Ui->Menu_View_Tech_Gama, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Clap->setData((int)TechTableWidget::CLAP_COLUMN);
+    Ui->Menu_View_Tech_Clap->setChecked(!HiddenColumns.contains("clap"));
+    connect(Ui->Menu_View_Tech_Clap, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Dpri->setData((int)TechTableWidget::DPRI_COLUMN);
+    Ui->Menu_View_Tech_Dpri->setChecked(!HiddenColumns.contains("dpri"));
+    connect(Ui->Menu_View_Tech_Dpri, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Dlum->setData((int)TechTableWidget::DLUM_COLUMN);
+    Ui->Menu_View_Tech_Dlum->setChecked(!HiddenColumns.contains("dlum"));
+    connect(Ui->Menu_View_Tech_Dlum, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Mcll->setData((int)TechTableWidget::MCLL_COLUMN);
+    Ui->Menu_View_Tech_Mcll->setChecked(!HiddenColumns.contains("mcll"));
+    connect(Ui->Menu_View_Tech_Mcll, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Mfal->setData((int)TechTableWidget::MFAL_COLUMN);
+    Ui->Menu_View_Tech_Mfal->setChecked(!HiddenColumns.contains("mfal"));
+    connect(Ui->Menu_View_Tech_Mfal, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
+    Ui->Menu_View_Tech_Chan->setData((int)TechTableWidget::CHAN_COLUMN);
+    Ui->Menu_View_Tech_Chan->setChecked(!HiddenColumns.contains("chan"));
+    connect(Ui->Menu_View_Tech_Chan, SIGNAL(toggled(bool)), Ui->Tech_Table_Widget, SLOT(On_View_Option_Changed(bool)));
 
     connect(Ui->Tech_Table_Widget, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(Show_Context_Menu(const QPoint&)));
@@ -284,6 +328,22 @@ void MainWindow::on_Menu_View_Technical_triggered()
 {
     if (Ui->StackedWidget->currentIndex()!=0) //TODO: use enum
     {
+        Ui->Menu_View_Tech_Separator->setVisible(true);
+        Ui->Menu_View_Tech_Clef->setVisible(true);
+        Ui->Menu_View_Tech_Prof->setVisible(true);
+        Ui->Menu_View_Tech_Enof->setVisible(true);
+        Ui->Menu_View_Tech_Pasp->setVisible(true);
+        Ui->Menu_View_Tech_Wscl->setVisible(true);
+        Ui->Menu_View_Tech_Fiel->setVisible(true);
+        Ui->Menu_View_Tech_Colr->setVisible(true);
+        Ui->Menu_View_Tech_Gama->setVisible(true);
+        Ui->Menu_View_Tech_Clap->setVisible(true);
+        Ui->Menu_View_Tech_Dpri->setVisible(true);
+        Ui->Menu_View_Tech_Dlum->setVisible(true);
+        Ui->Menu_View_Tech_Mcll->setVisible(true);
+        Ui->Menu_View_Tech_Mfal->setVisible(true);
+        Ui->Menu_View_Tech_Chan->setVisible(true);
+
         Ui->StackedWidget->setCurrentIndex(0);
         Ui->Table_Widget->clearSelection();
     }
@@ -294,6 +354,22 @@ void MainWindow::on_Menu_View_AdId_triggered()
 {
     if (Ui->StackedWidget->currentIndex()!=1) //TODO: use enum
     {
+        Ui->Menu_View_Tech_Separator->setVisible(false);
+        Ui->Menu_View_Tech_Clef->setVisible(false);
+        Ui->Menu_View_Tech_Prof->setVisible(false);
+        Ui->Menu_View_Tech_Enof->setVisible(false);
+        Ui->Menu_View_Tech_Pasp->setVisible(false);
+        Ui->Menu_View_Tech_Wscl->setVisible(false);
+        Ui->Menu_View_Tech_Fiel->setVisible(false);
+        Ui->Menu_View_Tech_Colr->setVisible(false);
+        Ui->Menu_View_Tech_Gama->setVisible(false);
+        Ui->Menu_View_Tech_Clap->setVisible(false);
+        Ui->Menu_View_Tech_Dpri->setVisible(false);
+        Ui->Menu_View_Tech_Dlum->setVisible(false);
+        Ui->Menu_View_Tech_Mcll->setVisible(false);
+        Ui->Menu_View_Tech_Mfal->setVisible(false);
+        Ui->Menu_View_Tech_Chan->setVisible(false);
+
         Ui->StackedWidget->setCurrentIndex(1);
         Ui->Tech_Table_Widget->clearSelection();
     }

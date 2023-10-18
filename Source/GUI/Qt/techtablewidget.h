@@ -315,11 +315,12 @@ public:
     void Setup(Core* C);
     void Set_Display(int Row, bool Valid);
     void Update_Table();
-
+    void ResizeColumns();
     void resizeEvent(QResizeEvent* Event);
     bool edit (const QModelIndex& Index, EditTrigger Trigger, QEvent* Event);
 
 protected slots:
+    void On_View_Option_Changed(bool Checked);
     void On_Value_Changed(int Row);
 
 signals:

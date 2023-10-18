@@ -18,6 +18,10 @@
 //---------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setOrganizationDomain("mediaarea.net");
+    QCoreApplication::setOrganizationName("MediaArea.net");
+    QCoreApplication::setApplicationName("MOVMetaEdit");
+
     QApplication a(argc, argv);
     MainWindow w;
 

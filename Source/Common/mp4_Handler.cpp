@@ -368,29 +368,98 @@ bool mp4_Handler::Save()
         Chunks->Modify(Elements::moov, Elements::moov_meta, Elements::moov_meta_keys);
     if (Chunks->Global->moov_meta_ilst_Modified)
         Chunks->Modify(Elements::moov, Elements::moov_meta, Elements::moov_meta_ilst);
-    if (Chunks->Global->moov_trak_tapt_clef_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tapt, Elements::moov_trak_tapt_clef);
-    if (Chunks->Global->moov_trak_tapt_prof_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tapt, Elements::moov_trak_tapt_prof);
-    if (Chunks->Global->moov_trak_tapt_enof_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tapt, Elements::moov_trak_tapt_enof);
+
+    //Modify fist video track
+    {
+        size_t trak_Index=0;
+        for (size_t Pos=0; Pos<Chunks->Subs.size(); Pos++)
+        {
+            bool Found=false;
+            if (Chunks->Subs[Pos]->Chunk.Header.Name==Elements::moov)
+            {
+                for (size_t Pos2=0; Pos2<Chunks->Subs[Pos]->Subs.size(); Pos2++)
+                {
+                    if (Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Header.Name==Elements::moov_trak)
+                    {
+                        if (trak_Index<Chunks->Global->moov_trak.size() && Chunks->Global->moov_trak[trak_Index]->IsVideo)
+                        {
+                            bool Modified=false;
+                            if (Chunks->Global->moov_trak_tapt_clef_Modified)
+                            {
+                                Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_tapt, Elements::moov_trak_tapt_clef);
+                                Modified=true;
+                            }
+                            if (Chunks->Global->moov_trak_tapt_prof_Modified)
+                            {
+                                Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_tapt, Elements::moov_trak_tapt_prof);
+                                Modified=true;
+                            }
+                            if (Chunks->Global->moov_trak_tapt_enof_Modified)
+                            {
+                                Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_tapt, Elements::moov_trak_tapt_enof);
+                                Modified=true;
+                            }
+                            if (Chunks->Global->moov_trak[trak_Index]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+                            {
+                                if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified)
+                                {
+                                    Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_clap);
+                                    Modified=true;
+                                }
+                                if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified)
+                                {
+                                    Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_colr);
+                                    Modified=true;
+                                }
+                                if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified)
+                                {
+                                    Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_fiel);
+                                    Modified=true;
+                                }
+                                if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified)
+                                {
+                                    Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_gama);
+                                    Modified=true;
+                                }
+                                if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified)
+                                {
+                                    Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_pasp);
+                                    Modified=true;
+                                }
+                                if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified)
+                                {                                    Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv);
+                                    Modified=true;
+                                }
+                                if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified)
+                                {
+                                    Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_clli);
+                                    Modified=true;
+                                }
+                            }
+
+                            if (Modified)
+                            {
+                                Chunks->Chunk.Content.IsModified=true;
+                                Chunks->Chunk.Content.Size_IsModified=true;
+                                Chunks->Subs[Pos]->Chunk.Content.IsModified=true;
+                                Chunks->Subs[Pos]->Chunk.Content.Size_IsModified=true;
+                                Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Content.IsModified=true;
+                                Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Content.Size_IsModified=true;
+                            }
+
+                            Found=true;
+                            break;
+                        }
+                        trak_Index++;
+                    }
+                }
+                if (Found)
+                    break;
+            }
+        }
+    }
     if (Chunks->Global->moov_trak_tkhd_Modified)
         Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tkhd);
-    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_clap);
-    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_colr);
-    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_fiel);
-    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_gama);
-    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_pasp);
-    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv);
-    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_clli);
-
     // Modify chan in all audio tracks
     if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified)
     {
@@ -786,7 +855,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="clef" || Field=="prof" || Field=="enof")
     {
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1)
             return false;
 
         double Width=0, Height=0;
@@ -824,7 +893,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="fiel")
     {
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
             return false;
 
         uint16_t Fields=0, Detail=0;
@@ -844,7 +913,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="colr")
     {
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
             return false;
 
         uint16_t Primaries=0, Transfer=0, Matrix=0;
@@ -866,7 +935,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="gama")
     {
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
             return false;
 
         double Gamma=0;
@@ -885,7 +954,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="pasp")
     {
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
             return false;
 
         uint32_t hSpacing=0, vSpacing=0;
@@ -905,7 +974,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="display_primaries")
     {
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
             return false;
 
         double x1=0,y1=0,x2=0,y2=0,x3=0,y3=0, wp_x=0, wp_y=0;
@@ -931,7 +1000,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="luminance")
     {
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
             return false;
 
         double max=0,min=0;
@@ -959,7 +1028,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="maximum_content_light_level")
     {
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
             return false;
 
         double max=0;
@@ -978,7 +1047,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="maximum_frame_average_light_level")
     {
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
             return false;
 
         double max=0;
@@ -997,11 +1066,12 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="hdr_data_from_xml")
     {
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
         string tmp;
         bool mdcv=false, clli=false;
         double x1=0, y1=0, x2=0, y2=0, x3=0, y3=0, wp_x=0, wp_y=0, luminance_min=0, luminance_max=0, max_cll=-1, max_fall=-1;
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
-            return false;
 
         tfsxml_string tfsxml_priv, tfsxml_priv_backup, result;
         tfsxml_init(&tfsxml_priv, (const void*)Value.c_str(), Value.size());
@@ -1188,7 +1258,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     }
     else if (Field=="clap")
     {
-        if (Chunks->Global->moov_trak.empty() || !Chunks->Global->moov_trak[0]->IsVideo ||!Chunks->Global->moov_trak[0]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
             return false;
 
         uint32_t Aperture_Width_Num=(uint32_t)-1, Aperture_Width_Den=1, Aperture_Height_Num=(uint32_t)-1, Aperture_Height_Den=1;

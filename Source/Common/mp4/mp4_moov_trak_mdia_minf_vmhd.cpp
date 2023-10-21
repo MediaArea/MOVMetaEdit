@@ -26,4 +26,6 @@ void mp4_moov_trak_mdia_minf_vmhd::Read_Internal ()
           throw exception_read_block("Can not parse moov trak mdia vmhd (version not supported)");
 
     Global->moov_trak.back()->IsVideo=true;
+    if (Global->moov_trak_FirstVideoIndex==(size_t)-1)
+        Global->moov_trak_FirstVideoIndex=Global->moov_trak.size()-1;
 }

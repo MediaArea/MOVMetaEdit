@@ -10,6 +10,8 @@
 #include <QFont>
 #include <QDebug>
 #include <QLabel>
+#include <QAction>
+#include <QSettings>
 
 #include "techtablewidget.h"
 #include "channeldialog.h"
@@ -35,6 +37,25 @@ static const char* ColumnName_Default[TechTableWidget::MAX_COLUMN] =
     "Max. CLL",
     "Max. FALL",
     "Channels",
+};
+
+static const char* ColumnId_Default[TechTableWidget::MAX_COLUMN] =
+{
+    "file",
+    "clef",
+    "prof",
+    "enof",
+    "pasp",
+    "wscl",
+    "fiel",
+    "colr",
+    "gama",
+    "clap",
+    "dpri",
+    "dlum",
+    "mcll",
+    "mfal",
+    "chan",
 };
 
 static const int ColumnSize_Default[TechTableWidget::MAX_COLUMN] =
@@ -1286,16 +1307,7 @@ void TechTableWidget::Setup(Core *C)
     this->C = C;
 
     // Setup table widget
-    QStringList Header_Labels;
-
-    for (int i = 0; i < MAX_COLUMN; i++)
-    {
-        Header_Labels.append(ColumnName_Default[i]);
-        ColumnSize[i] = 0;
-    }
     setColumnCount(MAX_COLUMN);
-    setHorizontalHeaderLabels(Header_Labels);
-    horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
     ApertureDelegate* ApertureEditor = new ApertureDelegate(this, C);
     connect(ApertureEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
@@ -1334,6 +1346,19 @@ void TechTableWidget::Setup(Core *C)
     setItemDelegateForColumn(DLUM_COLUMN, qobject_cast<QAbstractItemDelegate*>(LuminanceEditor));
     setItemDelegateForColumn(MCLL_COLUMN, qobject_cast<QAbstractItemDelegate*>(DoubleEditor));
     setItemDelegateForColumn(MFAL_COLUMN, qobject_cast<QAbstractItemDelegate*>(DoubleEditor));
+
+    QStringList Header_Labels;
+    QStringList HiddenColumns = QSettings().value("techtablewidget/hiddencolumns", QStringList()).toStringList();
+    for (int i = 0; i < MAX_COLUMN; i++)
+    {
+        Header_Labels.append(ColumnName_Default[i]);
+        ColumnSize[i] = 0;
+
+        if (i > 0 && HiddenColumns.contains(ColumnId_Default[i]))
+            setColumnHidden(i, true);
+    }
+    setHorizontalHeaderLabels(Header_Labels);
+    horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 }
 
 //---------------------------------------------------------------------------
@@ -1565,28 +1590,33 @@ void TechTableWidget::Update_Table()
 }
 
 //---------------------------------------------------------------------------
-void TechTableWidget::resizeEvent(QResizeEvent* Event)
+void TechTableWidget::ResizeColumns()
 {
-    int Target = size().width() > 1920 ? size().width() : 1920;
-
-    //Changed?
+   //Changed?
     bool c = false;
     bool d = false;
+    int HiddenSize=0;
     for (int i = 0; i < MAX_COLUMN; i++)
     {
+        if (isColumnHidden(i))
+            HiddenSize+=ColumnSize_Default[i];
+
         if (ColumnSize[i] != columnWidth(i))
             c = true;
         if (!ColumnSize[i])
             d = true;
     }
+
+    int Target = size().width() > (1920 - HiddenSize) ? size().width() : (1920 - HiddenSize);
+
     if (d)
     {
         //First time
         int ColumnSize_Default_Total=0;
         for (int i = 0; i < MAX_COLUMN; i++)
-            ColumnSize_Default_Total += ColumnSize_Default[i];
+            ColumnSize_Default_Total += isColumnHidden(i) ? 0: ColumnSize_Default[i];
         for (int i = 0; i < MAX_COLUMN; i++)
-            ColumnSize_Ratio[i] = ((float)ColumnSize_Default[i]) / ColumnSize_Default_Total;
+            ColumnSize_Ratio[i] = isColumnHidden(i) ? 0 : (((float)ColumnSize_Default[i]) / ColumnSize_Default_Total);
         ColumnSize_Ratio[MAX_COLUMN] = 0;
     }
     else if (c)
@@ -1595,6 +1625,9 @@ void TechTableWidget::resizeEvent(QResizeEvent* Event)
         float t = 1;
         for (int i = 0; i < MAX_COLUMN; i++)
         {
+            if (isColumnHidden(i))
+                continue;
+
             ColumnSize_Ratio[i] = ((float)columnWidth(i)) / Target;
             t -= ColumnSize_Ratio[i];
         }
@@ -1605,9 +1638,18 @@ void TechTableWidget::resizeEvent(QResizeEvent* Event)
     qreal Total_New = Target;
     for (int i = 0; i < MAX_COLUMN; i++)
     {
+        if (isColumnHidden(i))
+            continue;
+
         ColumnSize[i] = (int)(Total_New * ColumnSize_Ratio[i]);
         setColumnWidth(i, ColumnSize[i]);
     }
+}
+
+//---------------------------------------------------------------------------
+void TechTableWidget::resizeEvent(QResizeEvent* Event)
+{
+    ResizeColumns();
 
     //Call base resizeEvent to handle the vertical resizing
     QTableView::resizeEvent(Event);
@@ -1635,6 +1677,29 @@ bool TechTableWidget::edit(const QModelIndex& Index, EditTrigger Trigger, QEvent
     }
 
     return QTableWidget::edit(Index, Trigger, Event);
+}
+
+//---------------------------------------------------------------------------
+void TechTableWidget::On_View_Option_Changed(bool Checked)
+{
+    int Col = (qobject_cast<QAction*>(sender()))->data().toInt();
+    if (Col==0 || Col>=MAX_COLUMN)
+        return;
+
+    setColumnHidden(Col, !Checked);
+
+    QSettings Settings;
+
+    QStringList Values = Settings.value("techtablewidget/hiddencolumns", QStringList()).toStringList();
+    if (Checked)
+        Values.removeAll(ColumnId_Default[Col]);
+    else
+        Values.append(ColumnId_Default[Col]);
+    Values.removeDuplicates();
+
+    ResizeColumns();
+
+    Settings.setValue("techtablewidget/hiddencolumns", Values);
 }
 
 //---------------------------------------------------------------------------

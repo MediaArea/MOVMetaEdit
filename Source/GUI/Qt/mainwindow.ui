@@ -186,6 +186,21 @@
     </property>
     <addaction name="Menu_View_Technical"/>
     <addaction name="Menu_View_AdId"/>
+    <addaction name="Menu_View_Tech_Separator"/>
+    <addaction name="Menu_View_Tech_Clef"/>
+    <addaction name="Menu_View_Tech_Prof"/>
+    <addaction name="Menu_View_Tech_Enof"/>
+    <addaction name="Menu_View_Tech_Pasp"/>
+    <addaction name="Menu_View_Tech_Wscl"/>
+    <addaction name="Menu_View_Tech_Fiel"/>
+    <addaction name="Menu_View_Tech_Colr"/>
+    <addaction name="Menu_View_Tech_Gama"/>
+    <addaction name="Menu_View_Tech_Clap"/>
+    <addaction name="Menu_View_Tech_Dpri"/>
+    <addaction name="Menu_View_Tech_Dlum"/>
+    <addaction name="Menu_View_Tech_Mcll"/>
+    <addaction name="Menu_View_Tech_Mfal"/>
+    <addaction name="Menu_View_Tech_Chan"/>
    </widget>
    <widget class="QMenu" name="Menu_Help">
     <property name="title">
@@ -383,6 +398,252 @@
    </property>
    <property name="visible">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Separator">
+   <property name="separator">
+    <bool>true</bool>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Clef">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Clean Ap.</string>
+   </property>
+   <property name="toolTip">
+    <string>Show clean aperture column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Prof">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Prod Ap.</string>
+   </property>
+   <property name="toolTip">
+    <string>Show production aperture column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Enof">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enc. Ap.</string>
+   </property>
+   <property name="toolTip">
+    <string>Show encoded pixels dimension column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Pasp">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>PAR</string>
+   </property>
+   <property name="toolTip">
+    <string>Show PAR column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Wscl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>w-scale</string>
+   </property>
+   <property name="toolTip">
+    <string>Show width scale column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Fiel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Field</string>
+   </property>
+   <property name="toolTip">
+    <string>Show field handling column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Colr">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color</string>
+   </property>
+   <property name="toolTip">
+    <string>Show color column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Gama">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Gamma</string>
+   </property>
+   <property name="toolTip">
+    <string>Show gamma column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Clap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Aperture</string>
+   </property>
+   <property name="toolTip">
+    <string>Show clean aperture column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Dpri">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display Primaries</string>
+   </property>
+   <property name="toolTip">
+    <string>Show display primaries column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Dlum">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Luminance</string>
+   </property>
+   <property name="toolTip">
+    <string>Show luminance column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Mcll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Max. CLL</string>
+   </property>
+   <property name="toolTip">
+    <string>Show maximum content light level column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Mfal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Max. FALL</string>
+   </property>
+   <property name="toolTip">
+    <string>Show maximum frame average light level column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="Menu_View_Tech_Chan">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Chan</string>
+   </property>
+   <property name="toolTip">
+    <string>Show audio channels description labels column</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
    </property>
   </action>
   <actiongroup name="Menu_View_ActionGroup">

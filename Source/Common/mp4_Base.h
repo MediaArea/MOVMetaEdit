@@ -59,7 +59,7 @@ public:
     }
 
 protected:
-    string text;    
+    string text;
 };
 
 class exception_read_block : public exception
@@ -442,6 +442,7 @@ public:
         size_t              moov_meta_keys_AlreadyPresent;
         vector<string>      moov_meta_ilst_NewValues;
         size_t              moov_meta_ilst_AlreadyPresent;
+        size_t              moov_trak_FirstVideoIndex;
         bool                NewChunksAtTheEnd;
         bool                Out_Buffer_File_TryModification;
         bool                Out_Buffer_File_IsModified;
@@ -485,6 +486,7 @@ public:
             moov_meta_keys_Modified=false;
             moov_meta_keys_AlreadyPresent=0;
             moov_meta_ilst_AlreadyPresent=0;
+            moov_trak_FirstVideoIndex=(size_t)-1;
             NewChunksAtTheEnd=false;
             Out_Buffer_WriteAtEnd=false;
             Out_Buffer_File_TryModification=true;

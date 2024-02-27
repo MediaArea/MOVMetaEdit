@@ -344,6 +344,29 @@ public:
                 NumberChannelDescriptions=0;
             }
         };
+        struct block_moov_trak_mdia_mdhd
+        {
+            int8u Version;
+            int32u Flags;
+            int64u CreationTime;
+            int64u ModificationTime;
+            int32u TimeScale;
+            int64u Duration;
+            int16u Language;
+            int16u Quality;
+
+            block_moov_trak_mdia_mdhd()
+            {
+                Version=0;
+                Flags=0;
+                CreationTime=0;
+                ModificationTime=0;
+                TimeScale=0;
+                Duration=0;
+                Language=0;
+                Quality=0;
+            }
+        };
         struct block_moov_trak_tkhd
         {
             double Width_Scale;
@@ -430,6 +453,8 @@ public:
         bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified;
         map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*> moov_trak_mdia_minf_stbl_stsd_xxxx_chan;
         bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified;
+        map<size_t, block_moov_trak_mdia_mdhd*> moov_trak_mdia_mdhd;
+        bool                                    moov_trak_mdia_mdhd_Modified;
         block_moov_trak_tkhd* moov_trak_tkhd;
         bool                  moov_trak_tkhd_Modified;
         block_moov_meta_hdlr* moov_meta_hdlr;
@@ -476,6 +501,7 @@ public:
             moov_trak_mdia_minf_stbl_stsd_xxxx_clli=NULL;
             moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified=false;
+            moov_trak_mdia_mdhd_Modified=false;
             moov_trak_tkhd=NULL;
             moov_trak_tkhd_Modified=false;
             moov_meta_hdlr=NULL;
@@ -518,6 +544,9 @@ public:
 
             for(map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_chan.begin();
                 It!=moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end(); It++)
+                delete It->second;
+
+            for(map<size_t, block_moov_trak_mdia_mdhd*>::iterator It=moov_trak_mdia_mdhd.begin(); It!=moov_trak_mdia_mdhd.end(); It++)
                 delete It->second;
         }
     };

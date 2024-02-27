@@ -18,6 +18,7 @@
 
 #ifdef MACSTORE
 #include "Common/Mac_Helpers.h"
+#include "mp4_Handler.h"
 #endif
 
 using namespace std;
@@ -27,6 +28,118 @@ using namespace ZenLib;
 //---------------------------------------------------------------------------
 const string mp4_Handler_EmptyZtring_Const; //Use it when we can't return a reference to a true Ztring, const version
 //---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+static const vector<string> mp4_mdhd_Languages=
+{
+    "en", // English
+    "fr", // French
+    "de", // German
+    "it", // Italian
+    "nl", // Dutch
+    "sv", // Swedish
+    "es", // Spanish
+    "da", // Danish
+    "pt", // Portuguese
+    "no", // Norwegian
+    "he", // Hebrew
+    "ja", // Japanese
+    "ar", // Arabic
+    "fi", // Finnish
+    "el", // Greek
+    "is", // Icelandic
+    "mt", // Maltese
+    "tr", // Turkish
+    "hr", // Croatian
+    "zh-tw", // Chinese (Taiwan)
+    "ur", // Urdu
+    "hi", // Hindi
+    "th", // Thai
+    "ko", // Korean
+    "lt", // Lithuanian
+    "pl", // Polish
+    "hu", // Hungarian
+    "et", // Estonian
+    "lv", // Latvian
+    "smi", // Sami
+    "fo", // Faroese
+    "fa", // Persian
+    "ru", // Russian
+    "zh-cn", // Chinese (China)
+    "nl-be", // Flemish
+    "ga", // Irish
+    "sq", // Albanian
+    "ro", // Romanian
+    "cs", // Czech
+    "sk", // Slovak
+    "sl", // Slovenian
+    "yi", // Yiddish
+    "sr", // Serbian
+    "mk", // Macedonian
+    "bg", // Bulgarian
+    "uk", // Ukrainian
+    "be", // Belarusian
+    "uz", // Uzbek
+    "kk", // Kazakh
+    "az", // Azerbaijani
+    "hy-az", // Armenian (Azerbaijani)
+    "hy", // Armenian
+    "ka", // Georgian
+    "mo", // Moldavian
+    "ky", // Kirghiz
+    "tg", // Tajik
+    "tk", // Turkmen
+    "mn-cn", // Mongolian (China)
+    "mn", // Mongolian
+    "ps", // Pushto
+    "ku", // Kurdish
+    "ks", // Kashmiri
+    "sd", // Sindhi
+    "bo", // Tibetan
+    "ne", // Nepali
+    "sa", // Sanskrit
+    "mr", // Marathi
+    "bn", // Bengali
+    "as", // Assamese
+    "gu", // Gujarati
+    "pa", // Panjabi
+    "or", // Oriya
+    "ml", // Malayalam
+    "kn", // Kannada
+    "ta", // Tamil
+    "te", // Telugu
+    "si", // Sinhala
+    "my", // Burmese
+    "km", // Khmer
+    "lo", // Lao
+    "vi", // Vietnamese
+    "id", // Indonesian
+    "tl", // Tagalog
+    "ms", // Malay
+    "ms-bn", // Malay (Brunei)
+    "am", // Amharic
+    "86", // Empty
+    "om", // Oromo
+    "so", // Somali
+    "sw", // Swahili
+    "rw", // Kinyarwanda
+    "rn", // Rundi
+    "ny", // Nyanja
+    "mg", // Malagasy
+    "eo", // Esperanto
+    // Gap 95-128
+    "cy", // Welsh
+    "eu", // Basque
+    "ca", // Catalan
+    "la", // Latin
+    "qu", // Quechua
+    "gn", // Guarani
+    "ay", // Aymara
+    "tt", // Tatar
+    "ug", // Uighur
+    "dz", // Dzongkha
+    "jv", // Javanese
+};
 
 //***************************************************************************
 // Helpers
@@ -119,6 +232,7 @@ string mp4_chan_ChannelDescription (uint32_t ChannelLabel)
 bool mp4_chan_ChannelCode (string ChannelLabel, uint32_t &Code, bool& Ignore, bool& Delete)
 {
     Delete=false;
+    Ignore=false;
     Code=0;
 
     if(ChannelLabel.empty())
@@ -243,6 +357,65 @@ bool mp4_chan_ChannelCode (string ChannelLabel, uint32_t &Code, bool& Ignore, bo
 
     return true;
 }
+
+//---------------------------------------------------------------------------
+string mp4_mdhd_LanguageLabel(uint16_t LanguageCode)
+{
+    if (LanguageCode>=0x400 && LanguageCode!=0x7FFF && LanguageCode!=0xFFFF)
+    {
+        string Temp;
+        Temp.append(1, (char)((LanguageCode>>10&0x1F)+0x60));
+        Temp.append(1, (char)((LanguageCode>> 5&0x1F)+0x60));
+        Temp.append(1, (char)((LanguageCode>> 0&0x1F)+0x60));
+        return Temp;
+    }
+
+    if (LanguageCode>94)
+        LanguageCode-=(128-94); // Gap 95-128
+
+    if (LanguageCode<mp4_mdhd_Languages.size())
+        return mp4_mdhd_Languages[LanguageCode];
+
+    return to_string(LanguageCode);
+}
+
+//---------------------------------------------------------------------------
+bool mp4_mdhd_LanguageCode(string LanguageLabel, uint16_t &Code, bool &Ignore, bool &Delete)
+{
+    Delete=false;
+    Ignore=false;
+    Code=0;
+
+    if(LanguageLabel.empty())
+        return false;
+
+    istringstream iss(LanguageLabel);
+    iss >> Code;
+    if (!iss.fail() && iss.eof())
+        return true;
+
+    transform( LanguageLabel.begin(), LanguageLabel.end(), LanguageLabel.begin(), ::tolower);
+    vector<string>::const_iterator It=find(mp4_mdhd_Languages.begin(), mp4_mdhd_Languages.end(), LanguageLabel);
+    if (It!=mp4_mdhd_Languages.end())
+    {
+        Code=(uint16_t)(It-mp4_mdhd_Languages.begin());
+        return true;
+    }
+
+    if (LanguageLabel.size()==3 &&
+        LanguageLabel[0] > 0x60 && LanguageLabel[0] < 0x7B &&
+        LanguageLabel[1] > 0x60 && LanguageLabel[1] < 0x7B &&
+        LanguageLabel[2] > 0x60 && LanguageLabel[2] < 0x7B)
+    {
+        Code=(LanguageLabel[0]-0x60)<<10;
+        Code|=(LanguageLabel[1]-0x60)<<5;
+        Code|=(LanguageLabel[2]-0x60)<<0;
+        return true;
+    }
+
+    return false;
+}
+
 //***************************************************************************
 // Constructor/Destructor
 //***************************************************************************
@@ -460,6 +633,34 @@ bool mp4_Handler::Save()
     }
     if (Chunks->Global->moov_trak_tkhd_Modified)
         Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tkhd);
+    // Modify mdhd in all audio tracks
+    if (Chunks->Global->moov_trak_mdia_mdhd_Modified)
+    {
+        size_t trak_Index=0;
+        for (size_t Pos=0; Pos<Chunks->Subs.size(); Pos++)
+        {
+            if (Chunks->Subs[Pos]->Chunk.Header.Name==Elements::moov)
+            {
+                for (size_t Pos2=0; Pos2<Chunks->Subs[Pos]->Subs.size(); Pos2++)
+                {
+                    if (Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Header.Name==Elements::moov_trak)
+                    {
+                        if(trak_Index<Chunks->Global->moov_trak.size() && Chunks->Global->moov_trak[trak_Index]->IsSound)
+                        {
+                            Chunks->Chunk.Content.IsModified=true;
+                            Chunks->Chunk.Content.Size_IsModified=true;
+                            Chunks->Subs[Pos]->Chunk.Content.IsModified=true;
+                            Chunks->Subs[Pos]->Chunk.Content.Size_IsModified=true;
+                            Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Content.IsModified=true;
+                            Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Content.Size_IsModified=true;
+                            Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_mdhd);
+                        }
+                        trak_Index++;
+                    }
+                }
+            }
+        }
+    }
     // Modify chan in all audio tracks
     if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified)
     {
@@ -709,6 +910,30 @@ string mp4_Handler::Get(const string &Field)
         stringstream ss;
         ss << setprecision(4) << fixed << round(Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_frame_average_light_level);
 
+        return ss.str();
+    }
+    else if (Field=="lang")
+    {
+        stringstream ss;
+        size_t Index=0;
+
+        for (size_t Pos=0; Pos<Chunks->Global->moov_trak.size(); Pos++)
+        {
+            if (!Chunks->Global->moov_trak[Pos]->IsSound)
+                continue;
+
+            if (!ss.str().empty())
+                ss << ",";
+
+            ss << Index << "=";
+
+            map<size_t, mp4_Base::global::block_moov_trak_mdia_mdhd*>::iterator It=Chunks->Global->moov_trak_mdia_mdhd.find(Pos+1);
+            if (It!=Chunks->Global->moov_trak_mdia_mdhd.end())
+               ss << It->second->Language;
+            else
+                ss << "ABSENT";
+            Index++;
+        }
         return ss.str();
     }
     else if (Field=="chan")
@@ -1331,6 +1556,84 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
             Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified=true;
         }
         return true;
+    }
+
+    else if (Field=="lang")
+    {
+        bool Ok=true;
+
+        size_t Start=0, End=0;
+        do
+        {
+            End=Value.find(',', Start);
+            string Current=Value.substr(Start, End!=string::npos?End-Start:string::npos);
+
+            size_t Equal_Pos=Current.find('=');
+            if (!Equal_Pos || Equal_Pos==string::npos || Equal_Pos+1==Current.size())
+            {
+                Ok=false;
+                break;
+            }
+
+            uint32_t Track;
+            uint16_t Code;
+            bool Delete=false;
+            bool Ignore=false;
+
+            istringstream iss(Current.substr(0, Equal_Pos));
+            iss >> Track;
+            if (iss.fail() || !iss.eof())
+            {
+                Ok=false;
+                break;
+            }
+
+            if (!mp4_mdhd_LanguageCode(Current.substr(Equal_Pos+1), Code, Ignore, Delete))
+            {
+                Ok=false;
+                break;
+            }
+
+            size_t Index=0;
+            size_t trak_Index=0;
+            for (size_t Pos=0; Pos<Chunks->Global->moov_trak.size(); Pos++)
+            {
+                if (!Chunks->Global->moov_trak[Pos]->IsSound)
+                    continue;
+
+                if (Index++==Track)
+                {
+                    trak_Index=Pos+1; //Track indexes are 1 based
+                    break;
+                }
+            }
+
+            if (!trak_Index)
+            {
+                Ok=false;
+                continue;
+            }
+
+            if (!Chunks->Global->moov_trak[trak_Index-1]->IsSound)
+            {
+                Ok=false;
+                continue;
+            }
+
+            if (!Simulate && !Ignore)
+            {
+                if (Chunks->Global->moov_trak_mdia_mdhd.find(trak_Index)!=Chunks->Global->moov_trak_mdia_mdhd.end())
+                    Chunks->Global->moov_trak_mdia_mdhd[trak_Index]->Language=Code;
+                else
+                    Ok=false;
+            }
+        }
+        while((Start=Value.find_first_not_of(',', End))!=string::npos);
+
+        if (!Simulate && Ok)
+            Chunks->Global->moov_trak_mdia_mdhd_Modified=true;
+
+        return Ok;
     }
 
     else if (Field=="chan")

@@ -55,6 +55,8 @@ int main(int argc, char* argv[])
     std::string clap_New=string();
     bool        clap_Delete=false;
     bool        clap_OK=true;
+    std::map<size_t, std::string> lang_New;
+    std::map<size_t, bool>        lang_OK;
     std::map<size_t, std::string> chan_New;
     std::map<size_t, bool>        chan_OK;
     bool        chan_Delete=false;
@@ -433,6 +435,66 @@ int main(int argc, char* argv[])
             maximum_frame_average_light_level_New.clear();
             clli_Delete=true;
         }
+        else if (Ztring(argv[argp]) == __T("-languages")
+              || Ztring(argv[argp]) == __T("-language")
+              || Ztring(argv[argp]) == __T("--languages")
+              || Ztring(argv[argp]) == __T("--language"))
+        {
+            bool Ok=true;
+            string lang(argv[argp + 1]);
+
+            size_t start=0, end=0, index=0;
+            uint16_t code;
+            bool _ignore;
+            bool _delete;
+            do
+            {
+                end = lang.find(',', start);
+                string current=lang.substr(start, end!=string::npos?end-start:string::npos);
+
+                if (size_t equal_pos=current.find('=')!=string::npos)
+                {
+                    if (!equal_pos || equal_pos+1==current.size())
+                    {
+                        Ok=false;
+                        break;
+                    }
+                    istringstream iss(current.substr(0, equal_pos));
+                    iss >> index;
+                    if (iss.fail())
+                    {
+                        Ok=false;
+                        break;
+                    }
+
+                    if (!mp4_mdhd_LanguageCode(current.substr(equal_pos+1, current.size()-equal_pos-1), code, _ignore, _delete))
+                    {
+                        Ok=false;
+                        break;
+                    }
+
+                    lang_New[index++]=current.substr(equal_pos+1, current.size()-equal_pos-1);
+                }
+                else
+                {
+                    if (!mp4_mdhd_LanguageCode(current, code, _ignore, _delete))
+                    {
+                        Ok=false;
+                        break;
+                    }
+
+                    lang_New[index++]=current;
+                }
+            }
+            while((start=lang.find_first_not_of(',', end))!=string::npos);
+
+            if (!Ok)
+            {
+                cout << "Can not understand languages label value " << argv[argp] << ", it must be in [trackIndex=]code[,[trackIndex=]code...] format" << endl;
+                return ReturnValue_ERROR;
+            }
+            argp++;
+        }
         else if ((Ztring(argv[argp]) == __T("-channels")
                || Ztring(argv[argp]) == __T("--channels")))
         {
@@ -486,7 +548,7 @@ int main(int argc, char* argv[])
 
             if (!Ok)
             {
-                cout << "Can not understand channels label value " << argv[argp] << ", it must be in [track=]code[,[track=]code...] format" << endl;
+                cout << "Can not understand channels label value " << argv[argp] << ", it must be in [trackIndex=]code[,[trackIndex=]code...] format" << endl;
                 return ReturnValue_ERROR;
             }
 
@@ -533,6 +595,7 @@ int main(int argc, char* argv[])
          !colr_New.empty() || colr_Delete ||
          !clap_New.empty() || clap_Delete ||
          !chan_New.empty() || chan_Delete ||
+         !lang_New.empty() ||
          mdcv_Delete ||
          clli_Delete ||
          !luminance_New.empty() ||
@@ -695,7 +758,7 @@ int main(int argc, char* argv[])
     cout << "  it (empty)" << endl;
     cout << "M = The field will be modified ('Y') or should be modified but it is not possible" << endl;
     cout << "  due to feature not implemented ('N')" << endl;
-    cout << FileNameFake << "|OK?|Clean Ap.|M| Prod Ap.|M| Enc. Ap.|M|      PAR|M|                              Display Primaries|M|          Luminance|M|    Max content light lev.|M| Max frame avg. light lev.|M|w-scale|M|Field|M|   Color|M|Gamma|M|                 Aperture|M|                 Channels|M|" << endl;
+    cout << FileNameFake << "|OK?|Clean Ap.|M| Prod Ap.|M| Enc. Ap.|M|      PAR|M|                              Display Primaries|M|          Luminance|M|    Max content light lev.|M| Max frame avg. light lev.|M|w-scale|M|   Field|M|   Color|M|Gamma|M|                 Aperture|M| Languages|M|                 Channels|M|" << endl;
     }
     else
         cout << FileNameFake << "|OK?| Registry|UniversalAdId value" << endl;
@@ -944,6 +1007,16 @@ int main(int argc, char* argv[])
                 }
                 else if (clap_Delete)
                     H->Remove("clap");
+                if (!lang_New.empty())
+                {
+                    for (map<size_t, string>::iterator It=lang_New.begin(); It!=lang_New.end(); It++)
+                    {
+                        stringstream ss; ss << It->first << "=" << It->second;
+                        lang_OK[It->first]=H->Set("lang", ss.str());
+                        if (!lang_OK[It->first])
+                            ToReturn=ReturnValue_ERROR;
+                    }
+                }
                 if (!chan_New.empty())
                 {
                     for (map<size_t, string>::iterator It=chan_New.begin(); It!=chan_New.end(); It++)
@@ -1012,8 +1085,8 @@ int main(int argc, char* argv[])
              cout << wscale << "|" << (!wscale_New.empty() ? ((OK && wscale_OK) ? "Y" : "N") : " ") << "|";
 
             string fiel = H->Get("fiel");
-            if (fiel.size() < 5)
-               fiel.insert(0, 5 - fiel.size(), ' ');
+            if (fiel.size() < 8)
+               fiel.insert(0, 8 - fiel.size(), ' ');
              cout << fiel << "|" << ((!fiel_New.empty() || fiel_Delete) ? ((OK && fiel_OK) ? "Y" : "N") : " ") << "|";
 
             string colr = H->Get("colr");
@@ -1031,6 +1104,37 @@ int main(int argc, char* argv[])
                clap.insert(0, 25 - clap.size(), ' ');
              cout << clap << "|" << ((!clap_New.empty() || clap_Delete) ? ((OK && clap_OK) ? "Y" : "N") : " ") << "|";
 
+            vector<string>langs;
+            string lang = H->Get("lang");
+            {
+                size_t start=0, sep=0, end=0;
+                do
+                {
+                    sep = lang.find('=', start);
+                    end = lang.find(',', start);
+
+                    string number=lang.substr(start, sep - start);
+                    string value=lang.substr(sep+1, end-sep-1);
+
+                    if (value!="ABSENT")
+                    {
+                        string current = number + ") ";
+
+                        size_t code=0;
+                        istringstream(value) >> code;
+                        current+=(mp4_mdhd_LanguageLabel(code));
+
+                        size_t track=0;
+                        istringstream(number) >> track;
+                        if (current.size() < 10)
+                            current.insert(0, 10 - current.size(), ' ');
+
+                        langs.push_back(current + "|" + (lang_New.find(track)!=lang_New.end() ? ((OK && lang_OK.find(track)!=lang_OK.end() && lang_OK[track]) ? "Y" : "N") : " ") + "|");
+                    }
+                }
+                while((start=lang.find_first_not_of(',', end))!=std::string::npos);
+            }
+            vector<string>chans;
             string chan = H->Get("chan");
             {
                 size_t start=0, sep=0, end=0;
@@ -1061,12 +1165,21 @@ int main(int argc, char* argv[])
                         istringstream(number) >> track;
                         if (current.size() < 25)
                             current.insert(0, 25 - current.size(), ' ');
-                        if (start!=0)
-                            cout << endl << string(FileNameFake.size() + 247, ' ') << '|';
-                        cout << current << "|" << ((chan_New.find(track)!=chan_New.end() || chan_Delete) ? ((OK && chan_OK.find(track)!=chan_OK.end() && chan_OK[track]) ? "Y" : "N") : " ") << "|";
+
+                        chans.push_back(current + "|" + ((chan_New.find(track)!=chan_New.end() || chan_Delete) ? ((OK && chan_OK.find(track)!=chan_OK.end() && chan_OK[track]) ? "Y" : "N") : " ") + "|");
                     }
                 }
                 while((start=chan.find_first_not_of(',', end))!=std::string::npos);
+            }
+
+            for (size_t Pos=0; Pos<langs.size() || Pos<chans.size(); Pos++)
+            {
+                if (Pos!=0)
+                    cout << endl << string(FileNameFake.size() + 250, ' ') << '|';
+                if (Pos<langs.size())
+                    cout << langs[Pos];
+                if (Pos<chans.size())
+                    cout << chans[Pos];
             }
 
             cout << endl;

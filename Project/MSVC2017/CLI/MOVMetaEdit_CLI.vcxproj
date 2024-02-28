@@ -47,6 +47,7 @@
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clli.cpp" />
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_stbl_stsd_xxxxSound.cpp" />
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_chan.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_mdhd.cpp" />
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_vmhd.cpp" />
     <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_trak_mdia_minf_smhd.cpp" />
     <ClCompile Include="..\..\..\Source\Common\mp4_Base.cpp" />

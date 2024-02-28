@@ -17,6 +17,7 @@ void mp4_moov_trak_mdia::Read_Internal ()
 {
     SUBS_BEGIN();
         SUB_ELEMENT(moov_trak_mdia_minf);
+        SUB_ELEMENT(moov_trak_mdia_mdhd);
 //        SUB_ELEMENT(moov_meta_keys);
 //        SUB_ELEMENT(moov_meta_ilst);
     SUBS_END();

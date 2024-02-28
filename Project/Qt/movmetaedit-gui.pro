@@ -85,6 +85,7 @@ SOURCES += \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clli.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxxSound.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_chan.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_mdhd.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_vmhd.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_smhd.cpp \
         ../../Source/Common/mp4/mp4_moov_meta.cpp \

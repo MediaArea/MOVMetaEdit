@@ -60,6 +60,7 @@ namespace Elements
     const uint32_t moov_trak_mdia_minf_stbl_stsd_xxxx_chan = 0x6368616E;
     const uint32_t moov_trak_mdia_minf_vmhd = 0x766D6864;
     const uint32_t moov_trak_mdia_minf_smhd = 0x736D6864;
+    const uint32_t moov_trak_mdia_mdhd = 0x6D646864;
     const uint32_t moov_trak_tkhd = 0x746B6864;
     const uint32_t moov_meta = 0x6D657461;
     const uint32_t moov_meta_hdlr = 0x68646C72;
@@ -128,6 +129,7 @@ CHUNK_I(7, moov_trak_mdia_minf_stbl_stsd_xxxxSound);
 CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_chan);
 CHUNK__(5, moov_trak_mdia_minf_vmhd);
 CHUNK__(5, moov_trak_mdia_minf_smhd);
+CHUNK_W(4, moov_trak_mdia_mdhd);
 CHUNK_W(3, moov_trak_tkhd);
 CHUNK_I(2, moov_meta);
 CHUNK_W(3, moov_meta_hdlr);

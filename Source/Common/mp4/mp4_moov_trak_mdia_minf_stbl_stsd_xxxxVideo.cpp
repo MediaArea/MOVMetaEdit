@@ -31,7 +31,7 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo::Read_Internal ()
     Skip_XX(6); // Reserved
     Skip_XX(2); // Data reference index
     Get_B2(Version);
-    if (Version>2)
+    if (Version>3)
           throw exception_read_block("Can not parse moov trak mdia minf stbl stsd xxxxVideo (version not supported)");
     Skip_XX(2); // Revision level
     Skip_XX(4); // Vendor

@@ -18,18 +18,20 @@
 //---------------------------------------------------------------------------
 void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clli::Read_Internal()
 {
-    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli)
+    Chunk.trak_Index=Global->moov_trak.size()-1;
+
+    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli.count(Chunk.trak_Index))
         throw exception_read_block("2 moov trak mdia minf stbl stsd xxxx clli blocks");
 
-    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli = new global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli();
+    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli[Chunk.trak_Index] = new global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli();
 
     Read_Internal_ReadAllInBuffer();
 
     int16u Temp;
     Get_B2(Temp);
-    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_content_light_level=(double)Temp;
+    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli[Chunk.trak_Index]->maximum_content_light_level=(double)Temp;
     Get_B2(Temp);
-    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_frame_average_light_level=(double)Temp;
+    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli[Chunk.trak_Index]->maximum_frame_average_light_level=(double)Temp;
 }
 
 //***************************************************************************
@@ -42,7 +44,7 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clli::Modify_Internal()
     if (Chunk.Content.IsModified)
         return;
 
-    if (!Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli)
+    if (!Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli.count(Chunk.trak_Index))
     {
         Chunk.Content.IsRemovable = true;
         return;
@@ -54,8 +56,8 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clli::Modify_Internal()
     Chunk.Content.Size = 4;
     Chunk.Content.Buffer = new int8u[Chunk.Content.Size];
 
-    Put_B2((int16u)round(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_content_light_level));
-    Put_B2((int16u)round(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli->maximum_frame_average_light_level));
+    Put_B2((int16u)round(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli[Chunk.trak_Index]->maximum_content_light_level));
+    Put_B2((int16u)round(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli[Chunk.trak_Index]->maximum_frame_average_light_level));
 
     Chunk.Content.IsModified=true;
     Chunk.Content.Size_IsModified=true;

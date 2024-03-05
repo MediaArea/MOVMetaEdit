@@ -17,10 +17,12 @@
 //---------------------------------------------------------------------------
 void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_colr::Read_Internal()
 {
-    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr)
+    Chunk.trak_Index=Global->moov_trak.size()-1;
+
+    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr.count(Chunk.trak_Index))
         throw exception_read_block("2 moov trak mdia minf stbl stsd xxxx colr blocks");
 
-    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr=new global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_colr();
+    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr[Chunk.trak_Index]=new global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_colr();
 
     Read_Internal_ReadAllInBuffer();
 
@@ -30,9 +32,9 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_colr::Read_Internal()
     if (Type!=0x6E636C63) //nclc
         throw exception_read_block("unsupported colr type");
 
-    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Primaries);
-    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Transfer);
-    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Matrix);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr[Chunk.trak_Index]->Primaries);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr[Chunk.trak_Index]->Transfer);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr[Chunk.trak_Index]->Matrix);
 }
 
 //***************************************************************************
@@ -45,7 +47,7 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_colr::Modify_Internal()
     if (Chunk.Content.IsModified)
         return;
 
-    if (!Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr)
+    if (!Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr.count(Chunk.trak_Index))
     {
         Chunk.Content.IsRemovable = true;
         return;
@@ -58,9 +60,9 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_colr::Modify_Internal()
     Chunk.Content.Buffer = new int8u[Chunk.Content.Size];
 
     Put_B4(0x6E636C63); // nclc
-    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Primaries);
-    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Transfer);
-    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr->Matrix);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr[Chunk.trak_Index]->Primaries);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr[Chunk.trak_Index]->Transfer);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr[Chunk.trak_Index]->Matrix);
 
     Chunk.Content.IsModified=true;
     Chunk.Content.Size_IsModified=true;

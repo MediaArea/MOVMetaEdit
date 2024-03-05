@@ -17,21 +17,23 @@
 //---------------------------------------------------------------------------
 void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clap::Read_Internal()
 {
-    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap)
+    Chunk.trak_Index=Global->moov_trak.size()-1;
+
+    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap.count(Chunk.trak_Index))
         throw exception_read_block("2 moov trak mdia minf stbl stsd xxxx clap blocks");
 
-    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap=new global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap();
+    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]=new global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap();
 
     Read_Internal_ReadAllInBuffer();
 
-    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Width_Num);
-    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Width_Den);
-    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Height_Num);
-    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Height_Den);
-    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Horizontal_Offset_Num);
-    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Horizontal_Offset_Den);
-    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Vertical_Offset_Num);
-    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Vertical_Offset_Den);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Aperture_Width_Num);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Aperture_Width_Den);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Aperture_Height_Num);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Aperture_Height_Den);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Horizontal_Offset_Num);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Horizontal_Offset_Den);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Vertical_Offset_Num);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Vertical_Offset_Den);
 }
 
 //***************************************************************************
@@ -44,7 +46,7 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clap::Modify_Internal()
     if (Chunk.Content.IsModified)
         return;
 
-    if (!Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap)
+    if (!Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap.count(Chunk.trak_Index))
     {
         Chunk.Content.IsRemovable = true;
         return;
@@ -56,14 +58,14 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clap::Modify_Internal()
     Chunk.Content.Size = 32;
     Chunk.Content.Buffer = new int8u[Chunk.Content.Size];
 
-    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Width_Num);
-    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Width_Den);
-    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Height_Num);
-    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Aperture_Height_Den);
-    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Horizontal_Offset_Num);
-    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Horizontal_Offset_Den);
-    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Vertical_Offset_Num);
-    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap->Vertical_Offset_Den);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Aperture_Width_Num);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Aperture_Width_Den);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Aperture_Height_Num);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Aperture_Height_Den);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Horizontal_Offset_Num);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Horizontal_Offset_Den);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Vertical_Offset_Num);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Chunk.trak_Index]->Vertical_Offset_Den);
 
     Chunk.Content.IsModified=true;
     Chunk.Content.Size_IsModified=true;

@@ -431,26 +431,26 @@ public:
         block_mdat         *mdat;
         vector<block_moov*> moov;
         vector<block_moov_trak*> moov_trak;
-        block_moov_trak_tapt_xxxx* moov_trak_tapt_clef;
-        bool                       moov_trak_tapt_clef_Modified;
-        block_moov_trak_tapt_xxxx* moov_trak_tapt_prof;
-        bool                       moov_trak_tapt_prof_Modified;
-        block_moov_trak_tapt_xxxx* moov_trak_tapt_enof;
-        bool                       moov_trak_tapt_enof_Modified;
-        block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap* moov_trak_mdia_minf_stbl_stsd_xxxx_clap;
-        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified;
-        block_moov_trak_mdia_minf_stbl_stsd_xxxx_colr* moov_trak_mdia_minf_stbl_stsd_xxxx_colr;
-        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified;
-        block_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel* moov_trak_mdia_minf_stbl_stsd_xxxx_fiel;
-        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified;
-        block_moov_trak_mdia_minf_stbl_stsd_xxxx_gama* moov_trak_mdia_minf_stbl_stsd_xxxx_gama;
-        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified;
-        block_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp* moov_trak_mdia_minf_stbl_stsd_xxxx_pasp;
-        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified;
-        block_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv* moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv;
-        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified;
-        block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli* moov_trak_mdia_minf_stbl_stsd_xxxx_clli;
-        bool                                           moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified;
+        map<size_t, block_moov_trak_tapt_xxxx*> moov_trak_tapt_clef;
+        bool                                    moov_trak_tapt_clef_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_tapt_xxxx*> moov_trak_tapt_prof;
+        bool                                    moov_trak_tapt_prof_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_tapt_xxxx*> moov_trak_tapt_enof;
+        bool                                    moov_trak_tapt_enof_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap*> moov_trak_mdia_minf_stbl_stsd_xxxx_clap;
+        bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_colr*> moov_trak_mdia_minf_stbl_stsd_xxxx_colr;
+        bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel*> moov_trak_mdia_minf_stbl_stsd_xxxx_fiel;
+        bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_gama*> moov_trak_mdia_minf_stbl_stsd_xxxx_gama;
+        bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp*> moov_trak_mdia_minf_stbl_stsd_xxxx_pasp;
+        bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv*> moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv;
+        bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli*> moov_trak_mdia_minf_stbl_stsd_xxxx_clli;
+        bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified; // For FirstVideoIndex
         map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*> moov_trak_mdia_minf_stbl_stsd_xxxx_chan;
         bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified;
         map<size_t, block_moov_trak_mdia_mdhd*> moov_trak_mdia_mdhd;
@@ -480,25 +480,15 @@ public:
         {
             File_Size=0;
             mdat=NULL;
-            moov_trak_tapt_clef=NULL;
             moov_trak_tapt_clef_Modified=false;
-            moov_trak_tapt_prof=NULL;
             moov_trak_tapt_prof_Modified=false;
-            moov_trak_tapt_enof=NULL;
             moov_trak_tapt_enof_Modified=false;
-            moov_trak_mdia_minf_stbl_stsd_xxxx_clap=NULL;
             moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified=false;
-            moov_trak_mdia_minf_stbl_stsd_xxxx_colr=NULL;
             moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified=false;
-            moov_trak_mdia_minf_stbl_stsd_xxxx_fiel=NULL;
             moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified=false;
-            moov_trak_mdia_minf_stbl_stsd_xxxx_gama=NULL;
             moov_trak_mdia_minf_stbl_stsd_xxxx_gama_Modified=false;
-            moov_trak_mdia_minf_stbl_stsd_xxxx_pasp=NULL;
             moov_trak_mdia_minf_stbl_stsd_xxxx_pasp_Modified=false;
-            moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv=NULL;
             moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv_Modified=false;
-            moov_trak_mdia_minf_stbl_stsd_xxxx_clli=NULL;
             moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified=false;
             moov_trak_mdia_mdhd_Modified=false;
@@ -524,16 +514,6 @@ public:
         ~global()
         {
             delete mdat;
-            delete moov_trak_tapt_clef;
-            delete moov_trak_tapt_prof;
-            delete moov_trak_tapt_enof;
-            delete moov_trak_mdia_minf_stbl_stsd_xxxx_clap;
-            delete moov_trak_mdia_minf_stbl_stsd_xxxx_colr;
-            delete moov_trak_mdia_minf_stbl_stsd_xxxx_fiel;
-            delete moov_trak_mdia_minf_stbl_stsd_xxxx_gama;
-            delete moov_trak_mdia_minf_stbl_stsd_xxxx_pasp;
-            delete moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv;
-            delete moov_trak_mdia_minf_stbl_stsd_xxxx_clli;
             delete moov_trak_tkhd;
             delete moov_meta_hdlr;
             delete moov_meta_ilst;
@@ -542,12 +522,41 @@ public:
             for (size_t Pos=0; Pos<moov_trak.size(); Pos++)
                 delete moov_trak[Pos];
 
-            for(map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_chan.begin();
-                It!=moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end(); It++)
-                delete It->second;
+            for (size_t Pos=0; Pos<moov_trak_tapt_clef.size(); Pos++)
+                delete moov_trak_tapt_clef[Pos];
 
-            for(map<size_t, block_moov_trak_mdia_mdhd*>::iterator It=moov_trak_mdia_mdhd.begin(); It!=moov_trak_mdia_mdhd.end(); It++)
-                delete It->second;
+            for (size_t Pos=0; Pos<moov_trak_tapt_prof.size(); Pos++)
+                delete moov_trak_tapt_prof[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_tapt_enof.size(); Pos++)
+                delete moov_trak_tapt_enof[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_clap.size(); Pos++)
+                delete moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_colr.size(); Pos++)
+                delete moov_trak_mdia_minf_stbl_stsd_xxxx_colr[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.size(); Pos++)
+                delete moov_trak_mdia_minf_stbl_stsd_xxxx_fiel[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_gama.size(); Pos++)
+                delete moov_trak_mdia_minf_stbl_stsd_xxxx_gama[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_pasp.size(); Pos++)
+                delete moov_trak_mdia_minf_stbl_stsd_xxxx_pasp[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv.size(); Pos++)
+                delete moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_clli.size(); Pos++)
+                delete moov_trak_mdia_minf_stbl_stsd_xxxx_clli[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_chan.size(); Pos++)
+                delete moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_mdia_mdhd.size(); Pos++)
+                delete moov_trak_mdia_mdhd[Pos];
         }
     };
 

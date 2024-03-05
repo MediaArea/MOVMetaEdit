@@ -17,15 +17,17 @@
 //---------------------------------------------------------------------------
 void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel::Read_Internal()
 {
-    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel)
+    Chunk.trak_Index=Global->moov_trak.size()-1;
+
+    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.count(Chunk.trak_Index))
         throw exception_read_block("2 moov trak mdia minf stbl stsd xxxx fiel blocks");
 
-    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel=new global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel();
+    Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel[Chunk.trak_Index]=new global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel();
 
     Read_Internal_ReadAllInBuffer();
 
-    Get_B1(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel->Fields);
-    Get_B1(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel->Detail);
+    Get_B1(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel[Chunk.trak_Index]->Fields);
+    Get_B1(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel[Chunk.trak_Index]->Detail);
 }
 
 //***************************************************************************
@@ -38,7 +40,7 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel::Modify_Internal()
     if (Chunk.Content.IsModified)
         return;
 
-    if (!Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel)
+    if (!Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.count(Chunk.trak_Index))
     {
         Chunk.Content.IsRemovable = true;
         return;
@@ -50,8 +52,8 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel::Modify_Internal()
     Chunk.Content.Size = 2;
     Chunk.Content.Buffer = new int8u[Chunk.Content.Size];
 
-    Put_B1(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel->Fields);
-    Put_B1(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel->Detail);
+    Put_B1(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel[Chunk.trak_Index]->Fields);
+    Put_B1(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel[Chunk.trak_Index]->Detail);
 
     Chunk.Content.IsModified=true;
     Chunk.Content.Size_IsModified=true;

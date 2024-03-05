@@ -18,10 +18,12 @@
 #define mp4_moov_trak_tapt_(name) \
 void mp4_moov_trak_tapt_##name::Read_Internal() \
 { \
-    if (Global->moov_trak_tapt_##name) \
+    Chunk.trak_Index=Global->moov_trak.size()-1;\
+\
+    if (Global->moov_trak_tapt_##name.count(Chunk.trak_Index)) \
         throw exception_read_block("2 moov trak tapt " #name " blocks"); \
 \
-    Global->moov_trak_tapt_##name=new global::block_moov_trak_tapt_xxxx(); \
+    Global->moov_trak_tapt_##name[Chunk.trak_Index]=new global::block_moov_trak_tapt_xxxx(); \
 \
     Read_Internal_ReadAllInBuffer(); \
 \
@@ -31,9 +33,9 @@ void mp4_moov_trak_tapt_##name::Read_Internal() \
 \
     uint32_t Width, Height; \
     Get_B4(Width); \
-    Global->moov_trak_tapt_##name->Width=((double)Width/(double)(1<<16)); \
+    Global->moov_trak_tapt_##name[Chunk.trak_Index]->Width=((double)Width/(double)(1<<16)); \
     Get_B4(Height); \
-    Global->moov_trak_tapt_##name->Height=((double)Height/(double)(1<<16)); \
+    Global->moov_trak_tapt_##name[Chunk.trak_Index]->Height=((double)Height/(double)(1<<16)); \
 } \
 \
 void mp4_moov_trak_tapt_##name::Modify_Internal() \
@@ -41,7 +43,7 @@ void mp4_moov_trak_tapt_##name::Modify_Internal() \
     if (Chunk.Content.IsModified) \
         return; \
 \
-    if (!Global->moov_trak_tapt_##name) \
+    if (!Global->moov_trak_tapt_##name.count(Chunk.trak_Index)) \
     { \
         Chunk.Content.IsRemovable = true; \
         return; \
@@ -55,8 +57,8 @@ void mp4_moov_trak_tapt_##name::Modify_Internal() \
 \
     Put_B1(0x00); \
     Put_B3(0x000000); \
-    Put_B4((uint32_t)(Global->moov_trak_tapt_##name->Width*(1<<16))); \
-    Put_B4((uint32_t)(Global->moov_trak_tapt_##name->Height*(1<<16))); \
+    Put_B4((uint32_t)(Global->moov_trak_tapt_##name[Chunk.trak_Index]->Width*(1<<16))); \
+    Put_B4((uint32_t)(Global->moov_trak_tapt_##name[Chunk.trak_Index]->Height*(1<<16))); \
 \
     Chunk.Content.IsModified=true; \
     Chunk.Content.Size_IsModified=true; \

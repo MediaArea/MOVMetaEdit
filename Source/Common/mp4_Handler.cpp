@@ -574,6 +574,11 @@ bool mp4_Handler::Save()
                             }
                             if (Chunks->Global->moov_trak[trak_Index]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
                             {
+                                if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Modified)
+                                {
+                                    Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo);
+                                    Modified=true;
+                                }
                                 if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified)
                                 {
                                     Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia, Elements::moov_trak_mdia_minf, Elements::moov_trak_mdia_minf_stbl, Elements::moov_trak_mdia_minf_stbl_stsd, Elements::moov_trak_mdia_minf_stbl_stsd_xxxxVideo, Elements::moov_trak_mdia_minf_stbl_stsd_xxxx_clap);
@@ -837,6 +842,22 @@ string mp4_Handler::Get(const string &Field)
                             << Chunks->Global->moov_trak_tapt_enof[Chunks->Global->moov_trak_FirstVideoIndex]->Height;
         return ss.str();
     }
+    else if (Field=="stsd_xxxxvideo_version")
+    {
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo.count(Chunks->Global->moov_trak_FirstVideoIndex))
+            return string();
+
+        stringstream ss; ss << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunks->Global->moov_trak_FirstVideoIndex]->Version;
+        return ss.str();
+    }
+    else if (Field=="temporal_quality")
+    {
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo.count(Chunks->Global->moov_trak_FirstVideoIndex))
+            return string();
+
+        stringstream ss; ss << Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunks->Global->moov_trak_FirstVideoIndex]->TemporalQuality;
+        return ss.str();
+    }
     else if (Field=="fiel")
     {
         if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.count(Chunks->Global->moov_trak_FirstVideoIndex))
@@ -930,7 +951,7 @@ string mp4_Handler::Get(const string &Field)
 
             ss << Index << "=";
 
-            map<size_t, mp4_Base::global::block_moov_trak_mdia_mdhd*>::iterator It=Chunks->Global->moov_trak_mdia_mdhd.find(Pos+1);
+            map<size_t, mp4_Base::global::block_moov_trak_mdia_mdhd*>::iterator It=Chunks->Global->moov_trak_mdia_mdhd.find(Pos);
             if (It!=Chunks->Global->moov_trak_mdia_mdhd.end())
                ss << It->second->Language;
             else
@@ -954,7 +975,7 @@ string mp4_Handler::Get(const string &Field)
 
             ss << Index << "=";
 
-            map<size_t, mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*>::iterator It=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(Pos+1);
+            map<size_t, mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*>::iterator It=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(Pos);
             if (It!=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end())
             {
                 if (It->second->Descriptions.empty())
@@ -1128,6 +1149,47 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
         }
         return true;
     }
+
+    else if (Field=="stsd_xxxxvideo_version")
+    {
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        uint16_t Version=0;
+        if (sscanf(Value.c_str(), "%hu", &Version)!=1 || Version>0x3)
+            return false;
+
+        if (!Simulate)
+        {
+            if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo.count(Chunks->Global->moov_trak_FirstVideoIndex))
+                return false;
+
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunks->Global->moov_trak_FirstVideoIndex]->Version=Version;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Modified=true;
+        }
+        return true;
+    }
+
+    else if (Field=="temporal_quality")
+    {
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
+            return false;
+
+        uint32_t Quality=0;
+        if (sscanf(Value.c_str(), "%u", &Quality)!=1)
+            return false;
+
+        if (!Simulate)
+        {
+            if (!Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo.count(Chunks->Global->moov_trak_FirstVideoIndex))
+                return false;
+
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunks->Global->moov_trak_FirstVideoIndex]->TemporalQuality=Quality;
+            Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Modified=true;
+        }
+        return true;
+    }
+
     else if (Field=="fiel")
     {
         if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 || !Chunks->Global->moov_trak[Chunks->Global->moov_trak_FirstVideoIndex]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
@@ -1611,6 +1673,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
 
             size_t Index=0;
             size_t trak_Index=0;
+            bool Found=false;
             for (size_t Pos=0; Pos<Chunks->Global->moov_trak.size(); Pos++)
             {
                 if (!Chunks->Global->moov_trak[Pos]->IsSound)
@@ -1618,18 +1681,19 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
 
                 if (Index++==Track)
                 {
-                    trak_Index=Pos+1; //Track indexes are 1 based
+                    trak_Index=Pos;
+                    Found=true;
                     break;
                 }
             }
 
-            if (!trak_Index)
+            if (!Found)
             {
                 Ok=false;
                 continue;
             }
 
-            if (!Chunks->Global->moov_trak[trak_Index-1]->IsSound)
+            if (!Chunks->Global->moov_trak[trak_Index]->IsSound)
             {
                 Ok=false;
                 continue;
@@ -1689,6 +1753,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
 
             size_t Index=0;
             size_t trak_Index=0;
+            bool Found=false;
             for (size_t Pos=0; Pos<Chunks->Global->moov_trak.size(); Pos++)
             {
                 if (!Chunks->Global->moov_trak[Pos]->IsSound)
@@ -1696,18 +1761,19 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
 
                 if (Index++==Track)
                 {
-                    trak_Index=Pos+1; //Track indexes are 1 based
+                    trak_Index=Pos;
+                    Found=true;
                     break;
                 }
             }
 
-            if (!trak_Index)
+            if (!Found)
             {
                 Ok=false;
                 continue;
             }
 
-            if (!Chunks->Global->moov_trak[trak_Index-1]->IsSound)
+            if (!Chunks->Global->moov_trak[trak_Index]->IsSound)
             {
                 Ok=false;
                 continue;

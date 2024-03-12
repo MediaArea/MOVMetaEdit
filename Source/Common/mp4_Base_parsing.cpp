@@ -106,6 +106,22 @@ void mp4_Base::Put_B4 (int32u Value)
 }
 
 //---------------------------------------------------------------------------
+void mp4_Base::Get_B6 (int64u &Value)
+{
+    INTEGRITY_SIZE_ATLEAST_INT(6);
+    Value=BigEndian2int48u(Chunk.Content.Buffer+Chunk.Content.Buffer_Offset);
+    Chunk.Content.Buffer_Offset+=6;
+}
+
+//---------------------------------------------------------------------------
+void mp4_Base::Put_B6 (int64u Value)
+{
+    INTEGRITY_SIZE_ATLEAST_INT(6);
+    int48u2BigEndian(Chunk.Content.Buffer+Chunk.Content.Buffer_Offset, Value);
+    Chunk.Content.Buffer_Offset+=6;
+}
+
+//---------------------------------------------------------------------------
 void mp4_Base::Get_B8 (int64u &Value)
 {
     INTEGRITY_SIZE_ATLEAST_INT(8);

@@ -105,6 +105,19 @@ protected: \
     void Write_Internal(); \
 }; \
 
+//Chunk with modification/insertion/write
+#define CHUNK_M(_Level, _Name) \
+class mp4_##_Name : public mp4_Base \
+{ \
+public: \
+    mp4_##_Name(global* Global):mp4_Base(Global, _Level) {Chunk.Header.Name=Elements::_Name;} \
+protected: \
+    void Read_Internal(); \
+    void Modify_Internal(); \
+    size_t Insert_Internal(int32u Chunk_Name_Insert); \
+    void Write_Internal(); \
+}; \
+
 CHUNK_W(1, mdat);
 CHUNK_W(1, free);
 CHUNK_I(1, moov);
@@ -117,7 +130,7 @@ CHUNK__(3, moov_trak_mdia);
 CHUNK__(4, moov_trak_mdia_minf);
 CHUNK__(5, moov_trak_mdia_minf_stbl);
 CHUNK__(6, moov_trak_mdia_minf_stbl_stsd);
-CHUNK_I(7, moov_trak_mdia_minf_stbl_stsd_xxxxVideo);
+CHUNK_M(7, moov_trak_mdia_minf_stbl_stsd_xxxxVideo);
 CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_clap);
 CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_colr);
 CHUNK_W(8, moov_trak_mdia_minf_stbl_stsd_xxxx_fiel);

@@ -17,7 +17,7 @@
 //---------------------------------------------------------------------------
 void mp4_moov_trak_tkhd::Read_Internal()
 {
-    Chunk.trak_Index=Global->moov_trak.size();
+    Chunk.trak_Index=Global->moov_trak.size()-1;
 
     Read_Internal_ReadAllInBuffer();
 
@@ -33,7 +33,7 @@ void mp4_moov_trak_tkhd::Read_Internal()
     Get_B4(Width);
     Get_B4(Height);
 
-    if (Chunk.trak_Index==1 && Version<= 1 &&Width && Height)
+    if (Chunk.trak_Index==0 && Version<= 1 &&Width && Height)
     {
         Global->moov_trak_tkhd=new global::block_moov_trak_tkhd();
         Global->moov_trak_tkhd->Width_Scale=((double)Width_Scale/(double)(1<<16));
@@ -49,7 +49,7 @@ void mp4_moov_trak_tkhd::Read_Internal()
 void mp4_moov_trak_tkhd::Modify_Internal()
 {
     if (Chunk.Content.IsModified ||
-        Chunk.trak_Index!=1 ||
+        Chunk.trak_Index!=0 ||
         !Chunk.Content.Size ||
         !Global->moov_trak_tkhd ||
         Chunk.Content.Size<Global->moov_trak_tkhd->Width_Scale_Pos+4)

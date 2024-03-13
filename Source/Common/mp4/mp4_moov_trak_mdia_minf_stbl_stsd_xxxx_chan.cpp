@@ -17,7 +17,7 @@
 //---------------------------------------------------------------------------
 void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_chan::Read_Internal()
 {
-    Chunk.trak_Index=Global->moov_trak.size();
+    Chunk.trak_Index=Global->moov_trak.size()-1;
 
     Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]=new global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan();
 

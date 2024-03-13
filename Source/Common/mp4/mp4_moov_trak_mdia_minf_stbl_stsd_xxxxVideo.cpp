@@ -15,6 +15,12 @@
 //---------------------------------------------------------------------------
 void mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo::Read_Internal ()
 {
+    Chunk.trak_Index=Global->moov_trak.size()-1;
+
+    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo.count(Chunk.trak_Index))
+        throw exception_read_block("2 moov trak mdia minf stbl stsd xxxxVideo blocks");
+
+    Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]=new global::block_moov_trak_mdia_minf_stbl_stsd_xxxxVideo();
 
     //Reading
     if (Chunk.Content.Size<78)
@@ -24,29 +30,29 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo::Read_Internal ()
     Chunk.Content.Size=Chunk.Content.Before_Subs_Content_Size; // Trick to read only node data
     Read_Internal_ReadAllInBuffer();
     Chunk.Content.Size=Content_Size;
-    Chunk.trak_Index=Global->moov_trak.size();
 
-    uint16_t Version, Depth, ColorTableID;
-
-    Skip_XX(6); // Reserved
-    Skip_XX(2); // Data reference index
-    Get_B2(Version);
-    if (Version>3)
+    Get_B6(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Reserved);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->DataReferenceIndex);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Version);
+    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Version>3)
           throw exception_read_block("Can not parse moov trak mdia minf stbl stsd xxxxVideo (version not supported)");
-    Skip_XX(2); // Revision level
-    Skip_XX(4); // Vendor
-    Skip_XX(4); // Temporal quality
-    Skip_XX(4); // Spatial quality
-    Skip_XX(2); // Width
-    Skip_XX(2); // Height
-    Skip_XX(4); // Horizontal resolution
-    Skip_XX(4); // Vertical resolution
-    Skip_XX(4); // Data size
-    Skip_XX(2); //Frame count
-    Skip_XX(32); // CompressorName
-    Get_B2(Depth);
-    Get_B2(ColorTableID);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->RevisionLevel);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Vendor);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->TemporalQuality);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->SpatialQuality);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Width);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Height);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->HorizontalResolution);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->VerticalResolution);
+    Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->DataSize);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->FrameCount);
 
+    Get_String(32, Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->CompressorName);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Depth);
+    Get_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->ColorTableID);
+
+    uint16_t Depth=Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Depth;
+    uint16_t ColorTableID=Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->ColorTableID;
     bool IsGreyscale;
     if (Depth>0x20 && Depth<0x40)
     {
@@ -129,4 +135,45 @@ size_t mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo::Insert_Internal (int32u Chun
         delete NewChunk; //NewChunk=NULL;
         return Subs.size();
     }
+}
+
+//---------------------------------------------------------------------------
+void mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo::Modify_Internal()
+{
+    if (Chunk.Content.IsModified)
+        return;
+
+    if (!Global->moov_trak_mdia_minf_stbl_stsd_xxxx_colr.count(Chunk.trak_Index))
+        return;
+
+    if (Chunk.Content.Buffer)
+        delete[] Chunk.Content.Buffer;
+    Chunk.Content.Buffer_Offset = 0;
+    Chunk.Content.Buffer = new int8u[Chunk.Content.Before_Subs_Content_Size];
+
+    Put_B6(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Reserved);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->DataReferenceIndex);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Version);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->RevisionLevel);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Vendor);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->TemporalQuality);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->SpatialQuality);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Width);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Height);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->HorizontalResolution);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->VerticalResolution);
+    Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->DataSize);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->FrameCount);
+    Put_String(32, Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->CompressorName);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->Depth);
+    Put_B2(Global->moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Chunk.trak_Index]->ColorTableID);
+
+    Chunk.Content.IsModified=true;
+    Chunk.Content.Size_IsModified=true;
+}
+
+//---------------------------------------------------------------------------
+void mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo::Write_Internal()
+{
+    mp4_Base::Write_Internal(Chunk.Content.Buffer, (size_t)Chunk.Content.Size);
 }

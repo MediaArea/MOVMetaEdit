@@ -112,6 +112,11 @@ ReturnValue Help_Tech(bool WithExamples)
     TEXTOUT("      Modify the field handling parameter to VALUE, \"fields,detail\" format");
     TEXTOUT("  --field-delete");
     TEXTOUT("      Delete the field handling atom");
+    TEXTOUT("Options related to video stsd field handling");
+    TEXTOUT("  --stsd-video-version VALUE");
+    TEXTOUT("      Modify the field version to VALUE for the first video stream, integer value between 0 and 3");
+    TEXTOUT("  --temporal-quality VALUE");
+    TEXTOUT("    Modify the temporal quality to VALUE, integer value");
     TEXTOUT("Options related to the color parameter:");
     TEXTOUT("  --color VALUE");
     TEXTOUT("      Modify the color parameter to VALUE, \"primaries,transfer,matrix\" format");

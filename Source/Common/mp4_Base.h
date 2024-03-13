@@ -217,6 +217,43 @@ public:
                 Height=0;
             }
         };
+        struct block_moov_trak_mdia_minf_stbl_stsd_xxxxVideo
+        {
+            int64u   Reserved;
+            int16u   DataReferenceIndex;
+            int16u   Version;
+            int16u   RevisionLevel;
+            int32u   Vendor;
+            int32u   TemporalQuality;
+            int32u   SpatialQuality;
+            int16u   Width;
+            int16u   Height;
+            int32u   HorizontalResolution;
+            int32u   VerticalResolution;
+            int32u   DataSize;
+            int16u   FrameCount;
+            string   CompressorName;
+            int16u   Depth;
+            int16u   ColorTableID;
+            block_moov_trak_mdia_minf_stbl_stsd_xxxxVideo()
+            {
+                Reserved=0;
+                DataReferenceIndex=0;
+                Version=0;
+                RevisionLevel=0;
+                Vendor=0;
+                TemporalQuality=0;
+                SpatialQuality=0;
+                Width=0;
+                Height=0;
+                HorizontalResolution=0;
+                VerticalResolution=0;
+                DataSize=0;
+                FrameCount=0;
+                Depth=0;
+                ColorTableID=0;
+            }
+        };
         struct block_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel
         {
             uint8_t    Fields;
@@ -437,6 +474,8 @@ public:
         bool                                    moov_trak_tapt_prof_Modified; // For FirstVideoIndex
         map<size_t, block_moov_trak_tapt_xxxx*> moov_trak_tapt_enof;
         bool                                    moov_trak_tapt_enof_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxxVideo*> moov_trak_mdia_minf_stbl_stsd_xxxxVideo;
+        bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Modified; // For FirstVideoIndex
         map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap*> moov_trak_mdia_minf_stbl_stsd_xxxx_clap;
         bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified; // For FirstVideoIndex
         map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_colr*> moov_trak_mdia_minf_stbl_stsd_xxxx_colr;
@@ -483,6 +522,7 @@ public:
             moov_trak_tapt_clef_Modified=false;
             moov_trak_tapt_prof_Modified=false;
             moov_trak_tapt_enof_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxx_fiel_Modified=false;
@@ -530,6 +570,9 @@ public:
 
             for (size_t Pos=0; Pos<moov_trak_tapt_enof.size(); Pos++)
                 delete moov_trak_tapt_enof[Pos];
+
+            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxxVideo.size(); Pos++)
+                delete moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Pos];
 
             for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_clap.size(); Pos++)
                 delete moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Pos];
@@ -681,6 +724,8 @@ public: //protected :
     void Put_B3     (int32u  Value);
     void Get_B4     (int32u &Value);
     void Put_B4     (int32u  Value);
+    void Get_B6     (int64u &Value);
+    void Put_B6     (int64u  Value);
     void Get_B8     (int64u &Value);
     void Put_B8     (int64u  Value);
     void Get_B16    (int128u &Value);

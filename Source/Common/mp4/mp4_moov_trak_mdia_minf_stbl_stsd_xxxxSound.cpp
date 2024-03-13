@@ -24,7 +24,7 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxxSound::Read_Internal ()
     Chunk.Content.Size=Chunk.Content.Before_Subs_Content_Size; // Trick to read only node data
     Read_Internal_ReadAllInBuffer();
     Chunk.Content.Size=Content_Size;
-    Chunk.trak_Index=Global->moov_trak.size();
+    Chunk.trak_Index=Global->moov_trak.size()-1;
 
     Skip_XX(6); // Reserved;
     Skip_XX(2); // Data reference index

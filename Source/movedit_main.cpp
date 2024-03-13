@@ -38,6 +38,10 @@ int main(int argc, char* argv[])
     std::string enof_New=string();
     bool        enof_Delete=false;
     bool        enof_OK=true;
+    std::string stsd_xxxxvideo_version_New=string();
+    bool        stsd_xxxxvideo_version_OK=true;
+    std::string temporal_quality_New=string();
+    bool        temporal_quality_OK=true;
     std::string fiel_New=string();
     bool        fiel_Delete=false;
     bool        fiel_OK=true;
@@ -166,6 +170,34 @@ int main(int argc, char* argv[])
             enof_New=string();
             enof_Delete=true;
         }
+        else if (argp + 1 < argc
+         && (Ztring(argv[argp]) == __T("--stsd-video-version")
+          || Ztring(argv[argp]) == __T("-stsd-video-version")))
+        {
+            uint16_t v=0;
+            if (sscanf(argv[argp + 1], "%hu", &v)!=1 || v>3)
+            {
+                cout << "Can not understand version handling value " << argv[argp] << ", it must be an integer between 0 and 3" << endl;
+                return ReturnValue_ERROR;
+            }
+            stsd_xxxxvideo_version_New=argv[argp + 1];
+            argp++;
+        }
+
+        else if (argp + 1 < argc
+         && (Ztring(argv[argp]) == __T("--temporal-quality")
+          || Ztring(argv[argp]) == __T("-temporal-quality")))
+        {
+            uint32_t q=0;
+            if (sscanf(argv[argp + 1], "%u", &q)!=1)
+            {
+                cout << "Can not understand temporal quality handling value " << argv[argp] << ", it must be a 32 bits integer value" << endl;
+                return ReturnValue_ERROR;
+            }
+            temporal_quality_New=argv[argp + 1];
+            argp++;
+        }
+
         else if (argp + 1 < argc
          && (Ztring(argv[argp]) == __T("--field")
           || Ztring(argv[argp]) == __T("-field")))
@@ -595,6 +627,8 @@ int main(int argc, char* argv[])
          !colr_New.empty() || colr_Delete ||
          !clap_New.empty() || clap_Delete ||
          !chan_New.empty() || chan_Delete ||
+         !stsd_xxxxvideo_version_New.empty() ||
+         !temporal_quality_New.empty() ||
          !lang_New.empty() ||
          mdcv_Delete ||
          clli_Delete ||
@@ -758,7 +792,7 @@ int main(int argc, char* argv[])
     cout << "  it (empty)" << endl;
     cout << "M = The field will be modified ('Y') or should be modified but it is not possible" << endl;
     cout << "  due to feature not implemented ('N')" << endl;
-    cout << FileNameFake << "|OK?|Clean Ap.|M| Prod Ap.|M| Enc. Ap.|M|      PAR|M|                              Display Primaries|M|          Luminance|M|    Max content light lev.|M| Max frame avg. light lev.|M|w-scale|M|   Field|M|   Color|M|Gamma|M|                 Aperture|M| Languages|M|                 Channels|M|" << endl;
+    cout << FileNameFake << "|OK?|Clean Ap.|M| Prod Ap.|M| Enc. Ap.|M|vid. version|M|temp. quality|M|      PAR|M|                              Display Primaries|M|          Luminance|M|    Max content light lev.|M| Max frame avg. light lev.|M|w-scale|M|   Field|M|   Color|M|Gamma|M|                 Aperture|M| Languages|M|                 Channels|M|" << endl;
     }
     else
         cout << FileNameFake << "|OK?| Registry|UniversalAdId value" << endl;
@@ -894,6 +928,24 @@ int main(int argc, char* argv[])
                 }
                 else if (enof_Delete)
                     H->Remove("enof");
+
+                if (!stsd_xxxxvideo_version_New.empty())
+                {
+                    if(!H->Set("stsd_xxxxvideo_version", stsd_xxxxvideo_version_New))
+                    {
+                        stsd_xxxxvideo_version_OK=false;
+                        ToReturn=ReturnValue_ERROR;
+                    }
+                }
+
+                if (!temporal_quality_New.empty())
+                {
+                    if(!H->Set("temporal_quality", temporal_quality_New))
+                    {
+                        temporal_quality_OK=false;
+                        ToReturn=ReturnValue_ERROR;
+                    }
+                }
 
                 if (!pasp_New.empty())
                 {
@@ -1054,6 +1106,16 @@ int main(int argc, char* argv[])
                enof.insert(0, 9 - enof.size(), ' ');
              cout << enof << "|" << ((!enof_New.empty() || enof_Delete) ? ((OK && enof_OK) ? "Y" : "N") : " ") << "|";
 
+            string stsd_xxxxvideo_version = H->Get("stsd_xxxxvideo_version");
+            if (stsd_xxxxvideo_version.size() < 12)
+               stsd_xxxxvideo_version.insert(0, 12 - stsd_xxxxvideo_version.size(), ' ');
+             cout << stsd_xxxxvideo_version << "|" << ((!stsd_xxxxvideo_version_New.empty()) ? ((OK && stsd_xxxxvideo_version_OK) ? "Y" : "N") : " ") << "|";
+
+            string temporal_quality = H->Get("temporal_quality");
+            if (temporal_quality.size() < 13)
+               temporal_quality.insert(0, 13 - temporal_quality.size(), ' ');
+             cout << temporal_quality << "|" << ((!temporal_quality_New.empty()) ? ((OK && temporal_quality_OK) ? "Y" : "N") : " ") << "|";
+
             string pasp = H->Get("pasp");
             if (pasp.size() < 9)
                pasp.insert(0, 9 - pasp.size(), ' ');
@@ -1175,7 +1237,7 @@ int main(int argc, char* argv[])
             for (size_t Pos=0; Pos<langs.size() || Pos<chans.size(); Pos++)
             {
                 if (Pos!=0)
-                    cout << endl << string(FileNameFake.size() + 250, ' ') << '|';
+                    cout << endl << string(FileNameFake.size() + 281, ' ') << '|';
                 if (Pos<langs.size())
                     cout << langs[Pos];
                 if (Pos<chans.size())

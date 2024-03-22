@@ -13,12 +13,11 @@
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void mp4_moov_trak_mdia_minf::Read_Internal ()
+void mp4_moov_trak_mdia_minf_stbl_stsd_xxxxUnknown::Read_Internal ()
 {
-    SUBS_BEGIN();
-        SUB_ELEMENT(moov_trak_mdia_minf_stbl);
-        SUB_ELEMENT(moov_trak_mdia_minf_vmhd);
-        SUB_ELEMENT(moov_trak_mdia_minf_smhd);
-        SUB_ELEMENT(moov_trak_mdia_minf_gmhd);
-    SUBS_END();
+    if (Chunk.Header.Name==Elements::moov_trak_mdia_minf_stbl_stsd_tmcd)
+    {
+        Global->moov_trak.back()->moov_trak_mdia_minf_stbl_stsd_tmcd_Present=true;
+        Global->TimeCode_Track_Present=true;
+    }
 }

@@ -195,15 +195,19 @@ public:
         {
             bool IsVideo;
             bool IsSound;
+            bool IsTimeCode;
             bool moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present;
             bool moov_trak_mdia_minf_stbl_stsd_xxxxSound_Present;
+            bool moov_trak_mdia_minf_stbl_stsd_tmcd_Present;
 
             block_moov_trak()
             {
                 IsVideo=false;
                 IsSound=false;
+                IsTimeCode=false;
                 moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present=false;
                 moov_trak_mdia_minf_stbl_stsd_xxxxSound_Present=false;
+                moov_trak_mdia_minf_stbl_stsd_tmcd_Present=false;
             }
         };
         struct block_moov_trak_tapt_xxxx
@@ -507,6 +511,8 @@ public:
         vector<string>      moov_meta_ilst_NewValues;
         size_t              moov_meta_ilst_AlreadyPresent;
         size_t              moov_trak_FirstVideoIndex;
+        bool                TimeCode_Track_Present;
+        bool                TimeCode_Track_Delete;
         bool                NewChunksAtTheEnd;
         bool                Out_Buffer_File_TryModification;
         bool                Out_Buffer_File_IsModified;
@@ -543,6 +549,8 @@ public:
             moov_meta_keys_AlreadyPresent=0;
             moov_meta_ilst_AlreadyPresent=0;
             moov_trak_FirstVideoIndex=(size_t)-1;
+            TimeCode_Track_Present=false;
+            TimeCode_Track_Delete=false;
             NewChunksAtTheEnd=false;
             Out_Buffer_WriteAtEnd=false;
             Out_Buffer_File_TryModification=true;

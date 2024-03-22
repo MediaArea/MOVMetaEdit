@@ -59,6 +59,8 @@ int main(int argc, char* argv[])
     std::string clap_New=string();
     bool        clap_Delete=false;
     bool        clap_OK=true;
+    bool        tmcd_Delete=false;
+    bool        tmcd_OK=true;
     std::map<size_t, std::string> lang_New;
     std::map<size_t, bool>        lang_OK;
     std::map<size_t, std::string> chan_New;
@@ -527,6 +529,11 @@ int main(int argc, char* argv[])
             }
             argp++;
         }
+        else if ((Ztring(argv[argp]) == __T("-timecode-delete")
+               || Ztring(argv[argp]) == __T("--timecode-delete")))
+        {
+            tmcd_Delete=true;
+        }
         else if ((Ztring(argv[argp]) == __T("-channels")
                || Ztring(argv[argp]) == __T("--channels")))
         {
@@ -632,6 +639,7 @@ int main(int argc, char* argv[])
          !lang_New.empty() ||
          mdcv_Delete ||
          clli_Delete ||
+         tmcd_Delete ||
          !luminance_New.empty() ||
          !display_primaries_New.empty() ||
          !maximum_content_light_level_New.empty() ||
@@ -792,7 +800,7 @@ int main(int argc, char* argv[])
     cout << "  it (empty)" << endl;
     cout << "M = The field will be modified ('Y') or should be modified but it is not possible" << endl;
     cout << "  due to feature not implemented ('N')" << endl;
-    cout << FileNameFake << "|OK?|Clean Ap.|M| Prod Ap.|M| Enc. Ap.|M|vid. version|M|temp. quality|M|      PAR|M|                              Display Primaries|M|          Luminance|M|    Max content light lev.|M| Max frame avg. light lev.|M|w-scale|M|   Field|M|   Color|M|Gamma|M|                 Aperture|M| Languages|M|                 Channels|M|" << endl;
+    cout << FileNameFake << "|OK?|Clean Ap.|M| Prod Ap.|M| Enc. Ap.|M|vid. version|M|temp. quality|M|      PAR|M|                              Display Primaries|M|          Luminance|M|    Max content light lev.|M| Max frame avg. light lev.|M|w-scale|M|   Field|M|   Color|M|Gamma|M|                 Aperture|M|TimeCode|M| Languages|M|                 Channels|M|" << endl;
     }
     else
         cout << FileNameFake << "|OK?| Registry|UniversalAdId value" << endl;
@@ -1059,6 +1067,8 @@ int main(int argc, char* argv[])
                 }
                 else if (clap_Delete)
                     H->Remove("clap");
+                else if (tmcd_Delete)
+                    H->Remove("tmcd");
                 if (!lang_New.empty())
                 {
                     for (map<size_t, string>::iterator It=lang_New.begin(); It!=lang_New.end(); It++)
@@ -1165,7 +1175,10 @@ int main(int argc, char* argv[])
             if (clap.size() < 25)
                clap.insert(0, 25 - clap.size(), ' ');
              cout << clap << "|" << ((!clap_New.empty() || clap_Delete) ? ((OK && clap_OK) ? "Y" : "N") : " ") << "|";
-
+            string tmcd = H->Get("tmcd");
+            if (tmcd.size() < 8)
+               tmcd.insert(0, 8 - tmcd.size(), ' ');
+             cout << tmcd << "|" << (tmcd_Delete ? ((OK && tmcd_OK) ? "Y" : "N") : " ") << "|";
             vector<string>langs;
             string lang = H->Get("lang");
             {
@@ -1237,7 +1250,7 @@ int main(int argc, char* argv[])
             for (size_t Pos=0; Pos<langs.size() || Pos<chans.size(); Pos++)
             {
                 if (Pos!=0)
-                    cout << endl << string(FileNameFake.size() + 281, ' ') << '|';
+                    cout << endl << string(FileNameFake.size() + 292, ' ') << '|';
                 if (Pos<langs.size())
                     cout << langs[Pos];
                 if (Pos<chans.size())

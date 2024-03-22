@@ -151,6 +151,10 @@ ReturnValue Help_Tech(bool WithExamples)
     TEXTOUT("      Read HDR values from DolbyLabsMDF XML");
     TEXTOUT("  --from-id VALUE");
     TEXTOUT("      Read HDR values from the MasteringDisplay with the the specified ID in the XML");
+    TEXTOUT("Options related to the timecode track:");
+    TEXTOUT("  --timecode-delete");
+    TEXTOUT("      Remove the timecode track and all related references atoms");
+    TEXTOUT("");
     TEXTOUT("Options related to the media header atom:");
     TEXTOUT("  --language, --languages VALUE");
     TEXTOUT("      Modify the media header language to VALUE for the specified audio track, \"[trackIndex=]lang[,[trackIndex=]lang...]\" format, e.g en,fr or 0=eng,1=fra");

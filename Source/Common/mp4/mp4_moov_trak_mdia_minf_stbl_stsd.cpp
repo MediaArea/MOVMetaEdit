@@ -41,4 +41,10 @@ void mp4_moov_trak_mdia_minf_stbl_stsd::Read_Internal ()
             SUB_ELEMENT_DEFAULT(moov_trak_mdia_minf_stbl_stsd_xxxxSound);
         SUBS_END_DEFAULT();
     }
+    else
+    {
+        SUBS_BEGIN();
+            SUB_ELEMENT_DEFAULT(moov_trak_mdia_minf_stbl_stsd_xxxxUnknown);
+        SUBS_END_DEFAULT();
+    }
 }

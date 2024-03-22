@@ -636,6 +636,54 @@ bool mp4_Handler::Save()
             }
         }
     }
+
+    //Remove timecode tracks and chunks
+    if (Chunks->Global->TimeCode_Track_Delete)
+    {
+        size_t trak_Index=0;
+        for (size_t Pos=0; Pos<Chunks->Subs.size(); Pos++)
+        {
+            if (Chunks->Subs[Pos]->Chunk.Header.Name==Elements::moov)
+            {
+                for (size_t Pos2=0; Pos2<Chunks->Subs[Pos]->Subs.size(); Pos2++)
+                {
+                    for (size_t Pos3=0; Pos3<Chunks->Subs[Pos]->Subs[Pos2]->Subs.size(); Pos3++)
+                    {
+                        if (Chunks->Subs[Pos]->Subs[Pos2]->Subs[Pos3]->Chunk.Header.Name==Elements::moov_trak_tref)
+                        {
+                            for (size_t Pos4=0; Pos4<Chunks->Subs[Pos]->Subs[Pos2]->Subs[Pos3]->Subs.size(); Pos4++)
+                            {
+                                if (Chunks->Subs[Pos]->Subs[Pos2]->Subs[Pos3]->Subs[Pos4]->Chunk.Header.Name==Elements::moov_trak_tref_tmcd)
+                                {
+                                    Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_tref, Elements::moov_trak_tref_tmcd);
+                                    Chunks->Subs[Pos]->Chunk.Content.IsModified=true;
+                                    Chunks->Subs[Pos]->Chunk.Content.Size_IsModified=true;
+                                    Chunks->Chunk.Content.IsModified=true;
+                                    Chunks->Chunk.Content.Size_IsModified=true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Header.Name==Elements::moov_trak)
+                    {
+                        Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_tref, Elements::moov_trak_tref_tmcd);
+                        if (trak_Index<Chunks->Global->moov_trak.size() && Chunks->Global->moov_trak[trak_Index]->moov_trak_mdia_minf_stbl_stsd_tmcd_Present)
+                        {
+                            delete Chunks->Subs[Pos]->Subs[Pos2];
+                            Chunks->Subs[Pos]->Subs.erase(Chunks->Subs[Pos]->Subs.begin()+Pos2);
+                            Chunks->Subs[Pos]->Chunk.Content.IsModified=true;
+                            Chunks->Subs[Pos]->Chunk.Content.Size_IsModified=true;
+                            Chunks->Chunk.Content.IsModified=true;
+                            Chunks->Chunk.Content.Size_IsModified=true;
+                        }
+                        trak_Index++;
+                    }
+                }
+            }
+        }
+    }
+
     if (Chunks->Global->moov_trak_tkhd_Modified)
         Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tkhd);
     // Modify mdhd in all audio tracks
@@ -935,6 +983,13 @@ string mp4_Handler::Get(const string &Field)
         ss << setprecision(4) << fixed << round(Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clli[Chunks->Global->moov_trak_FirstVideoIndex]->maximum_frame_average_light_level);
 
         return ss.str();
+    }
+    else if (Field=="tmcd")
+    {
+        if (Chunks->Global->TimeCode_Track_Present && !Chunks->Global->TimeCode_Track_Delete)
+            return "Present";
+
+        return string();
     }
     else if (Field=="lang")
     {
@@ -1948,6 +2003,11 @@ bool mp4_Handler::Remove(const string &Field)
             Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified=true;
         }
 
+        return true;
+    }
+    else if (Field=="tmcd")
+    {
+        Chunks->Global->TimeCode_Track_Delete=true;
         return true;
     }
     else if (Field=="chan")

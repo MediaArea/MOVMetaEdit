@@ -23,6 +23,7 @@ void mp4_moov_trak::Read_Internal ()
     SUBS_BEGIN();
         SUB_ELEMENT(moov_trak_tkhd);
         SUB_ELEMENT(moov_trak_tapt);
+        SUB_ELEMENT(moov_trak_tref);
         SUB_ELEMENT(moov_trak_mdia);
     SUBS_END();
 }

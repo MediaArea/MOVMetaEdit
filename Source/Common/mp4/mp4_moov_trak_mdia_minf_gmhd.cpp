@@ -13,12 +13,9 @@
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void mp4_moov_trak_mdia_minf::Read_Internal ()
+void mp4_moov_trak_mdia_minf_gmhd::Read_Internal ()
 {
     SUBS_BEGIN();
-        SUB_ELEMENT(moov_trak_mdia_minf_stbl);
-        SUB_ELEMENT(moov_trak_mdia_minf_vmhd);
-        SUB_ELEMENT(moov_trak_mdia_minf_smhd);
-        SUB_ELEMENT(moov_trak_mdia_minf_gmhd);
+        SUB_ELEMENT(moov_trak_mdia_minf_gmhd_tmcd);
     SUBS_END();
 }

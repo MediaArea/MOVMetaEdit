@@ -6,7 +6,7 @@ RequestExecutionLevel admin
 !define PRODUCT_NAME_EXE "${PRODUCT_NAME}.exe"
 !define PRODUCT_PUBLISHER "MediaArea.net"
 !define PRODUCT_VERSION "17.10.1"
-!define PRODUCT_VERSION4 "${PRODUCT_VERSION}.0"
+!define PRODUCT_VERSION4 "${PRODUCT_VERSION}.0.0"
 !define PRODUCT_WEB_SITE "https://mediaarea.net/MOVMetaEdit"
 !define COMPANY_REGISTRY "Software\MediaArea"
 !define PRODUCT_REGISTRY "Software\MediaArea\${PRODUCT_NAME}"

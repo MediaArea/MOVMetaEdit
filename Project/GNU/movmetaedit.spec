@@ -4,7 +4,7 @@
 
 # norootforbuild
 
-%global movmetaedit_version		17.10.1
+%global movmetaedit_version		24.06
 
 Name:			movmetaedit
 Version:		%movmetaedit_version
@@ -184,5 +184,5 @@ install -m 644 Project/Qt/movmetaedit-gui.metainfo.xml %{buildroot}%{_datadir}/m
 %endif
 
 %changelog
-* Sun Jan 01 2017 Jerome Martinez <info@mediaarea.net> - 17.10.1-0
+* Sun Jan 01 2017 Jerome Martinez <info@mediaarea.net> - 24.06-0
 - See History.txt for more info and real dates

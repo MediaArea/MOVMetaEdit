@@ -1,3 +1,8 @@
+Version 24.06, 2024-06-03
+-------------
++ Edit HDR related fields
++ Allow to hide columns in technical table
+
 Version 17.10.1, 2017-10-23
 ---------------
 x Fix preventing some files to be saved

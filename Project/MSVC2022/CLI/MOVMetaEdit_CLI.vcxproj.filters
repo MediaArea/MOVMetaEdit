@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\CLI">
+      <UniqueIdentifier>{f852dc75-639d-4268-b839-6e1b5445e016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CLI">
+      <UniqueIdentifier>{3814fa29-2c43-4774-a65e-39432359a938}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common">
+      <UniqueIdentifier>{148f697e-6fc7-4918-a982-0d1ff4d310d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{5bffbf7f-e6a1-459a-8bf6-79e68c451749}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common\mp4">
+      <UniqueIdentifier>{f5dfd337-8355-4425-9f65-4e7c1bcfb24b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common\mp4">
+      <UniqueIdentifier>{5207fec3-38c9-4efd-aa7c-e75d29a3c48c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ZenLib">
+      <UniqueIdentifier>{4486941b-0806-4b4f-94b5-05d147812e7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ZenLib">
+      <UniqueIdentifier>{c87f3034-0994-42d6-9a8f-d2c43560909c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\movedit_atomread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\movedit_main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\movedit_structure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\CLI\Help.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\AdID.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_.cpp">
+      <Filter>Source Files\Common\mp4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_mdat.cpp">
+      <Filter>Source Files\Common\mp4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov.cpp">
+      <Filter>Source Files\Common\mp4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta.cpp">
+      <Filter>Source Files\Common\mp4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta_hdlr.cpp">
+      <Filter>Source Files\Common\mp4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta_ilst.cpp">
+      <Filter>Source Files\Common\mp4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta_keys.cpp">
+      <Filter>Source Files\Common\mp4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\mp4_Base.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\mp4_Base_parsing.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Common\mp4_Handler.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\ZtringListListF.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\ZtringList.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\Ztring.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\Thread.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\MemoryDebug.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\File.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\Conf.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\CriticalSection.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\Dir.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\FileName.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\InfoMap.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\OS_Utils.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\PreComp.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\Translation.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\Utils.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\ZtringListList.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\int128u.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\ZenLib\int128s.cpp">
+      <Filter>Source Files\ZenLib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Source\movedit_atomread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\movedit_structure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\CLI\Help.h">
+      <Filter>Header Files\CLI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\CLI\Config.h">
+      <Filter>Header Files\CLI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Common\AdID.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Common\mp4_Base.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Common\mp4_Handler.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Common\mp4\mp4_.h">
+      <Filter>Header Files\Common\mp4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\ZtringListList.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\ZtringList.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\Ztring.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\MemoryDebug.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\FileName.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\BitStream_Fast.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\BitStream.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\BitStream_LE.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\Conf.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\Conf_Internal.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\CriticalSection.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\Dir.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\File.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\InfoMap.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\int128s.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\int128u.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\MemoryUtils.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\OS_Utils.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\PreComp.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\Thread.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\Trace.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\Translation.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\Utils.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\ZenLib\ZtringListListF.h">
+      <Filter>Header Files\ZenLib</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

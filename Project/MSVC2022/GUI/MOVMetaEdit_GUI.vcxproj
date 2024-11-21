@@ -1,0 +1,272 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Source\Common\mp4\mp4_.h" />
+    <ClInclude Include="..\..\..\Source\Common\mp4_Base.h" />
+    <ClInclude Include="..\..\..\Source\Common\mp4_Handler.h" />
+    <ClInclude Include="..\..\..\Source\GUI\Qt\aboutdialog.h" />
+    <ClInclude Include="..\..\..\Source\GUI\Qt\config.h" />
+    <ClInclude Include="..\..\..\Source\GUI\Qt\core.h" />
+    <ClInclude Include="..\..\..\Source\GUI\Qt\helpdialog.h" />
+    <ClInclude Include="..\..\..\Source\GUI\Qt\mainwindow.h" />
+    <ClInclude Include="..\..\..\Source\GUI\Qt\tablewidget.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\BitStream.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\BitStream_Fast.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\BitStream_LE.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Conf.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Conf_Internal.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\CriticalSection.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Dir.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\File.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\FileName.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\InfoMap.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\int128s.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\int128u.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\MemoryDebug.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\MemoryUtils.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\OS_Utils.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\PreComp.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Thread.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Trace.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Translation.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Utils.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\Ztring.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\ZtringList.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\ZtringListList.h" />
+    <ClInclude Include="..\..\..\Source\ZenLib\ZtringListListF.h" />
+    <ClInclude Include="..\..\Qt\ui_aboutdialog.h" />
+    <ClInclude Include="..\..\Qt\ui_helpdialog.h" />
+    <ClInclude Include="..\..\Qt\ui_mainwindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_mdat.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta_hdlr.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta_ilst.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4\mp4_moov_meta_keys.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4_Base.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4_Base_parsing.cpp" />
+    <ClCompile Include="..\..\..\Source\Common\mp4_Handler.cpp" />
+    <ClCompile Include="..\..\..\Source\GUI\Qt\aboutdialog.cpp" />
+    <ClCompile Include="..\..\..\Source\GUI\Qt\core.cpp" />
+    <ClCompile Include="..\..\..\Source\GUI\Qt\helpdialog.cpp" />
+    <ClCompile Include="..\..\..\Source\GUI\Qt\main.cpp" />
+    <ClCompile Include="..\..\..\Source\GUI\Qt\mainwindow.cpp" />
+    <ClCompile Include="..\..\..\Source\GUI\Qt\tablewidget.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Conf.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\CriticalSection.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Dir.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\File.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\FileName.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\InfoMap.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\int128s.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\int128u.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\MemoryDebug.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\OS_Utils.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\PreComp.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Thread.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Translation.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Utils.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\Ztring.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\ZtringList.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\ZtringListList.cpp" />
+    <ClCompile Include="..\..\..\Source\ZenLib\ZtringListListF.cpp" />
+    <ClCompile Include="..\..\Qt\release\moc_aboutdialog.cpp" />
+    <ClCompile Include="..\..\Qt\release\moc_helpdialog.cpp" />
+    <ClCompile Include="..\..\Qt\release\moc_mainwindow.cpp" />
+    <ClCompile Include="..\..\Qt\release\moc_tablewidget.cpp" />
+    <ClCompile Include="..\..\Qt\release\qrc_Resource.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\Qt\movmetaedit-gui.rc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5D87DF68-8F75-4696-8DF7-DF94C373935C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>MOVMetaEdit_GUI</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>MOVMetaEdit_GUI</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>MOVMetaEdit-GUI</TargetName>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>MOVMetaEdit-GUI</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>MOVMetaEdit-GUI</TargetName>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>MOVMetaEdit-GUI</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtNetwork;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtWidgets;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtGui;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5Networkd.lib;qtmaind.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.2\5.9.2\msvc2017\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PreBuildEvent>
+      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>Post-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017 $(OutDir) $(Configuration)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtNetwork;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtWidgets;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtGui;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5Networkd.lib;qtmaind.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>Post-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64 $(OutDir) $(Configuration)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtNetwork;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtWidgets;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtGui;..\..\..\..\Qt5.9.2\5.9.2\msvc2017\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;qtmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.2\5.9.2\msvc2017\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PreBuildEvent>
+      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>Post-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017 $(OutDir) $(Configuration)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\Qt;..\..\Qt\_Automated;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtNetwork;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtWidgets;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtGui;..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64\/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;qtmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>Pre-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>Post-Build.bat ..\..\..\..\Qt5.9.2\5.9.2\msvc2017_64 $(OutDir) $(Configuration)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

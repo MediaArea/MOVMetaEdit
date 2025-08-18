@@ -12,7 +12,10 @@
 
 #include "Common/config.h"
 #include "Common/mp4_Handler.h"
+#include "ThirdParty/json/json.hpp"
 #include "chantablewidget.h"
+
+using namespace nlohmann;
 
 //***************************************************************************
 // Info
@@ -21,13 +24,15 @@
 //---------------------------------------------------------------------------
 static const char* ColumnName_Default[ChanTableWidget::MAX_COLUMN] =
 {
+    "Layout",
     "Description",
 };
 
 //---------------------------------------------------------------------------
 static const int ColumnSize_Default[ChanTableWidget::MAX_COLUMN] =
 {
-    70,
+    120,
+    80,
 };
 
 //***************************************************************************
@@ -67,71 +72,197 @@ void ChannelDelegate::updateEditorGeometry(QWidget* Editor,
 //---------------------------------------------------------------------------
 void ChannelDelegate::setEditorData(QWidget* Editor, const QModelIndex& Index) const
 {
-    QComboBox* ChannelBox=qobject_cast<QComboBox*>(Editor);
-    ChannelBox->clear();
+    if (!Index.isValid() || !Editor)
+        return;
 
-    if (Index.data(Qt::UserRole).toString()=="ABSENT")
-        ChannelBox->addItem("", "ABSENT");
-    else if (Index.data(Qt::UserRole).toString()=="MULTIPLES")
-        ChannelBox->addItem("(Multiples)", "MULTIPLES");
-    else if (Index.data(Qt::UserRole).toString()=="NODESCRIPTION")
-        ChannelBox->addItem("(No description)", "NODESCRIPTION");
-    ChannelBox->addItem(QString("0 - ")+mp4_chan_ChannelDescription(0).c_str(), "0");
-    ChannelBox->addItem(QString("1 - ")+mp4_chan_ChannelDescription(1).c_str(), "1");
-    ChannelBox->addItem(QString("2 - ")+mp4_chan_ChannelDescription(2).c_str(), "2");
-    ChannelBox->addItem(QString("3 - ")+mp4_chan_ChannelDescription(3).c_str(), "3");
-    ChannelBox->addItem(QString("4 - ")+mp4_chan_ChannelDescription(4).c_str(), "4");
-    ChannelBox->addItem(QString("5 - ")+mp4_chan_ChannelDescription(5).c_str(), "5");
-    ChannelBox->addItem(QString("6 - ")+mp4_chan_ChannelDescription(6).c_str(), "6");
-    ChannelBox->addItem(QString("7 - ")+mp4_chan_ChannelDescription(7).c_str(), "7");
-    ChannelBox->addItem(QString("8 - ")+mp4_chan_ChannelDescription(8).c_str(), "8");
-    ChannelBox->addItem(QString("9 - ")+mp4_chan_ChannelDescription(9).c_str(), "9");
-    ChannelBox->addItem(QString("10 - ")+mp4_chan_ChannelDescription(10).c_str(), "10");
-    ChannelBox->addItem(QString("11 - ")+mp4_chan_ChannelDescription(11).c_str(), "11");
-    ChannelBox->addItem(QString("12 - ")+mp4_chan_ChannelDescription(12).c_str(), "12");
-    ChannelBox->addItem(QString("13 - ")+mp4_chan_ChannelDescription(13).c_str(), "13");
-    ChannelBox->addItem(QString("14 - ")+mp4_chan_ChannelDescription(14).c_str(), "14");
-    ChannelBox->addItem(QString("15 - ")+mp4_chan_ChannelDescription(15).c_str(), "15");
-    ChannelBox->addItem(QString("16 - ")+mp4_chan_ChannelDescription(16).c_str(), "16");
-    ChannelBox->addItem(QString("17 - ")+mp4_chan_ChannelDescription(17).c_str(), "17");
-    ChannelBox->addItem(QString("18 - ")+mp4_chan_ChannelDescription(18).c_str(), "18");
-    ChannelBox->addItem(QString("33 - ")+mp4_chan_ChannelDescription(33).c_str(), "33");
-    ChannelBox->addItem(QString("34 - ")+mp4_chan_ChannelDescription(34).c_str(), "34");
-    ChannelBox->addItem(QString("35 - ")+mp4_chan_ChannelDescription(35).c_str(), "35");
-    ChannelBox->addItem(QString("36 - ")+mp4_chan_ChannelDescription(36).c_str(), "36");
-    ChannelBox->addItem(QString("37 - ")+mp4_chan_ChannelDescription(37).c_str(), "37");
-    ChannelBox->addItem(QString("38 - ")+mp4_chan_ChannelDescription(38).c_str(), "38");
-    ChannelBox->addItem(QString("39 - ")+mp4_chan_ChannelDescription(39).c_str(), "39");
-    ChannelBox->addItem(QString("40 - ")+mp4_chan_ChannelDescription(40).c_str(), "40");
-    ChannelBox->addItem(QString("41 - ")+mp4_chan_ChannelDescription(41).c_str(), "41");
-    ChannelBox->addItem(QString("42 - ")+mp4_chan_ChannelDescription(42).c_str(), "42");
-    ChannelBox->addItem(QString("43 - ")+mp4_chan_ChannelDescription(43).c_str(), "43");
-    ChannelBox->addItem(QString("44 - ")+mp4_chan_ChannelDescription(44).c_str(), "44");
-    ChannelBox->addItem(QString("45 - ")+mp4_chan_ChannelDescription(45).c_str(), "45");
-    ChannelBox->addItem(QString("200 - ")+mp4_chan_ChannelDescription(200).c_str(), "200");
-    ChannelBox->addItem(QString("201 - ")+mp4_chan_ChannelDescription(201).c_str(), "201");
-    ChannelBox->addItem(QString("202 - ")+mp4_chan_ChannelDescription(202).c_str(), "202");
-    ChannelBox->addItem(QString("203 - ")+mp4_chan_ChannelDescription(203).c_str(), "203");
-    ChannelBox->addItem(QString("204 - ")+mp4_chan_ChannelDescription(204).c_str(), "204");
-    ChannelBox->addItem(QString("205 - ")+mp4_chan_ChannelDescription(205).c_str(), "205");
-    ChannelBox->addItem(QString("206 - ")+mp4_chan_ChannelDescription(206).c_str(), "206");
-    ChannelBox->addItem(QString("207 - ")+mp4_chan_ChannelDescription(207).c_str(), "207");
-    ChannelBox->addItem(QString("301 - ")+mp4_chan_ChannelDescription(301).c_str(), "301");
-    ChannelBox->addItem(QString("302 - ")+mp4_chan_ChannelDescription(302).c_str(), "302");
-    ChannelBox->addItem(QString("304 - ")+mp4_chan_ChannelDescription(304).c_str(), "304");
-    ChannelBox->addItem(QString("305 - ")+mp4_chan_ChannelDescription(305).c_str(), "305");
-    ChannelBox->addItem(QString("400 - ")+mp4_chan_ChannelDescription(400).c_str(), "400");
-
-    if (ChannelBox->findData(Index.data(Qt::UserRole).toString())==-1)
-        ChannelBox->addItem(Index.data(Qt::UserRole).toString(), Index.data(Qt::UserRole).toString());
-
-    if (Index.data(Qt::UserRole).toString()!="ABSENT")
+    if (Index.column() == ChanTableWidget::DESC_COLUMN)
     {
-        ChannelBox->insertSeparator(ChannelBox->count());
-        ChannelBox->addItem("Delete", "DELETE");
-    }
+        QComboBox* ChannelBox = qobject_cast<QComboBox*>(Editor);
+        ChannelBox->clear();
 
-    ChannelBox->setCurrentIndex(ChannelBox->findData(Index.data(Qt::UserRole).toString()));
+        if (Index.data(Qt::UserRole).toString() == "ABSENT")
+            ChannelBox->addItem("", "ABSENT");
+        else if (Index.data(Qt::UserRole).toString() == "NODESCRIPTION")
+            ChannelBox->addItem("(No description)", "NODESCRIPTION");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(0).c_str(), "0");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(1).c_str(), "1");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(2).c_str(), "2");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(3).c_str(), "3");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(4).c_str(), "4");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(5).c_str(), "5");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(6).c_str(), "6");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(7).c_str(), "7");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(8).c_str(), "8");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(9).c_str(), "9");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(10).c_str(), "10");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(11).c_str(), "11");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(12).c_str(), "12");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(13).c_str(), "13");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(14).c_str(), "14");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(15).c_str(), "15");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(16).c_str(), "16");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(17).c_str(), "17");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(18).c_str(), "18");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(33).c_str(), "33");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(34).c_str(), "34");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(35).c_str(), "35");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(36).c_str(), "36");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(37).c_str(), "37");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(38).c_str(), "38");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(39).c_str(), "39");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(40).c_str(), "40");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(41).c_str(), "41");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(42).c_str(), "42");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(43).c_str(), "43");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(44).c_str(), "44");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(45).c_str(), "45");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(200).c_str(), "200");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(201).c_str(), "201");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(202).c_str(), "202");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(203).c_str(), "203");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(204).c_str(), "204");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(205).c_str(), "205");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(206).c_str(), "206");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(207).c_str(), "207");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(301).c_str(), "301");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(302).c_str(), "302");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(304).c_str(), "304");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(305).c_str(), "305");
+        ChannelBox->addItem(mp4_chan_ChannelDescription(400).c_str(), "400");
+
+        if (ChannelBox->findData(Index.data(Qt::UserRole).toString()) == -1)
+        {
+            vector<uint32_t> Codes;
+            QString Title;
+            bool Ignore, Delete;
+            mp4_chan_ChannelCodes(Index.data(Qt::UserRole).toString().toStdString(), Codes, Ignore, Delete);
+            if (!Ignore && !Delete)
+            {
+                for (auto& Code : Codes)
+                {
+                    if (!Title.isEmpty())
+                        Title += "+";
+                    Title += QString::fromStdString(mp4_chan_ChannelDescription(Code));
+                }
+            }
+
+            ChannelBox->addItem(Title, Index.data(Qt::UserRole).toString());
+        }
+
+        if (Index.data(Qt::UserRole).toString() != "ABSENT")
+        {
+            ChannelBox->insertSeparator(ChannelBox->count());
+            ChannelBox->addItem("Delete", "DELETE");
+        }
+
+        ChannelBox->setCurrentIndex(ChannelBox->findData(Index.data(Qt::UserRole).toString()));
+    }
+    else if (Index.column() == ChanTableWidget::LAYOUT_COLUMN)
+    {
+        QComboBox* LayoutBox=qobject_cast<QComboBox*>(Editor);
+        LayoutBox->clear();
+
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x000000 ).c_str()), "0");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x010000 ).c_str()), "65536");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x640001 ).c_str()), "6553601");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x650002 ).c_str()), "6619138");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x660002 ).c_str()), "6684674");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x670002 ).c_str()), "6750210");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x680002 ).c_str()), "6815746");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x690002 ).c_str()), "6881282");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x6A0002 ).c_str()), "6946818");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x6B0004 ).c_str()), "7012356");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x6C0004 ).c_str()), "7077892");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x6D0005 ).c_str()), "7143429");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x6E0006 ).c_str()), "7208966");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x6F0008 ).c_str()), "7274504");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x700008 ).c_str()), "7340040");
+        LayoutBox->addItem(QString("MPEG_1.0 (Mono)"),                         "6553601"); // MPEG_1.0 is Mono
+        LayoutBox->addItem(QString("MPEG_2.0 (Stereo)"),                       "6619138"); // MPEG_2.0 is Stereo
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x710003 ).c_str()), "7405571");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x720003 ).c_str()), "7471107");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x730004 ).c_str()), "7536644");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x740004 ).c_str()), "7602180");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x750005 ).c_str()), "7667717");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x760005 ).c_str()), "7733253");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x770005 ).c_str()), "7798789");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x780005 ).c_str()), "7864325");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x790006 ).c_str()), "7929862");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x7A0006 ).c_str()), "7995398");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x7B0006 ).c_str()), "8060934");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x7C0006 ).c_str()), "8126470");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x7D0007 ).c_str()), "8192007");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x7E0008 ).c_str()), "8257544");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x7F0008 ).c_str()), "8323080");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x800008 ).c_str()), "8388616");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x810008 ).c_str()), "8454152");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x820008 ).c_str()), "8519688");
+        LayoutBox->addItem(QString("ITU_1.0 (Mono)"),                          "6553601"); // ITU_1.0 is Mono
+        LayoutBox->addItem(QString("ITU_2.0 (Stereo)"),                        "6619138"); // ITU_2.0 is Stereo
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x830003 ).c_str()), "8585219");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x840004 ).c_str()), "8650756");
+        LayoutBox->addItem(QString("ITU_3.0 (MPEG_3.0A)"),                     "7405571"); // ITU_3.0 is MPEG_3.0A
+        LayoutBox->addItem(QString("ITU_3.1 (MPEG_4.0A)"),                     "7536644"); // ITU_3.1 is MPEG_4.0A
+        LayoutBox->addItem(QString("ITU_3.2 (MPEG_5.0A)"),                     "7667717"); // ITU_3.2 is MPEG_5.0A
+        LayoutBox->addItem(QString("ITU_3.2.1 (MPEG_5.1A)"),                   "7929862"); // ITU_3.2.1 is MPEG_5.1A
+        LayoutBox->addItem(QString("ITU_3.4.1 (MPEG_7.1C)"),                   "8388616"); // ITU_3.4.1 is MPEG_7.1C
+        LayoutBox->addItem(QString("DVD_0 (Mono)"),                            "6553601"); // DVD_0 is Mono
+        LayoutBox->addItem(QString("DVD_1 (Stereo)"),                          "6619138"); // DVD_1 is Stereo
+        LayoutBox->addItem(QString("DVD_2 (ITU_2.1)"),                         "8585219"); // DVD_2 is ITU_2.1
+        LayoutBox->addItem(QString("DVD_3 (ITU_2.2)"),                         "6619138"); // DVD_3 is ITU_2.2
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x850003 ).c_str()), "8716291");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x860004 ).c_str()), "8781828");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x870005 ).c_str()), "8847365");
+        LayoutBox->addItem(QString("DVD_7 (MPEG_3.0A)"),                       "7405571"); // DVD_7 is MPEG_3.0A
+        LayoutBox->addItem(QString("DVD_8 (MPEG_4.0A)"),                       "7536644"); // DVD_8 is MPEG_4.0A
+        LayoutBox->addItem(QString("DVD_9 (MPEG_5.0A)"),                       "7667717"); // DVD_9 is MPEG_5.0A
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x880004 ).c_str()), "8912900");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x890005 ).c_str()), "8978437");
+        LayoutBox->addItem(QString("DVD_12 (MPEG_5.1A)"),                      "7929862"); // DVD_12 is MPEG_5.1A
+        LayoutBox->addItem(QString("DVD_13 (MPEG_4.0A)"),                      "7536644"); // DVD_13 is MPEG_4.0A
+        LayoutBox->addItem(QString("DVD_14 (MPEG_5.0A)"),                      "7667717"); // DVD_14 is MPEG_5.0A
+        LayoutBox->addItem(QString("DVD_15 (DVD_10)"),                         "8912900"); // DVD_15 is DVD_10
+        LayoutBox->addItem(QString("DVD_16 (DVD_11)"),                         "8978437"); // DVD_16 is DVD_11
+        LayoutBox->addItem(QString("DVD_17 (MPEG_5.1A)"),                      "7929862"); // DVD_17 is MPEG_5.1A
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x8A0005 ).c_str()), "9043973");
+        LayoutBox->addItem(QString("DVD_19 (MPEG_5.0B)"),                      "7864325"); // DVD_19 is MPEG_5.0B
+        LayoutBox->addItem(QString("DVD_20 (MPEG_5.1B)"),                      "7995398"); // DVD_20 is MPEG_5.1B
+        LayoutBox->addItem(QString("AudioUnit_4 (Quadraphonic)"),              "7077892"); // AudioUnit_4 is Quadraphonic
+        LayoutBox->addItem(QString("AudioUnit_5 (Pentagonal)")  ,              "7143429"); // AudioUnit_5 is Pentagonal
+        LayoutBox->addItem(QString("AudioUnit_6 (Hexagonal)"),                 "7208966"); // AudioUnit_6 is Hexagonal
+        LayoutBox->addItem(QString("AudioUnit_8 (Octogonal)"),                 "7274504"); // AudioUnit_8 is Octagonal
+        LayoutBox->addItem(QString("AudioUnit_5.0 (MPEG_5.0B)"),               "7864325"); // AudioUnit_5.0 is MPEG_5.0B
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x8B0006 ).c_str()), "9109510");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x8C0007 ).c_str()), "9175047");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x8D0006 ).c_str()), "9240582");
+        LayoutBox->addItem(QString("AudioUnit_5.1 (MPEG_5.1A)"),               "7929862"); // AudioUnit_5.1 is MPEG_5.1A
+        LayoutBox->addItem(QString("AudioUnit_6.1 (MPEG_6.1A)"),               "8192007"); // AudioUnit_6.1 is MPEG_6.1A
+        LayoutBox->addItem(QString("AudioUnit_7.1 (MPEG_7.1C)"),               "8388616"); // AudioUnit_7.1 is MPEG_7.1C
+        LayoutBox->addItem(QString("AudioUnit_7.1Front (MPEG_7.11)"),          "8257544"); // AudioUnit_7.1Front is MPEG_7.1A
+        LayoutBox->addItem(QString("AAC_3.0 (MPEG_3.0B)"),                     "7471107"); // AAC_3.0 is MPEG_3.0B
+        LayoutBox->addItem(QString("AAC_Quadraphonic (Quadraphonic)"),         "7077892"); // AAC_Quadraphonic is Quadraphonic
+        LayoutBox->addItem(QString("AAC_4.0 (MPEG_4.0B)"),                     "7602180"); // AAC_4.0 is MPEG_4.0B
+        LayoutBox->addItem(QString("AAC_5.0 (MPEG_5.0D)"),                     "7864325"); // AAC_5.0 is MPEG_5.0D
+        LayoutBox->addItem(QString("AAC_5.1 (MPEG_5.1D)"),                     "8126470"); // AAC_5.1 is MPEG_5.1D
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x8E0007 ).c_str()), "9306119");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x8F0007 ).c_str()), "9371655");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x900008 ).c_str()), "9437192");
+        LayoutBox->addItem(QString("AAC_7.1 (MPEG_7.1B)"),                     "8323080"); // AAC_7.1 is MPEG_7.1B
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x910010 ).c_str()), "9502736");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x920015 ).c_str()), "9568277");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x940007 ).c_str()), "9699335");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x950002 ).c_str()), "9764866");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x960003 ).c_str()), "9830403");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x970004 ).c_str()), "9895940");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x980004 ).c_str()), "9961476");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x990004 ).c_str()), "10027012");
+        LayoutBox->addItem(QString(mp4_chan_ChannelLayout(0x9A0005 ).c_str()), "10092549");
+
+        if (LayoutBox->findData(Index.data(Qt::UserRole).toString()) == -1)
+            LayoutBox->addItem(Index.data(Qt::UserRole).toString(), Index.data(Qt::UserRole).toString());
+
+        LayoutBox->setCurrentIndex(LayoutBox->findData(Index.data(Qt::UserRole).toString()));
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -139,20 +270,67 @@ void ChannelDelegate::setModelData(QWidget* Editor,
                                    QAbstractItemModel* Model,
                                    const QModelIndex& Index) const
 {
-    QComboBox* ChannelBox=qobject_cast<QComboBox*>(Editor);
+    if (!Index.isValid() || !Editor || !Model)
+        return;
 
-    QString OldValue = Model->data(Index, Qt::UserRole).toString();
-
-    bool Ok=false;
-    QString Value=ChannelBox->currentText();
-    Value.toUInt(&Ok);
-    if (!Ok)
-        Value=ChannelBox->currentData().toString();
-
-    if(Value!=OldValue)
+    if (Index.column() == ChanTableWidget::DESC_COLUMN)
     {
-       Model->setData(Index, Value, Qt::UserRole);
-        emit Value_Changed(Index.row());
+        QComboBox *ChannelBox = qobject_cast<QComboBox *>(Editor);
+
+        QString OldValue = Model->data(Index, Qt::UserRole).toString();
+
+        bool Ignore, Delete;
+        vector<uint32_t> Codes;
+        QString Value;
+        QString UserData;
+        mp4_chan_ChannelCodes(ChannelBox->currentText().toStdString(), Codes, Ignore, Delete);
+        if (Ignore)
+        {
+            Value = "";
+            UserData = "ABSENT";
+        }
+        else if (Delete)
+        {
+            Value = "(Delete)";
+            UserData = "DELETE";
+        }
+        else
+        {
+            for (auto& Code : Codes)
+            {
+                if (!Value.isEmpty())
+                    Value += "+";
+                Value += QString::fromStdString(mp4_chan_ChannelDescription(Code));
+
+                if (!UserData.isEmpty())
+                    UserData += "+";
+                UserData += QString::number(Code);
+            }
+        }
+
+        if (Value != OldValue)
+        {
+            Model->setData(Index, Value, Qt::UserRole);
+            emit Value_Changed(Index.row());
+        }
+    }
+    else if (Index.column() == ChanTableWidget::LAYOUT_COLUMN)
+    {
+        QComboBox* LayoutBox = qobject_cast<QComboBox*>(Editor);
+
+        QString OldValue = Model->data(Index, Qt::UserRole).toString();
+
+        bool Ok=false;
+        QString Value=LayoutBox->currentText();
+        Value.toUInt(&Ok);
+        if (!Ok)
+            Value=LayoutBox->currentData().toString();
+
+        if(Value!=OldValue)
+        {
+            Model->setData(Index, Value, Qt::UserRole);
+            emit Value_Changed(Index.row());
+        }
     }
 }
 
@@ -185,6 +363,7 @@ void ChanTableWidget::Setup(QString* Channels_)
 
     ChannelDelegate* ChannelEditor = new ChannelDelegate(this);
     connect(ChannelEditor, SIGNAL(Value_Changed(int)), this, SLOT(On_Value_Changed(int)));
+    setItemDelegateForColumn(LAYOUT_COLUMN, qobject_cast<QAbstractItemDelegate*>(ChannelEditor));
     setItemDelegateForColumn(DESC_COLUMN, qobject_cast<QAbstractItemDelegate*>(ChannelEditor));
 
     Update_Table();
@@ -194,56 +373,117 @@ void ChanTableWidget::Setup(QString* Channels_)
 void ChanTableWidget::Update_Table()
 {
     //Get audio tracks
-    QStringList Tracks=Channels->split(",");
-    QStringList OldTracks=Previous.split(",");
-
-    //Display
-    for(int Pos=0; Pos<Tracks.size(); Pos++)
+    json Json = json::parse(Channels->toStdString(), nullptr, false);
+    json PreviousJson = json::parse(Previous.toStdString(), nullptr, false);
+    if (!Json.is_discarded())
     {
-        int Row=Pos;
-        if(Row==rowCount())
-            insertRow(rowCount());
-
-
-        QStringList Desc=Tracks[Pos].split("=");
-        if (Desc.size()!=2)
-            continue;
-
-        QString Title;
-        if (Desc[1]=="ABSENT")
-            Title="";
-        else if(Desc[1]=="DELETE")
-            Title=("(Delete)");
-        else if(Desc[1]=="MULTIPLES")
-            Title=("(Multiples)");
-        else if(Desc[1]=="NODESCRIPTION")
-            Title=("(No description)");
-        else
+        size_t Pos = 0;
+        for (auto &Entry : Json.items())
         {
-            bool Ok=false;
-            QString Label = QString(mp4_chan_ChannelDescription(Desc[1].toUInt()).c_str());
-            Label.toUInt(&Ok);
-            if (Ok)
-                Title = Label;
-            else
-                Title=Desc[1]+" - "+ Label;
-        }
+            if(rowCount() == Pos)
+                insertRow(rowCount());
 
-        QTableWidgetItem* Value=new QTableWidgetItem(Title);
-        Value->setData(Qt::UserRole, Desc[1]);
+            QString Index;
+            Index=Entry.key().c_str();
 
-        if (Pos<OldTracks.size())
-        {
-            QStringList OldDesc=OldTracks[Pos].split("=");
-            if (OldDesc.size()==2 && OldDesc[1]!=Desc[1])
+            auto Layout = Entry.value().find("layout");
+            auto Descriptions = Entry.value().find("descriptions");
             {
-                QFont Font=item(Row, DESC_COLUMN)->font();
-                Font.setBold(true);
-                item(Row, DESC_COLUMN)->setFont(Font);
-            }
-        }
+                QString Title;
+                QString UserData;
 
-        setItem(Row, DESC_COLUMN, Value);
+                bool Layout_Modified = false;
+                if (Layout != Entry.value().end() && Layout->is_string())
+                {
+                    Title = QString().fromStdString(Layout->get<string>());
+                    UserData = Title;
+                    uint32_t Code;
+                    mp4_chan_ChannelLayoutCode(Layout->get<string>(), Code);
+                    UserData = QString::number(Code);
+
+                    if (PreviousJson.contains(Entry.key()))
+                    {
+                        auto PrevLayout = PreviousJson[Entry.key()].find("layout");
+                        if (PrevLayout != PreviousJson[Entry.key()].end() &&
+                            PrevLayout->is_string() &&
+                            PrevLayout->get<string>() != Layout->get<string>())
+                            Layout_Modified=true;
+                    }
+                }
+
+                QTableWidgetItem* Value = new QTableWidgetItem(Title);
+                Value->setData(Qt::UserRole, UserData);
+                Value->setData(Qt::UserRole+1, Index);
+                if (Layout_Modified)
+                {
+                    QFont Font=Value->font();
+                    Font.setBold(true);
+                    Value->setFont(Font);
+                }
+
+                setItem(Pos, LAYOUT_COLUMN, Value);
+            }
+
+            {
+                QString Title;
+                QString UserData;
+                bool Descriptions_Modified=false;
+
+                if (Descriptions != Entry.value().end() && Descriptions->is_string())
+                {
+                    Title = QString().fromStdString(Descriptions->get<string>());
+                    vector<uint32_t> Codes;
+                    bool Ignore, Delete;
+                    mp4_chan_ChannelCodes(Descriptions->get<string>(), Codes, Ignore, Delete);
+                    if (Ignore)
+                    {
+                        Title = "";
+                        UserData = "ABSENT";
+                    }
+                    else if (Delete)
+                    {
+                        Title = "(Delete)";
+                        UserData = "DELETE";
+                    }
+                    else
+                    {
+                        for (auto &Code : Codes)
+                        {
+                            if (!UserData.isEmpty())
+                                UserData += "+";
+                            UserData += QString().number(Code);
+                        }
+                    }
+
+                    if (PreviousJson.contains(Entry.key()))
+                    {
+                        auto PrevDescriptions = PreviousJson[Entry.key()].find("descriptions");
+                        if (PrevDescriptions != PreviousJson[Entry.key()].end() &&
+                            PrevDescriptions->is_string() &&
+                            PrevDescriptions->get<string>() != Descriptions->get<string>())
+                            Descriptions_Modified = true;
+                    }
+                }
+                else if (Layout != Entry.value().end() && Layout->is_string() && Layout->get<string>() == "UseChannelDescriptions")
+                    Title = "(No description)";
+
+                QTableWidgetItem* Value=new QTableWidgetItem(Title);
+                if (item(Pos, LAYOUT_COLUMN)->data(Qt::UserRole).toString() != "0")
+                    Value->setFlags(Value->flags() & ~Qt::ItemIsEditable);
+                Value->setData(Qt::UserRole, UserData);
+                Value->setData(Qt::UserRole+1, Index);
+                if (Descriptions_Modified)
+                {
+                    QFont Font=Value->font();
+                    Font.setBold(true);
+                    Value->setFont(Font);
+                }
+
+                setItem(Pos, DESC_COLUMN, Value);
+            }
+
+            Pos++;
+        }
     }
 }
 
@@ -297,18 +537,30 @@ void ChanTableWidget::resizeEvent(QResizeEvent* Event)
 //---------------------------------------------------------------------------
 void ChanTableWidget::On_Value_Changed(int Row)
 {
-    QStringList Tracks=Channels->split(",");
-    if (Row>=Tracks.size())
+    json Json = json::parse(Channels->toStdString(), nullptr, false);
+
+    if (Json.is_discarded())
         return;
 
-    QStringList Desc=Tracks[Row].split("=");
-    if (Desc.size()!=2)
-        return;
+    string Index = item(Row, LAYOUT_COLUMN)->data(Qt::UserRole+1).toString().toStdString();
+    string Layout=mp4_chan_ChannelLayout(item(Row, LAYOUT_COLUMN)->data(Qt::UserRole).toString().toUInt());
 
-    Desc[1]=item(Row, DESC_COLUMN)->data(Qt::UserRole).toString();
+    string Desc=item(Row, DESC_COLUMN)->data(Qt::UserRole).toString().toStdString();
 
-    Tracks[Row]=Desc.join("=");
-    *Channels=Tracks.join(",");
+
+    if (Json.contains(Index))
+    {
+        Json[Index]["layout"] = Layout;
+
+        uint32_t Code;
+        mp4_chan_ChannelLayoutCode(Layout, Code);
+        if (Code==0)
+            Json[Index]["descriptions"] = Desc;
+        else
+            Json[Index].erase("descriptions");
+    }
+
+    *Channels = QString::fromStdString(Json.dump());
 
     Update_Table();
 }

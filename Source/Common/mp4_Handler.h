@@ -108,7 +108,11 @@ private:
 //***************************************************************************
 
 string mp4_chan_ChannelDescription (uint32_t ChannelLabel);
-bool mp4_chan_ChannelCode (string ChannelLabel, uint32_t &Code, bool& Ignore, bool& Delete);
+bool mp4_chan_ChannelCodes (string ChannelLabels, vector<uint32_t> &Codes, bool& Ignore, bool& Delete);
+
+string mp4_chan_ChannelLayout (uint32_t ChannelLayoutCode);
+bool mp4_chan_ChannelLayoutCode (string ChannelLayoutLabel, uint32_t &Code);
+
 string mp4_mdhd_LanguageLabel (uint16_t LanguageCode);
 bool mp4_mdhd_LanguageCode (string LanguageLabel, uint16_t &Code, bool& Ignore, bool& Delete);
 int tfsxml_next_named(tfsxml_string* tfsxml_priv, tfsxml_string* result, const char* name);

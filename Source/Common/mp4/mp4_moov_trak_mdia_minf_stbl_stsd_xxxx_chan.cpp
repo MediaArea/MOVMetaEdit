@@ -29,17 +29,14 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_chan::Read_Internal()
     Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->ChannelBitmap);
     Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->NumberChannelDescriptions);
 
-    if (Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->NumberChannelDescriptions)
+    for (size_t Pos=0; Pos<Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->NumberChannelDescriptions; Pos++)
     {
         Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.push_back(global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan::description());
-        for (size_t Pos=0; Pos<Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->NumberChannelDescriptions; Pos++)
-        {
-            Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.back().ChannelLabel);
-            Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.back().ChannelFlags);
-            Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.back().Coordinates0);
-            Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.back().Coordinates1);
-            Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.back().Coordinates2);
-        }
+        Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.back().ChannelLabel);
+        Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.back().ChannelFlags);
+        Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.back().Coordinates0);
+        Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.back().Coordinates1);
+        Get_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.back().Coordinates2);
     }
 }
 
@@ -72,7 +69,7 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_chan::Modify_Internal()
     Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->ChannelLayoutTag);
     Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->ChannelBitmap);
     Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->NumberChannelDescriptions);
-    for (size_t Pos=0; Pos<Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions.size(); Pos++)
+    for (size_t Pos=0; Pos<Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->NumberChannelDescriptions; Pos++)
     {
         Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions[Pos].ChannelLabel);
         Put_B4(Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Chunk.trak_Index]->Descriptions[Pos].ChannelFlags);

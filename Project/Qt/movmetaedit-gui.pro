@@ -135,6 +135,7 @@ HEADERS += \
         ../../Source/Common/mp4_Handler.h \
         ../../Source/Common/mp4/mp4_.h \
         ../../Source/ThirdParty/tfsxml/tfsxml.h \
+        ../../Source/ThirdParty/json/json.hpp \
 		../../Source/ZenLib/BitStream.h \
 		../../Source/ZenLib/BitStream_Fast.h \
 		../../Source/ZenLib/BitStream_LE.h \

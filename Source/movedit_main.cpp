@@ -18,8 +18,10 @@
 #include "CLI/Help.h"
 #include "Common/AdID.h"
 #include "Common/mp4_Handler.h"
+#include "ThirdParty/json/json.hpp"
 using namespace std;
 using namespace ZenLib;
+using namespace nlohmann;
 
 const size_t BUFFER_SIZE_MAX = 0x10000000;
 
@@ -63,7 +65,7 @@ int main(int argc, char* argv[])
     bool        tmcd_OK=true;
     std::map<size_t, std::string> lang_New;
     std::map<size_t, bool>        lang_OK;
-    std::map<size_t, std::string> chan_New;
+    std::map<size_t, json>        chan_New;
     std::map<size_t, bool>        chan_OK;
     bool        chan_Delete=false;
     std::string display_primaries_New=string();
@@ -535,19 +537,21 @@ int main(int argc, char* argv[])
             tmcd_Delete=true;
         }
         else if ((Ztring(argv[argp]) == __T("-channels")
-               || Ztring(argv[argp]) == __T("--channels")))
+               || Ztring(argv[argp]) == __T("--channels"))
+               || (Ztring(argv[argp]) == __T("-channels-label")
+               || Ztring(argv[argp]) == __T("--channels-label")))
         {
             bool Ok=true;
             string chan(argv[argp + 1]);
 
             size_t start=0, end=0, index=0;
-            uint32_t code;
-            bool _ignore;
-            bool _delete;
             do
             {
                 end = chan.find(',', start);
                 string current=chan.substr(start, end!=string::npos?end-start:string::npos);
+                bool _ignore;
+                bool _delete;
+                vector<uint32_t> codes;
 
                 if (size_t equal_pos=current.find('=')!=string::npos)
                 {
@@ -564,30 +568,90 @@ int main(int argc, char* argv[])
                         break;
                     }
 
-                    if (!mp4_chan_ChannelCode(current.substr(equal_pos+1, current.size()-equal_pos-1), code, _ignore, _delete))
-                    {
-                        Ok=false;
-                        break;
-                    }
-
-                    chan_New[index++]=current.substr(equal_pos+1, current.size()-equal_pos-1);
+                    current=current.substr(equal_pos+1, current.size()-equal_pos-1);
                 }
-                else
+
+                if (!mp4_chan_ChannelCodes(current, codes, _ignore, _delete))
                 {
-                    if (!mp4_chan_ChannelCode(current, code, _ignore, _delete))
-                    {
-                        Ok=false;
-                        break;
-                    }
-
-                    chan_New[index++]=current;
+                    Ok=false;
+                    break;
                 }
+
+                string key=to_string(index);
+                if (chan_New.find(index)==chan_New.end())
+                {
+                    chan_New[index]=json();
+                    chan_New[index][key]=json::object();
+                }
+                chan_New[index][key]["descriptions"]=current;
+
+                index++;
             }
             while((start=chan.find_first_not_of(',', end))!=string::npos);
 
             if (!Ok)
             {
-                cout << "Can not understand channels label value " << argv[argp] << ", it must be in [trackIndex=]code[,[trackIndex=]code...] format" << endl;
+                cout << "Can not understand channels label value " << argv[argp] << ", it must be in [trackIndex=]code[+code][,[trackIndex=]code[+code]...] format" << endl;
+                return ReturnValue_ERROR;
+            }
+
+            chan_Delete=false;
+            argp++;
+        }
+        else if ((Ztring(argv[argp]) == __T("-channels-layout")
+               || Ztring(argv[argp]) == __T("--channels-layout")))
+        {
+            bool Ok=true;
+            string layout(argv[argp + 1]);
+
+            size_t start=0, end=0, index=0;
+            uint32_t code;
+            bool _ignore;
+            do
+            {
+                end = layout.find(',', start);
+                string current=layout.substr(start, end!=string::npos?end-start:string::npos);
+
+                if (size_t equal_pos=current.find('=')!=string::npos)
+                {
+                    if (!equal_pos || equal_pos+1==current.size())
+                    {
+                        Ok=false;
+                        break;
+                    }
+
+                    istringstream iss(current.substr(0, equal_pos));
+                    iss >> index;
+                    if (iss.fail())
+                    {
+                        Ok=false;
+                        break;
+                    }
+
+                    current=current.substr(equal_pos+1, current.size()-equal_pos-1);
+                }
+
+                if (!mp4_chan_ChannelLayoutCode(current, code))
+                {
+                    Ok=false;
+                    break;
+                }
+
+                string key=to_string(index);
+                if (chan_New.find(index)==chan_New.end())
+                {
+                    chan_New[index]=json();
+                    chan_New[index][key]=json::object();
+                }
+                chan_New[index][key]["layout"]=current;
+
+                index++;
+            }
+            while((start=layout.find_first_not_of(',', end))!=string::npos);
+
+            if (!Ok)
+            {
+                cout << "Can not understand channels-layout label value " << argv[argp] << ", it must be in [trackIndex=]layout[,[trackIndex=]layout...] format" << endl;
                 return ReturnValue_ERROR;
             }
 
@@ -1081,10 +1145,9 @@ int main(int argc, char* argv[])
                 }
                 if (!chan_New.empty())
                 {
-                    for (map<size_t, string>::iterator It=chan_New.begin(); It!=chan_New.end(); It++)
+                    for (map<size_t, json>::iterator It=chan_New.begin(); It!=chan_New.end(); It++)
                     {
-                        stringstream ss; ss << It->first << "=" << It->second;
-                        chan_OK[It->first]=H->Set("chan", ss.str());
+                        chan_OK[It->first]=H->Set("chan", It->second.dump());
                         if (!chan_OK[It->first])
                             ToReturn=ReturnValue_ERROR;
                     }
@@ -1212,39 +1275,29 @@ int main(int argc, char* argv[])
             vector<string>chans;
             string chan = H->Get("chan");
             {
-                size_t start=0, sep=0, end=0;
-                do
+                json Json=json::parse(chan, nullptr, false);
+                if (!Json.is_discarded())
                 {
-                    sep = chan.find('=', start);
-                    end = chan.find(',', start);
-
-                    string number=chan.substr(start, sep - start);
-                    string value=chan.substr(sep+1, end-sep-1);
-
-                    if (value!="ABSENT")
+                    for (auto &Entry : Json.items())
                     {
-                        string current = number + ") ";
+                        size_t Track=0;
+                        istringstream(Entry.key()) >> Track;
 
-                        if (value=="NODESCRIPTION")
-                            current += "(No description)";
-                        else if (value=="MULTIPLES")
-                            current += "(Multiples)";
+                        string Current=Entry.key() + ") ";
+                        auto Layout=Entry.value().find("layout");
+                        auto Descriptions=Entry.value().find("descriptions");
+                        if (Layout!=Entry.value().end() && Layout->is_string() && Layout->get<string>()!="UseChannelDescriptions")
+                            Current+=Layout->get<string>();
+                        else if (Descriptions!=Entry.value().end() && Descriptions->is_string())
+                            Current+=Descriptions->get<string>();
                         else
-                        {
-                            size_t code=0;
-                            istringstream(value) >> code;
-                            current+=(mp4_chan_ChannelDescription(code));
-                        }
+                            Current+="(No description)";
 
-                        size_t track=0;
-                        istringstream(number) >> track;
-                        if (current.size() < 25)
-                            current.insert(0, 25 - current.size(), ' ');
-
-                        chans.push_back(current + "|" + ((chan_New.find(track)!=chan_New.end() || chan_Delete) ? ((OK && chan_OK.find(track)!=chan_OK.end() && chan_OK[track]) ? "Y" : "N") : " ") + "|");
+                        if (Current.size() < 25)
+                            Current.insert(0, 25 - Current.size(), ' ');
+                        chans.push_back(Current + "|" + ((chan_New.find(Track)!=chan_New.end() || chan_Delete) ? ((OK && chan_OK.find(Track)!=chan_OK.end() && chan_OK[Track]) ? "Y" : "N") : " ") + "|");
                     }
                 }
-                while((start=chan.find_first_not_of(',', end))!=std::string::npos);
             }
 
             for (size_t Pos=0; Pos<langs.size() || Pos<chans.size(); Pos++)
@@ -1266,12 +1319,12 @@ int main(int argc, char* argv[])
 
     for (std::vector<Structure*>::iterator Item = Structures.begin(); Item != Structures.end(); Item++)
     {
-            mp4_Handler* H = (mp4_Handler*)(*Item); //Hack for storing mp4_Handler
-            if (!H->PerFile_Error.str().empty())
-            {
-                cout << H->PerFile_Error.str() << endl;
-                ToReturn = ReturnValue_ERROR;
-            }
+        mp4_Handler* H = (mp4_Handler*)(*Item); //Hack for storing mp4_Handler
+        if (!H->PerFile_Error.str().empty())
+        {
+            cout << H->PerFile_Error.str() << endl;
+            ToReturn = ReturnValue_ERROR;
+        }
     }
 
     //Cleanup

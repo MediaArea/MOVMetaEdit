@@ -53,6 +53,7 @@ class ChanTableWidget : public QTableWidget
 public:
     enum COLUMNS
     {
+        LAYOUT_COLUMN,
         DESC_COLUMN,
         MAX_COLUMN,
     };

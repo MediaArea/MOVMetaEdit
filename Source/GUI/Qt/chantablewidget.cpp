@@ -9,6 +9,7 @@
 #include <QHeaderView>
 #include <QStringList>
 #include <QComboBox>
+#include <QLineEdit>
 
 #include "Common/config.h"
 #include "Common/mp4_Handler.h"
@@ -40,6 +41,115 @@ static const int ColumnSize_Default[ChanTableWidget::MAX_COLUMN] =
 //***************************************************************************
 
 //---------------------------------------------------------------------------
+ChannelComboBox::ChannelComboBox(QWidget* Parent) : QComboBox(Parent)
+{
+    setEditable(true);
+
+    QLineEdit* Editor = lineEdit();
+    if(Editor)
+        Editor->setClearButtonEnabled(true);
+
+    connect(this, SIGNAL(highlighted(int)), this, SLOT(handleHighlighted(int))); // TODO: find a better signal for backuping the current state
+    connect(this, SIGNAL(activated(int)), this, SLOT(handleActivated(int)));
+}
+
+//---------------------------------------------------------------------------
+void ChannelComboBox::handleHighlighted(int Index)
+{
+    Q_UNUSED(Index);
+
+    QLineEdit* Editor = lineEdit();
+    if (!Editor)
+        return;
+
+    // Save current state
+    PreviousText = Editor->text();
+    PreviousCursorPosition = Editor->cursorPosition();
+    PreviousSelectionStart = Editor->selectionStart();
+    PreviousSelectionEnd = Editor->selectionEnd();
+}
+
+//---------------------------------------------------------------------------
+void ChannelComboBox::handleActivated(int Index)
+{
+    QLineEdit* Editor = lineEdit();
+    if (!Editor)
+        return;
+
+    QString NewElement = itemText(Index);
+
+    if(PreviousText.isEmpty() || (PreviousSelectionStart == 0 && PreviousSelectionEnd == PreviousText.length()))
+        Editor->setText(NewElement);
+    else if (PreviousSelectionStart != PreviousSelectionEnd)
+    {
+        if (PreviousSelectionStart > 0 && PreviousText[PreviousSelectionStart] == '+')
+            PreviousSelectionStart++; // If only the leading '+' is selected, don't overwrite the Previous item.
+
+        int StartBoundary = PreviousSelectionStart > 0 ? PreviousText.lastIndexOf('+', PreviousSelectionStart - 1) : -1;
+
+        StartBoundary = (StartBoundary == -1) ? 0 : StartBoundary + 1;
+
+        if (PreviousSelectionEnd > 0 && PreviousText[PreviousSelectionEnd - 1] == '+')
+            PreviousSelectionEnd--; // If only the trailing '+' is selected, don't overwrite the next item.
+
+        int EndBoundary = PreviousText.indexOf('+', PreviousSelectionEnd);
+
+        EndBoundary = (EndBoundary == -1) ? PreviousText.length() : EndBoundary;
+
+        PreviousText.replace(StartBoundary, EndBoundary - StartBoundary, NewElement);
+        Editor->setText(PreviousText);
+    }
+    else // No selection, just insert or remplace at the cursor position
+    {
+        if (PreviousCursorPosition < 0 || PreviousCursorPosition >= PreviousText.length()) // Append
+        {
+            if (PreviousText.endsWith('+'))
+                Editor->setText(PreviousText + NewElement);
+            else
+                Editor->setText(PreviousText + "+" + NewElement);
+        }
+        else if (PreviousCursorPosition == 0) // Prepend
+        {
+            if (PreviousText.startsWith('+'))
+                Editor->setText(NewElement + PreviousText);
+            else
+                Editor->setText(NewElement + "+" + PreviousText);
+        }
+        else if (PreviousText[PreviousCursorPosition] == '+') // Just before a '+', insert before
+        {
+                NewElement = "+" + NewElement;
+
+            PreviousText.insert(PreviousCursorPosition, NewElement);
+            Editor->setText(PreviousText);
+        }
+        else if (PreviousText[PreviousCursorPosition - 1] == '+') // Just after a '+', insert after
+        {
+            NewElement = NewElement + "+";
+
+            PreviousText.insert(PreviousCursorPosition, NewElement);
+            Editor->setText(PreviousText);
+        }
+        else
+        {
+            int LeftBoundary = PreviousText.lastIndexOf('+', PreviousCursorPosition - 1);
+            int RightBoundary = PreviousText.indexOf('+', PreviousCursorPosition);
+
+            LeftBoundary = (LeftBoundary == -1) ? 0 : LeftBoundary + 1;
+            RightBoundary = (RightBoundary == -1) ? PreviousText.length() : RightBoundary;
+
+            if (LeftBoundary > 0 && PreviousText[LeftBoundary - 1] != '+')
+                NewElement = "+" + NewElement;
+
+            if (RightBoundary < PreviousText.length() && PreviousText[RightBoundary] != '+')
+                NewElement = NewElement + "+";
+
+            PreviousText.replace(LeftBoundary, RightBoundary - LeftBoundary, NewElement);
+            Editor->setText(PreviousText);
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
 ChannelDelegate::ChannelDelegate(QObject* Parent) : QItemDelegate(Parent)
 {
 }
@@ -50,11 +160,24 @@ QWidget* ChannelDelegate::createEditor(QWidget* Parent,
                                        const QModelIndex& Index) const
 {
     Q_UNUSED(Option)
-    Q_UNUSED(Index)
 
-    QComboBox *Editor=new QComboBox(Parent);
-    Editor->setEditable(true);
-    Editor->setValidator(new QIntValidator(0, 0xffffffff));
+    if (!Index.isValid())
+        return nullptr;
+
+     QWidget* Editor;
+
+    if (Index.column() == ChanTableWidget::LAYOUT_COLUMN)
+    {
+        Editor=new QComboBox(Parent);
+        ((ChannelComboBox*)Editor)->setEditable(true);
+        ((ChannelComboBox*)Editor)->setValidator(new QIntValidator(0, 0xffffffff));
+    }
+    else
+    {
+        Editor=new ChannelComboBox(Parent);
+        ((ChannelComboBox*)Editor)->setEditable(true);
+        ((ChannelComboBox*)Editor)->setValidator(new QIntValidator(0, 0xffffffff));
+    }
 
     return Editor;
 }
@@ -77,7 +200,7 @@ void ChannelDelegate::setEditorData(QWidget* Editor, const QModelIndex& Index) c
 
     if (Index.column() == ChanTableWidget::DESC_COLUMN)
     {
-        QComboBox* ChannelBox = qobject_cast<QComboBox*>(Editor);
+        ChannelComboBox* ChannelBox = qobject_cast<ChannelComboBox*>(Editor);
         ChannelBox->clear();
 
         if (Index.data(Qt::UserRole).toString() == "ABSENT")
@@ -275,7 +398,7 @@ void ChannelDelegate::setModelData(QWidget* Editor,
 
     if (Index.column() == ChanTableWidget::DESC_COLUMN)
     {
-        QComboBox *ChannelBox = qobject_cast<QComboBox *>(Editor);
+        ChannelComboBox *ChannelBox = qobject_cast<ChannelComboBox *>(Editor);
 
         QString OldValue = Model->data(Index, Qt::UserRole).toString();
 

@@ -8,12 +8,32 @@
 
 #include <QItemDelegate>
 #include <QTableWidget>
+#include <QComboBox>
 #include <QDialog>
 #include <QString>
 
 //***************************************************************************
 // Helpers
 //***************************************************************************
+
+//---------------------------------------------------------------------------
+class ChannelComboBox : public QComboBox
+{
+    Q_OBJECT
+
+public:
+    explicit ChannelComboBox(QWidget* Parent = nullptr);
+
+protected slots:
+    void handleHighlighted(int Index);
+    void handleActivated(int Index);
+
+private:
+    QString PreviousText;
+    int PreviousCursorPosition;
+    int PreviousSelectionStart;
+    int PreviousSelectionEnd;
+};
 
 //---------------------------------------------------------------------------
 class ChannelDelegate : public QItemDelegate

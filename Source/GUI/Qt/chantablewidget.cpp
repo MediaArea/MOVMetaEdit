@@ -77,8 +77,13 @@ void ChannelComboBox::handleActivated(int Index)
         return;
 
     QString NewElement = itemText(Index);
+    QString NewElementData = itemData(Index).toString();
 
-    if(PreviousText.isEmpty() || (PreviousSelectionStart == 0 && PreviousSelectionEnd == PreviousText.length()))
+    if(PreviousText.isEmpty() ||
+       (PreviousSelectionStart == 0 && PreviousSelectionEnd == PreviousText.length()) ||
+       NewElementData == "DELETE" ||
+       NewElementData == "ABSENT" ||
+       NewElementData == "NODESCRIPTION") // Replace all
         Editor->setText(NewElement);
     else if (PreviousSelectionStart != PreviousSelectionEnd)
     {
@@ -275,7 +280,7 @@ void ChannelDelegate::setEditorData(QWidget* Editor, const QModelIndex& Index) c
         if (Index.data(Qt::UserRole).toString() != "ABSENT")
         {
             ChannelBox->insertSeparator(ChannelBox->count());
-            ChannelBox->addItem("Delete", "DELETE");
+            ChannelBox->addItem("(Delete)", "DELETE");
         }
 
         ChannelBox->setCurrentIndex(ChannelBox->findData(Index.data(Qt::UserRole).toString()));
@@ -399,24 +404,21 @@ void ChannelDelegate::setModelData(QWidget* Editor,
     if (Index.column() == ChanTableWidget::DESC_COLUMN)
     {
         ChannelComboBox *ChannelBox = qobject_cast<ChannelComboBox *>(Editor);
+        string CurrentText = ChannelBox->currentText().toStdString();
+        string CurrentData = ChannelBox->currentData().toString().toStdString();
+        if (CurrentData == "NODESCRIPTION" || CurrentData == "ABSENT" || CurrentData == "DELETE")
+            CurrentText = CurrentData;
 
         QString OldValue = Model->data(Index, Qt::UserRole).toString();
 
         bool Ignore, Delete;
         vector<uint32_t> Codes;
         QString Value;
-        QString UserData;
-        mp4_chan_ChannelCodes(ChannelBox->currentText().toStdString(), Codes, Ignore, Delete);
+        mp4_chan_ChannelCodes(CurrentText, Codes, Ignore, Delete);
         if (Ignore)
-        {
-            Value = "";
-            UserData = "ABSENT";
-        }
+            Value = "ABSENT";
         else if (Delete)
-        {
-            Value = "(Delete)";
-            UserData = "DELETE";
-        }
+            Value = "DELETE";
         else
         {
             for (auto& Code : Codes)
@@ -424,10 +426,6 @@ void ChannelDelegate::setModelData(QWidget* Editor,
                 if (!Value.isEmpty())
                     Value += "+";
                 Value += QString::fromStdString(mp4_chan_ChannelDescription(Code));
-
-                if (!UserData.isEmpty())
-                    UserData += "+";
-                UserData += QString::number(Code);
             }
         }
 
@@ -588,7 +586,10 @@ void ChanTableWidget::Update_Table()
                     }
                 }
                 else if (Layout != Entry.value().end() && Layout->is_string() && Layout->get<string>() == "UseChannelDescriptions")
+                {
                     Title = "(No description)";
+                    UserData = "NODESCRIPTION";
+                }
 
                 QTableWidgetItem* Value=new QTableWidgetItem(Title);
                 if (item(Pos, LAYOUT_COLUMN)->data(Qt::UserRole).toString() != "0")
@@ -666,10 +667,9 @@ void ChanTableWidget::On_Value_Changed(int Row)
         return;
 
     string Index = item(Row, LAYOUT_COLUMN)->data(Qt::UserRole+1).toString().toStdString();
-    string Layout=mp4_chan_ChannelLayout(item(Row, LAYOUT_COLUMN)->data(Qt::UserRole).toString().toUInt());
+    string Layout = mp4_chan_ChannelLayout(item(Row, LAYOUT_COLUMN)->data(Qt::UserRole).toString().toUInt());
 
-    string Desc=item(Row, DESC_COLUMN)->data(Qt::UserRole).toString().toStdString();
-
+    string Desc = item(Row, DESC_COLUMN)->data(Qt::UserRole).toString().toStdString();
 
     if (Json.contains(Index))
     {

@@ -238,8 +238,10 @@ bool mp4_chan_ChannelCodes (string ChannelLabels, vector<uint32_t> &Codes, bool&
     Ignore=false;
     Codes.clear();
 
+    transform(ChannelLabels.begin(), ChannelLabels.end(), ChannelLabels.begin(), ::tolower);
+
     if(ChannelLabels.empty())
-        return false;
+        return true;
 
     if (ChannelLabels=="delete")
     {
@@ -1295,25 +1297,25 @@ string mp4_Handler::Get(const string &Field)
                 continue;
 
             string Key=to_string(Index++);
+            Json[Key]=json::object();
 
             auto It=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(Pos);
-            if (It==Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end())
-              continue;
-
-            Json[Key]=json::object();
-            Json[Key]["layout"]=mp4_chan_ChannelLayout(It->second->ChannelLayoutTag);
-
-            string Descriptions;
-            for (auto& Description : It->second->Descriptions)
+            if (It!=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end())
             {
+                Json[Key]["layout"]=mp4_chan_ChannelLayout(It->second->ChannelLayoutTag);
+
+                string Descriptions;
+                for (auto& Description : It->second->Descriptions)
+                {
+                    if (!Descriptions.empty())
+                        Descriptions+="+";
+
+                    Descriptions+=mp4_chan_ChannelDescription(Description.ChannelLabel);
+                }
+
                 if (!Descriptions.empty())
-                    Descriptions+="+";
-
-                Descriptions+=mp4_chan_ChannelDescription(Description.ChannelLabel);
+                    Json[Key]["descriptions"]=Descriptions;
             }
-
-            if (!Descriptions.empty())
-                Json[Key]["descriptions"]=Descriptions;
         }
 
         return Json.dump();
@@ -2127,7 +2129,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
                 continue;
             }
 
-            if (!Simulate && !Ignore)
+            if (!Simulate)
             {
                 if (Delete)
                 {

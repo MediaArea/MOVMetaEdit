@@ -2,7 +2,7 @@
 # Maintainer: MediaArea.net SARL <info@mediaarea.net>
 
 pkgname=('movmetaedit' 'movmetaedit-gui')
-pkgver=24.06
+pkgver=25.09
 pkgrel=1
 pkgdesc="(To be filled)"
 url="http://mediaarea.net"

@@ -1,3 +1,7 @@
+Version 25.09, 2025-09-30
+-------------
+Handle channel layout and multiple descriptions per track
+
 Version 24.06, 2024-06-03
 -------------
 + Edit HDR related fields

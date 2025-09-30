@@ -11,10 +11,12 @@
 #include <iomanip>
 #include <cstdlib>
 #include <cmath>
+#include <unordered_map>
 #include <iostream>
 #include <algorithm>
 #include "ZenLib/File.h"
 #include "ZenLib/Dir.h"
+#include "ThirdParty/json/json.hpp"
 
 #ifdef MACSTORE
 #include "Common/Mac_Helpers.h"
@@ -23,6 +25,7 @@
 
 using namespace std;
 using namespace ZenLib;
+using namespace nlohmann;
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -229,128 +232,396 @@ string mp4_chan_ChannelDescription (uint32_t ChannelLabel)
 }
 
 //---------------------------------------------------------------------------
-bool mp4_chan_ChannelCode (string ChannelLabel, uint32_t &Code, bool& Ignore, bool& Delete)
+bool mp4_chan_ChannelCodes (string ChannelLabels, vector<uint32_t> &Codes, bool& Ignore, bool& Delete)
 {
     Delete=false;
     Ignore=false;
+    Codes.clear();
+
+    transform(ChannelLabels.begin(), ChannelLabels.end(), ChannelLabels.begin(), ::tolower);
+
+    if(ChannelLabels.empty())
+        return true;
+
+    if (ChannelLabels=="delete")
+    {
+        Delete=true;
+        return true;
+    }
+    else if (ChannelLabels=="absent" || ChannelLabels=="nodescription")
+    {
+        Ignore=true;
+        return true;
+    }
+
+    size_t Start=0, End=0;
+    do
+    {
+        End = ChannelLabels.find('+', Start);
+        string Current=ChannelLabels.substr(Start, End!=string::npos?End-Start:string::npos);
+        uint32_t Code;
+
+        istringstream iss(Current);
+        iss >> Code;
+        if (!iss.fail() && iss.eof())
+        {
+            Codes.push_back(Code);
+            continue;
+        }
+
+        transform(Current.begin(), Current.end(), Current.begin(), ::tolower);
+        if (Current=="l")
+            Code=1;
+        else if (Current=="r")
+            Code=2;
+        else if (Current=="c")
+            Code=3;
+        else if (Current=="lfe")
+            Code=4;
+        else if (Current=="ls")
+            Code=5;
+        else if (Current=="rs")
+            Code=6;
+        else if (Current=="lc")
+            Code=7;
+        else if (Current=="rc")
+            Code=8;
+        else if (Current=="cs")
+            Code=9;
+        else if (Current=="lsd")
+            Code=10;
+        else if (Current=="rsd")
+            Code=11;
+        else if (Current=="tcs")
+            Code=12;
+        else if (Current=="vhl")
+            Code=13;
+        else if (Current=="vhc")
+            Code=14;
+        else if (Current=="vhr")
+            Code=15;
+        else if (Current=="trs")
+            Code=16;
+        else if (Current=="trs2")
+            Code=17;
+        else if (Current=="trs3")
+            Code=18;
+        else if (Current=="lrs")
+            Code=33;
+        else if (Current=="rrs")
+            Code=34;
+        else if (Current=="lw")
+            Code=35;
+        else if (Current=="rw")
+            Code=36;
+        else if (Current=="lfe2")
+            Code=37;
+        else if (Current=="lt")
+            Code=38;
+        else if (Current=="rt")
+            Code=39;
+        else if (Current=="hearingimpaired")
+            Code=40;
+        else if (Current=="narration")
+            Code=41;
+        else if (Current=="m")
+            Code=42;
+        else if (Current=="dialogcentricmix")
+            Code=43;
+        else if (Current=="centersurrounddirect")
+            Code=44;
+        else if (Current=="haptic")
+            Code=45;
+        else if (Current=="w")
+            Code=200;
+        else if (Current=="x")
+            Code=201;
+        else if (Current=="y")
+            Code=202;
+        else if (Current=="z")
+            Code=203;
+        else if (Current=="m2")
+            Code=204;
+        else if (Current=="s")
+            Code=205;
+        else if (Current=="x2")
+            Code=206;
+        else if (Current=="y2")
+            Code=207;
+        else if (Current=="headphonesleft")
+            Code=301;
+        else if (Current=="headphonesright")
+            Code=302;
+        else if (Current=="clicktrack")
+            Code=304;
+        else if (Current=="foreignlanguage")
+            Code=305;
+        else if (Current=="discrete")
+            Code=400;
+        else if (Current.size()>9 && Current.find("discrete-")==0)
+        {
+            uint32_t Number=0;
+            istringstream iss(Current.substr(9));
+            iss >> Number;
+            if (iss.fail() || !iss.eof() || Number>0xFFFF)
+                return false;
+
+            Code=0x10000+Number;
+        }
+        else
+            return false;
+
+        Codes.push_back(Code);
+
+    } while((Start=ChannelLabels.find_first_not_of('+', End))!=string::npos);
+
+    return true;
+}
+
+//---------------------------------------------------------------------------
+string mp4_chan_ChannelLayout(uint32_t ChannelLayoutCode)
+{
+    switch (ChannelLayoutCode)
+    {
+        case (0<<16) | 0: return "UseChannelDescriptions";
+        case (1<<16) | 0: return "UseChannelBitmap";
+        case (100<<16) | 1: return "Mono";
+        case (101<<16) | 2: return "Stereo";
+        case (102<<16) | 2: return "StereoHeadphones";
+        case (103<<16) | 2: return "MatrixStereo";
+        case (104<<16) | 2: return "MidSide";
+        case (105<<16) | 2: return "XY";
+        case (106<<16) | 2: return "Binaural";
+        case (107<<16) | 4: return "Ambisonic_BFormat";
+        case (108<<16) | 4: return "Quadraphonic";
+        case (109<<16) | 5: return "Pentagonal";
+        case (110<<16) | 6: return "Hexagonal";
+        case (111<<16) | 8: return "Octagonal";
+        case (112<<16) | 8: return "Cube";
+        // MPEG_1.0 is Mono
+        // MPEG_2.0 is Stereo
+        case (113<<16) | 3: return "MPEG_3.0A";
+        case (114<<16) | 3: return "MPEG_3.0B";
+        case (115<<16) | 4: return "MPEG_4.0A";
+        case (116<<16) | 4: return "MPEG_4.0B";
+        case (117<<16) | 5: return "MPEG_5.0A";
+        case (118<<16) | 5: return "MPEG_5.0B";
+        case (119<<16) | 5: return "MPEG_5.0C";
+        case (120<<16) | 5: return "MPEG_5.0D";
+        case (121<<16) | 6: return "MPEG_5.1A";
+        case (122<<16) | 6: return "MPEG_5.1B";
+        case (123<<16) | 6: return "MPEG_5.1C";
+        case (124<<16) | 6: return "MPEG_5.1D";
+        case (125<<16) | 7: return "MPEG_6.1A";
+        case (126<<16) | 8: return "MPEG_7.1A";
+        case (127<<16) | 8: return "MPEG_7.1B";
+        case (128<<16) | 8: return "MPEG_7.1C";
+        case (129<<16) | 8: return "Emagic_7.1";
+        case (130<<16) | 8: return "SMPTE_DTV";
+        // ITU_1.0 is Mono
+        // ITU_2.0 is Stereo
+        case (131<<16) | 3: return "ITU_2.1";
+        case (132<<16) | 4: return "ITU_2.2";
+        // ITU_3.0 is MPEG_3.0A
+        // ITU_3.1 is MPEG_4.0A
+        // ITU_3.2 is MPEG_5.0A
+        // ITU_3.2.1 is MPEG_5.1A
+        // ITU 3.4.1 is MPEG_7.1C
+        // DVD_0 is Mono
+        // DVD_1 is Stereo
+        // DVD_2 is ITU_2.1
+        // DVD_3 is ITU_2.2
+        case (133<<16) | 3: return "DVD_4";
+        case (134<<16) | 4: return "DVD_5";
+        case (135<<16) | 5: return "DVD_6";
+        // DVD_7 is MPEG_3.0A
+        // DVD_8 is MPEG_4.0A
+        // DVD_9 is MPEG_5.0A
+        case (136<<16) | 4: return "DVD_10";
+        case (137<<16) | 5: return "DVD_11";
+        // DVD_12 is MPEG_5.1A
+        // DVD_13 is MPEG_4.0A
+        // DVD_14 is MPEG_5.0A
+        // DVD_15 is DVD_10
+        // DVD_16 is DVD_11
+        // DVD_17 is MPEG_5.1A
+        case (138<<16) | 5: return "DVD_18";
+        // DVD_19 is MPEG_5.0B
+        // DVD_20 is MPEG_5.1B
+        // AudioUnit_4 is Quadraphonic
+        // AudioUnit_5 is Pentagonal
+        // AudioUnit_6 is Hexagonal
+        // AudioUnit_8 is Octagonal
+        // AudioUnit_5.0 is MPEG_5.0B
+        case (139<<16) | 6: return "AudioUnit_6.0";
+        case (140<<16) | 7: return "AudioUnit_7.0";
+        case (148<<16) | 7: return "AudioUnit_7.0Front";
+        // AudioUnit_5.1 is MPEG_5.1A
+        // AudioUnit_6.1 is MPEG_6.1A
+        // AudioUnit_7.1 is MPEG_7.1C
+        // AudioUnit_7.1Front is MPEG_7.1A
+        // AAC_3.0 is MPEG_3.0B
+        // AAC_Quadraphonic is Quadraphonic
+        // AAC_4.0 is MPEG_4.0B
+        // AAC_5.0 is MPEG_5.0D
+        // AAC_5.1 is MPEG_5.1D
+        case (141<<16) | 6: return "AAC_6.0";
+        case (142<<16) | 7: return "AAC_6.1";
+        case (143<<16) | 7: return "AAC_7.0";
+        // AAC_7.1 is MPEG_7.1B
+        case (144<<16) | 8: return "AAC_Octagonal";
+        case (145<<16) | 16: return "TMH_10.2std";
+        case (146<<16) | 21: return "TMH_10.2full";
+        case (149<<16) | 2: return "AC3_1.0.1";
+        case (150<<16) | 3: return "AC3_3.0";
+        case (151<<16) | 4: return "AC3_3.1";
+        case (152<<16) | 4: return "AC3_3.0.1";
+        case (153<<16) | 4: return "AC3_2.1.1";
+        case (154<<16) | 5: return "AC3_3.1.1";
+        default:
+            if ((ChannelLayoutCode & 0xFFFF0000) == 0x00000093)
+                return "DiscreteInOrder-" + to_string(ChannelLayoutCode & 0xFFFF);
+            else if ((ChannelLayoutCode & 0xFFFF0000) == 0xFFFF0000)
+                return "Unknown-" + to_string(ChannelLayoutCode & 0xFFFF);
+    }
+
+    return to_string(ChannelLayoutCode);
+}
+
+//---------------------------------------------------------------------------
+bool mp4_chan_ChannelLayoutCode(string ChannelLayoutLabel, uint32_t &Code)
+{
     Code=0;
 
-    if(ChannelLabel.empty())
+    if(ChannelLayoutLabel.empty())
         return false;
 
-    istringstream iss(ChannelLabel);
+    istringstream iss(ChannelLayoutLabel);
     iss >> Code;
     if (!iss.fail() && iss.eof())
         return true;
 
-    transform( ChannelLabel.begin(), ChannelLabel.end(), ChannelLabel.begin(), ::tolower);
-    if (ChannelLabel=="delete")
-        Delete=true;
-    else if (ChannelLabel=="")
-        Code=0;
-    else if (ChannelLabel=="absent")
-        Ignore=true;
-    else if (ChannelLabel=="nodescription")
-        Ignore=true;
-    else if (ChannelLabel=="multiples")
-        Ignore=true;
-    else if (ChannelLabel=="l")
-        Code=1;
-    else if (ChannelLabel=="r")
-        Code=2;
-    else if (ChannelLabel=="c")
-        Code=3;
-    else if (ChannelLabel=="lfe")
-        Code=4;
-    else if (ChannelLabel=="ls")
-        Code=5;
-    else if (ChannelLabel=="rs")
-        Code=6;
-    else if (ChannelLabel=="lc")
-        Code=7;
-    else if (ChannelLabel=="rc")
-        Code=8;
-    else if (ChannelLabel=="cs")
-        Code=9;
-    else if (ChannelLabel=="lsd")
-        Code=10;
-    else if (ChannelLabel=="rsd")
-        Code=11;
-    else if (ChannelLabel=="tcs")
-        Code=12;
-    else if (ChannelLabel=="vhl")
-        Code=13;
-    else if (ChannelLabel=="vhc")
-        Code=14;
-    else if (ChannelLabel=="vhr")
-        Code=15;
-    else if (ChannelLabel=="trs")
-        Code=16;
-    else if (ChannelLabel=="trs2")
-        Code=17;
-    else if (ChannelLabel=="trs3")
-        Code=18;
-    else if (ChannelLabel=="lrs")
-        Code=33;
-    else if (ChannelLabel=="rrs")
-        Code=34;
-    else if (ChannelLabel=="lw")
-        Code=35;
-    else if (ChannelLabel=="rw")
-        Code=36;
-    else if (ChannelLabel=="lfe2")
-        Code=37;
-    else if (ChannelLabel=="lt")
-        Code=38;
-    else if (ChannelLabel=="rt")
-        Code=39;
-    else if (ChannelLabel=="hearingimpaired")
-        Code=40;
-    else if (ChannelLabel=="narration")
-        Code=41;
-    else if (ChannelLabel=="m")
-        Code=42;
-    else if (ChannelLabel=="dialogcentricmix")
-        Code=43;
-    else if (ChannelLabel=="centersurrounddirect")
-        Code=44;
-    else if (ChannelLabel=="haptic")
-        Code=45;
-    else if (ChannelLabel=="w")
-        Code=200;
-    else if (ChannelLabel=="x")
-        Code=201;
-    else if (ChannelLabel=="y")
-        Code=202;
-    else if (ChannelLabel=="z")
-        Code=203;
-    else if (ChannelLabel=="m2")
-        Code=204;
-    else if (ChannelLabel=="s")
-        Code=205;
-    else if (ChannelLabel=="x2")
-        Code=206;
-    else if (ChannelLabel=="y2")
-        Code=207;
-    else if (ChannelLabel=="headphonesleft")
-        Code=301;
-    else if (ChannelLabel=="headphonesright")
-        Code=302;
-    else if (ChannelLabel=="clicktrack")
-        Code=304;
-    else if (ChannelLabel=="foreignlanguage")
-        Code=305;
-    else if (ChannelLabel=="discrete")
-        Code=400;
-    else if (ChannelLabel.size()>9 && ChannelLabel.find("discrete-")==0)
+    static const unordered_map<std::string, uint32_t> LayoutCodes = {
+        {"usechanneldescriptions", (0<<16) | 0},
+        {"usechannelbitmap", (1<<16) | 0},
+        {"mono", (100<<16) | 1},
+        {"stereo", (101<<16) | 2},
+        {"stereoheadphones", (102<<16) | 2},
+        {"matrixstereo", (103<<16) | 2},
+        {"midside", (104<<16) | 2},
+        {"xy", (105<<16) | 2},
+        {"binaural", (106<<16) | 2},
+        {"ambisonic_bformat", (107<<16) | 4},
+        {"quadraphonic", (108<<16) | 4},
+        {"pentagonal", (109<<16) | 5},
+        {"hexagonal", (110<<16) | 6},
+        {"octagonal", (111<<16) | 8},
+        {"cube", (112<<16) | 8},
+        {"mpeg_1.0", (100<<16) | 1}, // Mono
+        {"mpeg_2.0", (101<<16) | 2}, // Stereo
+        {"mpeg_3.0a", (113<<16) | 3},
+        {"mpeg_3.0b", (114<<16) | 3},
+        {"mpeg_4.0a", (115<<16) | 4},
+        {"mpeg_4.0b", (116<<16) | 4},
+        {"mpeg_5.0a", (117<<16) | 5},
+        {"mpeg_5.0b", (118<<16) | 5},
+        {"mpeg_5.0c", (119<<16) | 5},
+        {"mpeg_5.0d", (120<<16) | 5},
+        {"mpeg_5.1a", (121<<16) | 6},
+        {"mpeg_5.1b", (122<<16) | 6},
+        {"mpeg_5.1c", (123<<16) | 6},
+        {"mpeg_5.1d", (124<<16) | 6},
+        {"mpeg_6.1a", (125<<16) | 7},
+        {"mpeg_7.1a", (126<<16) | 8},
+        {"mpeg_7.1b", (127<<16) | 8},
+        {"mpeg_7.1c", (128<<16) | 8},
+        {"emagic_7.1", (129<<16) | 8},
+        {"smpte_dtv", (130<<16) | 8},
+        {"itu_1.0", (100<<16) | 1}, // Mono
+        {"itu_2.0", (101<<16) | 2}, // Stereo
+        {"itu_2.1", (131<<16) | 3},
+        {"itu_2.2", (132<<16) | 4},
+        {"itu_3.0", (113<<16) | 3}, // MPEG_3.0A
+        {"itu_3.1", (115<<16) | 4}, // MPEG_4.0A
+        {"itu_3.2", (117<<16) | 5}, // MPEG_5.0A
+        {"itu_3.2.1", (121<<16) | 6}, // MPEG_5.1A
+        {"itu_3.4.1", (128<<16) | 8}, // MPEG_7.1C
+        {"dvd_0", (100<<16) | 1}, // Mono
+        {"dvd_1", (101<<16) | 2}, // Stereo
+        {"dvd_2", (131<<16) | 3}, // ITU_2.1
+        {"dvd_3", (132<<16) | 4}, // ITU_2.2
+        {"dvd_4", (133<<16) | 3},
+        {"dvd_5", (134<<16) | 4},
+        {"dvd_6", (135<<16) | 5},
+        {"dvd_7", (113<<16) | 3}, // MPEG_3.0A
+        {"dvd_8", (115<<16) | 4}, // MPEG_4.0A
+        {"dvd_9", (117<<16) | 5}, // MPEG_5.0A
+        {"dvd_10", (136<<16) | 4},
+        {"dvd_11", (137<<16) | 5},
+        {"dvd_12", (121<<16) | 6}, // MPEG_5.1A
+        {"dvd_13", (115<<16) | 4}, // MPEG_4.0A
+        {"dvd_14", (117<<16) | 5}, // MPEG_5.0A
+        {"dvd_15", (136<<16) | 4}, // DVD_10
+        {"dvd_16", (137<<16) | 5}, // DVD_11
+        {"dvd_17", (121<<16) | 6}, // MPEG_5.1A
+        {"dvd_18", (138<<16) | 5},
+        {"dvd_19", (118<<16) | 5}, // MPEG_5.0B
+        {"dvd_20", (122<<16) | 6}, // MPEG_5.1B
+        {"audiounit_4", (108<<16) | 4}, // Quadraphonic
+        {"audiounit_5", (109<<16) | 5}, // Pentagonal
+        {"audiounit_6", (110<<16) | 6}, // Hexagonal
+        {"audiounit_8", (111<<16) | 8}, // Octogonal
+        {"audiounit_5.0", (118<<16) | 5}, // MPEG_5.0B
+        {"audiounit_6.0", (139<<16) | 6},
+        {"audiounit_7.0", (140<<16) | 7},
+        {"audiounit_7.0front", (148<<16) | 7},
+        {"audiounit_5.1", (121<<16) | 6}, // MPEG_5.1A
+        {"audiounit_6.1", (125<<16) | 7}, // MPEG_6.1A
+        {"audiounit_7.1", (128<<16) | 8}, // MPEG_7.1C
+        {"audiounit_7.1front", (126<<16) | 8}, // MPEG_7.1A
+        {"aac_3.0",  (114<<16) | 3}, // MPEG_3.0B
+        {"aac_quadraphonic", (108<<16) | 4}, // Quadraphonic
+        {"aac_4.0", (116<<16) | 4}, // MPEG_4.0B
+        {"aac_5.0", (120<<16) | 5}, // MPEG_5.0D
+        {"aac_5.1", (124<<16) | 6}, // MPEG_5.1D
+        {"aac_6.0", (141<<16) | 6},
+        {"aac_6.1", (142<<16) | 7},
+        {"aac_7.0", (143<<16) | 7},
+        {"aac_7.1", (127<<16) | 8}, // MPEG_7.1B
+        {"aac_octagonal", (144<<16) | 8},
+        {"tmh_10.2std", (145<<16) | 16},
+        {"tmh_10.2full", (146<<16) | 21},
+        {"ac3_1.0.1", (149<<16) | 2},
+        {"ac3_3.0", (150<<16) | 3},
+        {"ac3_3.1", (151<<16) | 4},
+        {"ac3_3.0.1", (152<<16) | 4},
+        {"ac3_2.1.1", (153<<16) | 4},
+        {"ac3_3.1.1", (154<<16) | 5}
+    };
+
+    transform(ChannelLayoutLabel.begin(), ChannelLayoutLabel.end(), ChannelLayoutLabel.begin(), ::tolower);
+    auto It=LayoutCodes.find(ChannelLayoutLabel);
+    if (It!=LayoutCodes.end())
+        Code=It->second;
+    else if (ChannelLayoutLabel.size()>16 && ChannelLayoutLabel.find("discreteinorder-")==0)
     {
         uint32_t Number=0;
-        istringstream iss(ChannelLabel.substr(9));
+        istringstream iss(ChannelLayoutLabel.substr(16));
         iss >> Number;
         if (iss.fail() || !iss.eof() || Number>0xFFFF)
             return false;
 
-        Code=0x10000+Number;
+        Code=(147<<16) | Number;
+    }
+    else if (ChannelLayoutLabel.size()>8 && ChannelLayoutLabel.find("unknown-")==0)
+    {
+        uint32_t Number=0;
+        istringstream iss(ChannelLayoutLabel.substr(8));
+        iss >> Number;
+        if (iss.fail() || !iss.eof() || Number>0xFFFF)
+            return false;
+
+        Code=0xFFFF0000 | Number;
     }
     else
         return false;
@@ -1017,34 +1288,37 @@ string mp4_Handler::Get(const string &Field)
     }
     else if (Field=="chan")
     {
-        stringstream ss;
-        size_t Index=0;
+        json Json;
 
+        size_t Index=0;
         for (size_t Pos=0; Pos<Chunks->Global->moov_trak.size(); Pos++)
         {
             if (!Chunks->Global->moov_trak[Pos]->IsSound)
                 continue;
 
-            if (!ss.str().empty())
-                ss << ",";
+            string Key=to_string(Index++);
+            Json[Key]=json::object();
 
-            ss << Index << "=";
-
-            map<size_t, mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*>::iterator It=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(Pos);
+            auto It=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(Pos);
             if (It!=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end())
             {
-                if (It->second->Descriptions.empty())
-                    ss << "NODESCRIPTION";
-                else if (It->second->Descriptions.size()==1)
-                    ss << It->second->Descriptions[0].ChannelLabel;
-                else
-                    ss << "MULTIPLES";
+                Json[Key]["layout"]=mp4_chan_ChannelLayout(It->second->ChannelLayoutTag);
+
+                string Descriptions;
+                for (auto& Description : It->second->Descriptions)
+                {
+                    if (!Descriptions.empty())
+                        Descriptions+="+";
+
+                    Descriptions+=mp4_chan_ChannelDescription(Description.ChannelLabel);
+                }
+
+                if (!Descriptions.empty())
+                    Json[Key]["descriptions"]=Descriptions;
             }
-            else
-                ss << "ABSENT";
-            Index++;
         }
-        return ss.str();
+
+        return Json.dump();
     }
     else if (Field=="clap")
     {
@@ -1774,25 +2048,22 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
     {
         bool Ok=true;
 
-        size_t Start=0, End=0;
-        do
+        json Json = json::parse(Value, nullptr, false);
+        if (Json.is_discarded() || !Json.is_object())
         {
-            End=Value.find(',', Start);
-            string Current=Value.substr(Start, End!=string::npos?End-Start:string::npos);
+            Ok=false;
+            return Ok;
+        }
 
-            size_t Equal_Pos=Current.find('=');
-            if (!Equal_Pos || Equal_Pos==string::npos || Equal_Pos+1==Current.size())
-            {
-                Ok=false;
-                break;
-            }
-
+        for (auto It : Json.items())
+        {
             uint32_t Track;
-            uint32_t Code;
-            bool Delete=false;
+            uint32_t Layout=0;
+            vector<uint32_t> Codes;
             bool Ignore=false;
+            bool Delete=false;
 
-            istringstream iss(Current.substr(0, Equal_Pos));
+            istringstream iss(It.key());
             iss >> Track;
             if (iss.fail() || !iss.eof())
             {
@@ -1800,10 +2071,34 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
                 break;
             }
 
-            if (!mp4_chan_ChannelCode(Current.substr(Equal_Pos+1), Code, Ignore, Delete))
+            if (It.value().find("descriptions")!=It.value().end())
             {
-                Ok=false;
-                break;
+                if (!It.value()["descriptions"].is_string())
+                {
+                    Ok=false;
+                    break;
+                }
+
+                if (!mp4_chan_ChannelCodes(It.value()["descriptions"], Codes, Ignore, Delete))
+                {
+                    Ok=false;
+                    break;
+                }
+            }
+
+            if (It.value().find("layout")!=It.value().end())
+            {
+                if (!It.value()["layout"].is_string())
+                {
+                    Ok=false;
+                    break;
+                }
+
+                if (!mp4_chan_ChannelLayoutCode(It.value()["layout"], Layout))
+                {
+                    Ok=false;
+                    break;
+                }
             }
 
             size_t Index=0;
@@ -1834,7 +2129,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
                 continue;
             }
 
-            if (!Simulate && !Ignore)
+            if (!Simulate)
             {
                 if (Delete)
                 {
@@ -1843,19 +2138,32 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
                         delete Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index];
                         Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.erase(trak_Index);
                     }
+
+                    continue;
                 }
-                else
+
+                if (It.value().find("layout")!=It.value().end())
                 {
                     if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(trak_Index)==Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end())
                         Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan;
 
-                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->NumberChannelDescriptions=1;
-                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->Descriptions.resize(1);
-                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->Descriptions[0].ChannelLabel=Code;
+                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->ChannelLayoutTag=Layout;
                 }
+
+                if (Layout==0 && !Codes.empty())
+                {
+                    if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(trak_Index)==Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end())
+                        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan;
+
+                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->NumberChannelDescriptions=Codes.size();
+                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->Descriptions.resize(Codes.size());
+                    for (size_t Pos=0; Pos<Codes.size(); Pos++)
+                        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->Descriptions[Pos].ChannelLabel=Codes[Pos];
+                }
+                else if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.find(trak_Index)!=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end())
+                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan[trak_Index]->NumberChannelDescriptions=0;
             }
         }
-        while((Start=Value.find_first_not_of(',', End))!=string::npos);
 
         if (!Simulate && Ok)
             Chunks->Global->moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified=true;

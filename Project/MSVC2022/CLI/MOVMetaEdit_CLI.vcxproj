@@ -91,6 +91,7 @@
     <ClInclude Include="..\..\..\Source\movedit_atomread.h" />
     <ClInclude Include="..\..\..\Source\movedit_structure.h" />
     <ClInclude Include="..\..\..\Source\ThirdParty\tfsxml\tfsxml.h" />
+    <ClInclude Include="..\..\..\Source\ThirdParty\json\json.hpp" />
     <ClInclude Include="..\..\..\Source\ZenLib\BitStream.h" />
     <ClInclude Include="..\..\..\Source\ZenLib\BitStream_Fast.h" />
     <ClInclude Include="..\..\..\Source\ZenLib\BitStream_LE.h" />

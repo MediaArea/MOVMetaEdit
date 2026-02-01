@@ -25,6 +25,11 @@ SetCompressor /FINAL /SOLID lzma
 !define MUI_ABORTWARNING
 !define MUI_ICON "..\..\Source\Resource\Image\Icon.ico"
 
+; Uninstaller signing
+!ifdef EXPORT_UNINST
+  !uninstfinalize 'copy /Y "%1" "../../Release/MOVMetaEdit_GUI_${PRODUCT_VERSION}_Windows_x64-uninst.exe"'
+!endif
+
 ; Language Selection Dialog Settings
 !define MUI_LANGDLL_REGISTRY_ROOT "${PRODUCT_UNINST_ROOT_KEY}"
 !define MUI_LANGDLL_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
@@ -35,6 +40,7 @@ SetCompressor /FINAL /SOLID lzma
 !insertmacro MUI_PAGE_INSTFILES
 !define MUI_WELCOMEFINISHPAGE_BITMAP "..\..\Source\Resource\Image\Windows_Finish.bmp"
 !insertmacro MUI_PAGE_FINISH
+
 ; Uninstaller pages
 !insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
@@ -59,7 +65,7 @@ BrandingText " "
 ; Modern UI end
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "..\..\MOVMetaEdit_GUI_${PRODUCT_VERSION}_Windows_x64.exe"
+OutFile "..\..\Release\MOVMetaEdit_GUI_${PRODUCT_VERSION}_Windows_x64.exe"
 InstallDir "$PROGRAMFILES\${PRODUCT_NAME}"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails nevershow
@@ -80,8 +86,6 @@ Section "SectionPrincipale" SEC01
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}.lnk" "$INSTDIR\${PRODUCT_NAME_EXE}" "" "" "" "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}"
   SetOutPath "$INSTDIR"
   File "/oname=${PRODUCT_NAME_EXE}" "..\..\Project\Qt\x64\${PRODUCT_NAME_EXE}"
-  File "..\..\Project\Qt\x64\libeay32.dll"
-  File "..\..\Project\Qt\x64\ssleay32.dll"
   File "/oname=History.txt" "..\..\History_GUI.txt"
   File "..\..\License.html"
 
@@ -96,7 +100,11 @@ Section "SectionPrincipale" SEC01
 SectionEnd
 
 Section -Post
-  WriteUninstaller "$INSTDIR\uninst.exe"
+  !if /FileExists "..\..\Release\MOVMetaEdit_GUI_${PRODUCT_VERSION}_Windows_x64-uninst.exe"
+    File "/oname=$INSTDIR\uninst.exe" "..\..\Release\MOVMetaEdit_GUI_${PRODUCT_VERSION}_Windows_x64-uninst.exe"
+  !else
+    WriteUninstaller "$INSTDIR\uninst.exe"
+  !endif
   WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\${PRODUCT_NAME_EXE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
@@ -110,11 +118,12 @@ Section Uninstall
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\${PRODUCT_NAME_EXE}"
-  Delete "$INSTDIR\libeay32.dll"
-  Delete "$INSTDIR\ssleay32.dll"
   Delete "$INSTDIR\History.txt"
   Delete "$INSTDIR\License.html"
   Delete "$SMPROGRAMS\${PRODUCT_NAME}.lnk"
+  ; Legacy files
+  Delete "$INSTDIR\libeay32.dll"
+  Delete "$INSTDIR\ssleay32.dll"
   RMDir "$INSTDIR"
 
   SetRegView 64

@@ -121,7 +121,6 @@
     <ProjectGuid>{4B0470F1-7EEE-4EB1-B542-33C8D32BCDE3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>movedit</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
     <ProjectName>MOVMetaEdit_CLI</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

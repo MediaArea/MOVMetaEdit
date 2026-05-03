@@ -75,6 +75,11 @@ SOURCES += \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stco.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsc.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsz.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stts.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_tmcd.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxxVideo.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_clap.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_colr.cpp \
@@ -87,12 +92,22 @@ SOURCES += \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxx_chan.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_stbl_stsd_xxxxUnknown.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_mdhd.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_dinf.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_dinf_dref.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_dinf_dref_url.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_vmhd.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_smhd.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_gmhd.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_hdlr.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_hdlr.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_gmhd_gmin.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_gmhd_text.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_gmhd_tmcd.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_mdia_minf_gmhd_tmcd_tcmi.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_tref.cpp \
         ../../Source/Common/mp4/mp4_moov_trak_tref_tmcd.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_edts.cpp \
+        ../../Source/Common/mp4/mp4_moov_trak_edts_elst.cpp \
         ../../Source/Common/mp4/mp4_moov_meta.cpp \
         ../../Source/Common/mp4/mp4_moov_meta_hdlr.cpp \
         ../../Source/Common/mp4/mp4_moov_meta_ilst.cpp \

@@ -687,6 +687,46 @@ bool mp4_mdhd_LanguageCode(string LanguageLabel, uint16_t &Code, bool &Ignore, b
     return false;
 }
 
+//---------------------------------------------------------------------------
+int64u stts_SamplesFromDuration(const vector<mp4_Base::global::block_moov_trak_mdia_minf_stbl_stts::entry>& SttsEntries, int64u Duration)
+{
+    int64u RemainingTime=Duration;
+    int64u SampleCount=0;
+    for (size_t i=0; i<SttsEntries.size(); i++)
+    {
+        if (!SttsEntries[i].SampleDuration)
+            return (int64u)-1;
+        int64u EntryDuration=(int64u)SttsEntries[i].SampleCount*SttsEntries[i].SampleDuration;
+        if (RemainingTime>=EntryDuration)
+        {
+            SampleCount+=SttsEntries[i].SampleCount;
+            RemainingTime-=EntryDuration;
+            continue;
+        }
+        SampleCount+=RemainingTime/SttsEntries[i].SampleDuration;
+        RemainingTime=0;
+        break;
+    }
+    if (RemainingTime && !SttsEntries.empty())
+    {
+        int64u LastSampleDuration=SttsEntries.back().SampleDuration;
+        if (!LastSampleDuration)
+            return (int64u)-1;
+        SampleCount+=RemainingTime/LastSampleDuration;
+    }
+    return SampleCount;
+}
+
+//---------------------------------------------------------------------------
+int64u stts_TotalSampleDuration(const vector<mp4_Base::global::block_moov_trak_mdia_minf_stbl_stts::entry>& SttsEntries)
+{
+    int64u TotalDuration=0;
+    for (size_t i=0; i<SttsEntries.size(); i++)
+        TotalDuration+=(int64u)SttsEntries[i].SampleCount*SttsEntries[i].SampleDuration;
+
+    return TotalDuration;
+}
+
 //***************************************************************************
 // Constructor/Destructor
 //***************************************************************************
@@ -813,6 +853,233 @@ bool mp4_Handler::Save()
     if (Chunks->Global->moov_meta_ilst_Modified)
         Chunks->Modify(Elements::moov, Elements::moov_meta, Elements::moov_meta_ilst);
 
+
+    // Modify/add tmcd timecode track for first video track
+    if (Chunks->Global->moov_trak_tref_tmcd.count(Chunks->Global->moov_trak_FirstVideoIndex) &&
+        Chunks->Global->moov_trak_tref_tmcd[Chunks->Global->moov_trak_FirstVideoIndex]->TrackID==(int32u)-1)
+    {
+        size_t trak_Index=Chunks->Global->moov_trak.size();
+
+        for (size_t Pos=0; Pos<Chunks->Subs.size(); Pos++)
+        {
+            if (Chunks->Subs[Pos]->Chunk.Header.Name==Elements::moov)
+            {
+                Chunks->Chunk.Content.IsModified=true;
+                Chunks->Chunk.Content.Size_IsModified=true;
+                Chunks->Subs[Pos]->Chunk.Content.IsModified=true;
+                Chunks->Subs[Pos]->Chunk.Content.Size_IsModified=true;
+
+                // trak
+                size_t NewChunkPos=Chunks->Subs[Pos]->Insert_Internal(Elements::moov_trak);
+                if (NewChunkPos>=Chunks->Subs[Pos]->Subs.size())
+                    break;
+
+                // tkhd
+                mp4_Base::global::block_moov_trak_tkhd* tkhd=Chunks->Global->moov_trak_tkhd[(size_t)-1];
+                Chunks->Global->moov_trak_tkhd.erase((size_t)-1);
+                tkhd->TrackID=(int32u)(trak_Index+1);
+                Chunks->Global->moov_trak_tkhd[trak_Index]=tkhd;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_tkhd);
+                // elst
+                mp4_Base::global::block_moov_trak_edts_elst* elst=Chunks->Global->moov_trak_edts_elst[(int64u)-1];
+                Chunks->Global->moov_trak_edts_elst.erase((int64u)-1);
+                Chunks->Global->moov_trak_edts_elst[trak_Index]=elst;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_edts,
+                                                             Elements::moov_trak_edts_elst);
+
+                // mdhd
+                mp4_Base::global::block_moov_trak_mdia_mdhd* mdhd=Chunks->Global->moov_trak_mdia_mdhd[(size_t)-1];
+                Chunks->Global->moov_trak_mdia_mdhd.erase((size_t)-1);
+                Chunks->Global->moov_trak_mdia_mdhd[trak_Index]=mdhd;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_mdhd);
+
+                // hdlr (mdia)
+                mp4_Base::global::block_moov_trak_xxxx_hdlr* mdia_hdlr=Chunks->Global->moov_trak_mdia_hdlr[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_hdlr.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_hdlr[trak_Index]=mdia_hdlr;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_hdlr);
+
+                // gmin
+                mp4_Base::global::block_moov_trak_mdia_minf_gmhd_gmin* gmin=Chunks->Global->moov_trak_mdia_minf_gmhd_gmin[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_gmhd_gmin.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_gmhd_gmin[trak_Index]=gmin;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_gmhd,
+                                                             Elements::moov_trak_mdia_minf_gmhd_gmin);
+
+                // text
+                mp4_Base::global::block_moov_trak_mdia_minf_gmhd_text* text=Chunks->Global->moov_trak_mdia_minf_gmhd_text[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_gmhd_text.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_gmhd_text[trak_Index]=text;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_gmhd,
+                                                             Elements::moov_trak_mdia_minf_gmhd_text);
+
+                //hdlr (minf)
+                mp4_Base::global::block_moov_trak_xxxx_hdlr* minf_hdlr=Chunks->Global->moov_trak_mdia_minf_hdlr[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_hdlr.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_hdlr[trak_Index]=minf_hdlr;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_hdlr);
+
+                // dref
+                mp4_Base::global::block_moov_trak_mdia_minf_dinf_dref* dref=Chunks->Global->moov_trak_mdia_minf_dinf_dref[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_dinf_dref.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_dinf_dref[trak_Index]=dref;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_dinf,
+                                                             Elements::moov_trak_mdia_minf_dinf_dref);
+
+                // url
+                mp4_Base::global::block_moov_trak_mdia_minf_dinf_dref_url* url=Chunks->Global->moov_trak_mdia_minf_dinf_dref_url[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_dinf_dref_url.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_dinf_dref_url[trak_Index]=url;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_dinf,
+                                                             Elements::moov_trak_mdia_minf_dinf_dref,
+                                                             Elements::moov_trak_mdia_minf_dinf_dref_url);
+
+                // tcmi
+                mp4_Base::global::block_moov_trak_mdia_minf_gmhd_tmcd_tcmi* tcmi=Chunks->Global->moov_trak_mdia_minf_gmhd_tmcd_tcmi[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_gmhd_tmcd_tcmi.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_gmhd_tmcd_tcmi[trak_Index]=tcmi;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_gmhd,
+                                                             Elements::moov_trak_mdia_minf_gmhd_tmcd,
+                                                             Elements::moov_trak_mdia_minf_gmhd_tmcd_tcmi);
+
+                // stsd
+                mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd* stsd=Chunks->Global->moov_trak_mdia_minf_stbl_stsd[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd[trak_Index]=stsd;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_stbl,
+                                                             Elements::moov_trak_mdia_minf_stbl_stsd);
+
+                // tmcd (sample description)
+                mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_tmcd* stsd_tmcd=Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[trak_Index]=stsd_tmcd;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_stbl,
+                                                             Elements::moov_trak_mdia_minf_stbl_stsd,
+                                                             Elements::moov_trak_mdia_minf_stbl_stsd_tmcd);
+
+                // stts
+                mp4_Base::global::block_moov_trak_mdia_minf_stbl_stts* stts=Chunks->Global->moov_trak_mdia_minf_stbl_stts[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_stbl_stts.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_stbl_stts[trak_Index]=stts;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_stbl,
+                                                             Elements::moov_trak_mdia_minf_stbl_stts);
+
+                // stsc
+                mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsc* stsc=Chunks->Global->moov_trak_mdia_minf_stbl_stsc[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsc.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsc[trak_Index]=stsc;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_stbl,
+                                                             Elements::moov_trak_mdia_minf_stbl_stsc);
+
+                // stsz
+                mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsz* stsz=Chunks->Global->moov_trak_mdia_minf_stbl_stsz[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsz.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsz[trak_Index]=stsz;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_stbl,
+                                                             Elements::moov_trak_mdia_minf_stbl_stsz);
+
+                // stco
+                mp4_Base::global::block_moov_trak_mdia_minf_stbl_stco* stco=Chunks->Global->moov_trak_mdia_minf_stbl_stco[(int64u)-1];
+                Chunks->Global->moov_trak_mdia_minf_stbl_stco.erase((int64u)-1);
+                Chunks->Global->moov_trak_mdia_minf_stbl_stco[trak_Index]=stco;
+
+                Chunks->Subs[Pos]->Subs[NewChunkPos]->Modify(Elements::moov_trak_mdia,
+                                                             Elements::moov_trak_mdia_minf,
+                                                             Elements::moov_trak_mdia_minf_stbl,
+                                                             Elements::moov_trak_mdia_minf_stbl_stco);
+
+                break;
+            }
+        }
+
+        if (trak_Index==Chunks->Global->moov_trak.size())
+        {
+            //TODO: error
+        }
+        Chunks->Global->moov_trak_tref_tmcd[Chunks->Global->moov_trak_FirstVideoIndex]->TrackID=trak_Index+1;
+    }
+    else if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd_Modified)
+    {
+        size_t trak_Index=0;
+        bool Found=false;
+        for (size_t Pos=0; Pos<Chunks->Subs.size(); Pos++)
+        {
+            if (Chunks->Subs[Pos]->Chunk.Header.Name==Elements::moov)
+            {
+                size_t TimeCodeTrack_Index=Chunks->Global->moov_trak_tref_tmcd[Chunks->Global->moov_trak_FirstVideoIndex]->TrackID-1;
+                for (size_t Pos2=0; Pos2<Chunks->Subs[Pos]->Subs.size(); Pos2++)
+                {
+                    if (Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Header.Name==Elements::moov_trak)
+                    {
+                        if (trak_Index==TimeCodeTrack_Index)
+                        {
+                            Chunks->Chunk.Content.IsModified=true;
+                            Chunks->Chunk.Content.Size_IsModified=true;
+                            Chunks->Subs[Pos]->Chunk.Content.IsModified=true;
+                            Chunks->Subs[Pos]->Chunk.Content.Size_IsModified=true;
+                            Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Content.IsModified=true;
+                            Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Content.Size_IsModified=true;
+                            Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_mdia,
+                                                                  Elements::moov_trak_mdia_minf,
+                                                                  Elements::moov_trak_mdia_minf_stbl,
+                                                                  Elements::moov_trak_mdia_minf_stbl_stsd,
+                                                                  Elements::moov_trak_mdia_minf_stbl_stsd_tmcd);
+                            break;
+                        }
+                        trak_Index++;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    // Modify the Position in the mdat chunk
+    if (Chunks->Global->mdat->Position!=(int64u)-1)
+    {
+        Chunks->Chunk.Content.IsModified=true;
+        Chunks->Chunk.Content.Size_IsModified=true;
+    }
+
     //Modify fist video track
     {
         size_t trak_Index=0;
@@ -828,6 +1095,12 @@ bool mp4_Handler::Save()
                         if (trak_Index<Chunks->Global->moov_trak.size() && Chunks->Global->moov_trak[trak_Index]->IsVideo)
                         {
                             bool Modified=false;
+
+                            if (Chunks->Global->moov_trak_tkhd_Modified)
+                            {
+                                Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_tkhd);
+                                Modified=true;
+                            }
                             if (Chunks->Global->moov_trak_tapt_clef_Modified)
                             {
                                 Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_tapt, Elements::moov_trak_tapt_clef);
@@ -841,6 +1114,11 @@ bool mp4_Handler::Save()
                             if (Chunks->Global->moov_trak_tapt_enof_Modified)
                             {
                                 Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_tapt, Elements::moov_trak_tapt_enof);
+                                Modified=true;
+                            }
+                            if (Chunks->Global->moov_trak_tref_tmcd_Modified)
+                            {
+                                Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_tref, Elements::moov_trak_tref_tmcd);
                                 Modified=true;
                             }
                             if (Chunks->Global->moov_trak[trak_Index]->moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present)
@@ -931,6 +1209,7 @@ bool mp4_Handler::Save()
                                     Chunks->Subs[Pos]->Chunk.Content.Size_IsModified=true;
                                     Chunks->Chunk.Content.IsModified=true;
                                     Chunks->Chunk.Content.Size_IsModified=true;
+                                    break;
                                 }
                             }
                         }
@@ -938,8 +1217,7 @@ bool mp4_Handler::Save()
 
                     if (Chunks->Subs[Pos]->Subs[Pos2]->Chunk.Header.Name==Elements::moov_trak)
                     {
-                        Chunks->Subs[Pos]->Subs[Pos2]->Modify(Elements::moov_trak_tref, Elements::moov_trak_tref_tmcd);
-                        if (trak_Index<Chunks->Global->moov_trak.size() && Chunks->Global->moov_trak[trak_Index]->moov_trak_mdia_minf_stbl_stsd_tmcd_Present)
+                        if (trak_Index<Chunks->Global->moov_trak.size() && Chunks->Global->moov_trak[trak_Index]->IsTimeCode)
                         {
                             delete Chunks->Subs[Pos]->Subs[Pos2];
                             Chunks->Subs[Pos]->Subs.erase(Chunks->Subs[Pos]->Subs.begin()+Pos2);
@@ -955,8 +1233,6 @@ bool mp4_Handler::Save()
         }
     }
 
-    if (Chunks->Global->moov_trak_tkhd_Modified)
-        Chunks->Modify(Elements::moov, Elements::moov_trak, Elements::moov_trak_tkhd);
     // Modify mdhd in all audio tracks
     if (Chunks->Global->moov_trak_mdia_mdhd_Modified)
     {
@@ -1017,6 +1293,7 @@ bool mp4_Handler::Save()
             }
         }
     }
+
     //Opening files
     if (!Chunks->Global->In.Open(Chunks->Global->File_Name))
     {
@@ -1257,10 +1534,105 @@ string mp4_Handler::Get(const string &Field)
     }
     else if (Field=="tmcd")
     {
-        if (Chunks->Global->TimeCode_Track_Present && !Chunks->Global->TimeCode_Track_Delete)
-            return "Present";
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd.empty() || Chunks->Global->TimeCode_Track_Delete)
+            return string();
 
-        return string();
+        {
+            size_t FirstVideoIndex=Chunks->Global->moov_trak_FirstVideoIndex;
+            if (FirstVideoIndex==(size_t)-1)
+                return "Present";
+
+            if (Chunks->Global->moov_trak_tref_tmcd.find(FirstVideoIndex)==Chunks->Global->moov_trak_tref_tmcd.end())
+                return "Present";
+
+            size_t TimeCodeTrack_Index=Chunks->Global->moov_trak_tref_tmcd[FirstVideoIndex]->TrackID-1;
+
+            if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd.find(TimeCodeTrack_Index)==Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd.end())
+                return "Present";
+
+            if (Chunks->Global->moov_trak_mdia_minf_stbl_stco.find(TimeCodeTrack_Index)==Chunks->Global->moov_trak_mdia_minf_stbl_stco.end())
+                return "Present";
+
+            if (Chunks->Global->moov_trak_mdia_minf_stbl_stco[TimeCodeTrack_Index]->Entries.size()!=1)
+                return "Present";
+
+            if (Chunks->Global->moov_trak_mdia_mdhd.find(FirstVideoIndex)==Chunks->Global->moov_trak_mdia_mdhd.end())
+                return "Present";
+
+            if (Chunks->Global->moov_trak_mdia_minf_stbl_stts.find(FirstVideoIndex)==Chunks->Global->moov_trak_mdia_minf_stbl_stts.end())
+                return "Present";
+
+            const auto& SttsEntries=Chunks->Global->moov_trak_mdia_minf_stbl_stts[FirstVideoIndex]->Entries;
+            if (SttsEntries.empty() || !SttsEntries[0].SampleDuration)
+                return "Present";
+
+            int32u VideoTimeScale=Chunks->Global->moov_trak_mdia_mdhd[FirstVideoIndex]->TimeScale;
+            if (!VideoTimeScale)
+                return "Present";
+
+            // Derive fps from stts
+            int64u SamplesInTenSeconds=stts_SamplesFromDuration(SttsEntries, (int64u)VideoTimeScale*10);
+            if (SamplesInTenSeconds==(int64u)-1)
+                return "Present";
+            int32u FramesPerSecond=(int32u)((SamplesInTenSeconds+5)/10);
+            if (!FramesPerSecond)
+                return "Present";
+
+            // Read the frame count from file
+            int64u FileOffset=Chunks->Global->moov_trak_mdia_minf_stbl_stco[TimeCodeTrack_Index]->Entries[0];
+            if (FileOffset+4 > Chunks->Global->File_Size)
+                return "Present";
+
+            File F;
+            if (!F.Open(Chunks->Global->File_Name))
+                return "Present";
+            if (!F.GoTo(FileOffset))
+                return "Present";
+            uint8_t Buf[4];
+            if (F.Read(Buf, 4)!=4)
+                return "Present";
+            int32u FrameCount=((int32u)Buf[0]<<24)|((int32u)Buf[1]<<16)|((int32u)Buf[2]<<8)|Buf[3];
+
+            bool IsDropFrame=(Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[TimeCodeTrack_Index]->Flags & 0x01)!=0;
+
+            // Decode frame count to HH:MM:SS:FF
+            int32u H, M, S, F_val;
+            if (IsDropFrame)
+            {
+                // SMPTE drop-frame decode
+                int32u DroppedPerMinute=FramesPerSecond/15;
+                int32u FramesPerNonDropTenMin=(int32u)FramesPerSecond*600-9*DroppedPerMinute;
+                int32u D=FrameCount/FramesPerNonDropTenMin;
+                int32u M_rem=FrameCount%FramesPerNonDropTenMin;
+                int32u FramesPerNonDropMin=(int32u)FramesPerSecond*60-DroppedPerMinute;
+                int32u M_unit;
+                if (M_rem < DroppedPerMinute)
+                    M_unit=0;
+                else
+                    M_unit=1+(M_rem-DroppedPerMinute)/FramesPerNonDropMin;
+                int32u AdjustedFrame=FrameCount+DroppedPerMinute*(9*D+M_unit);
+                H=AdjustedFrame/(FramesPerSecond*3600);
+                M=(AdjustedFrame/(FramesPerSecond*60))%60;
+                S=(AdjustedFrame/FramesPerSecond)%60;
+                F_val=AdjustedFrame%FramesPerSecond;
+            }
+            else
+            {
+                H=FrameCount/(FramesPerSecond*3600);
+                M=(FrameCount/(FramesPerSecond*60))%60;
+                S=(FrameCount/FramesPerSecond)%60;
+                F_val=FrameCount%FramesPerSecond;
+            }
+
+            stringstream ss;
+            ss << setw(2) << setfill('0') << H << ":"
+               << setw(2) << setfill('0') << M << ":"
+               << setw(2) << setfill('0') << S << (IsDropFrame ? ";" : ":")
+               << setw(2) << setfill('0') << F_val;
+            return ss.str();
+        }
+
+        return "Present";
     }
     else if (Field=="lang")
     {
@@ -1343,10 +1715,11 @@ string mp4_Handler::Get(const string &Field)
     }
     else if (Field=="wscale")
     {
-        if (!Chunks->Global->moov_trak_tkhd)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 ||
+            !Chunks->Global->moov_trak_tkhd.count(Chunks->Global->moov_trak_FirstVideoIndex))
             return string();
 
-        stringstream ss; ss << setprecision(3) << fixed << Chunks->Global->moov_trak_tkhd->Width_Scale;
+        stringstream ss; ss << setprecision(3) << fixed << Chunks->Global->moov_trak_tkhd[Chunks->Global->moov_trak_FirstVideoIndex]->Matrix[0];
         return ss.str();
     }
 
@@ -1964,6 +2337,301 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
         return true;
     }
 
+    else if (Field=="tmcd")
+    {
+        size_t TimeCodeTrack_Index=(size_t)-1;
+
+        if (!Chunks->Global->mdat)
+        {
+            PerFile_Error << "Cannot set tmcd; mdat box is not present";
+            return false;
+        }
+
+        if (Chunks->Global->moov_trak_mdia_minf_stbl_stts.find(Chunks->Global->moov_trak_FirstVideoIndex)==Chunks->Global->moov_trak_mdia_minf_stbl_stts.end())
+        {
+            PerFile_Error << "Cannot set tmcd; stts box is not present in the video track";
+            return false;
+        }
+
+        if (Chunks->Global->moov_trak_mdia_mdhd.find(Chunks->Global->moov_trak_FirstVideoIndex)==Chunks->Global->moov_trak_mdia_mdhd.end())
+        {
+            PerFile_Error << "Cannot set tmcd; mdhd box is not present in the video track";
+            return false;
+        }
+
+        if (!Chunks->Global->moov_trak_mdia_mdhd[Chunks->Global->moov_trak_FirstVideoIndex]->TimeScale)
+        {
+            PerFile_Error << "Cannot set tmcd; invalid time scale in mdhd box of the video track";
+            return false;
+        }
+
+        if (Chunks->Global->moov_trak_tref_tmcd.find(Chunks->Global->moov_trak_FirstVideoIndex)!=Chunks->Global->moov_trak_tref_tmcd.end())
+        {
+            TimeCodeTrack_Index=Chunks->Global->moov_trak_tref_tmcd[Chunks->Global->moov_trak_FirstVideoIndex]->TrackID-1;
+
+            if (Chunks->Global->moov_trak.size()<=TimeCodeTrack_Index || !Chunks->Global->moov_trak[TimeCodeTrack_Index]->IsTimeCode)
+            {
+                PerFile_Error << "Cannot set tmcd; invalid timecode track referenced in tref box";
+                return false;
+            }
+
+            if (Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd.find(TimeCodeTrack_Index)==Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd.end())
+            {
+                PerFile_Error << "Cannot set tmcd; stsd box is not present in the timecode track";
+                return false;
+            }
+            if (Chunks->Global->moov_trak_mdia_minf_stbl_stsz.find(TimeCodeTrack_Index)==Chunks->Global->moov_trak_mdia_minf_stbl_stsz.end())
+            {
+                PerFile_Error << "Cannot set tmcd; stsz box is not present in the timecode track";
+                return false;
+            }
+
+            if(Chunks->Global->moov_trak_mdia_minf_stbl_stco.find(TimeCodeTrack_Index)==Chunks->Global->moov_trak_mdia_minf_stbl_stco.end())
+            {
+                PerFile_Error << "Cannot set tmcd; stco box is not present in the timecode track";
+                return false;
+            }
+
+            if (Chunks->Global->moov_trak_mdia_minf_stbl_stsz[TimeCodeTrack_Index]->SampleCount!=1)
+            {
+                PerFile_Error << "Cannot set tmcd; multiples samples in the stsz box of the timecode track are not supported";
+                return false;
+            }
+
+            if (Chunks->Global->moov_trak_mdia_minf_stbl_stts[Chunks->Global->moov_trak_FirstVideoIndex]->Entries.empty())
+            {
+                PerFile_Error << "Cannot set tmcd; stts box of the video track must contain at least one entry";
+                return false;
+            }
+
+            if (Chunks->Global->moov_trak_mdia_minf_stbl_stco[TimeCodeTrack_Index]->Entries.size()!=1)
+            {
+                PerFile_Error << "Cannot set tmcd; stco box of the timecode track must contain exactly one entry";
+                return false;
+            }
+
+            if (Chunks->Global->moov_trak_mdia_minf_stbl_stco[TimeCodeTrack_Index]->Entries[0] < Chunks->Global->mdat->File_Offset_Begin ||
+                Chunks->Global->moov_trak_mdia_minf_stbl_stco[TimeCodeTrack_Index]->Entries[0]+4 > Chunks->Global->mdat->File_Offset_End)
+            {
+                PerFile_Error << "Cannot set tmcd; stco entry of the timecode track points outside of the mdat box";
+                return false;
+            }
+        }
+        else if (Chunks->Global->mdat->Count>1)
+        {
+            PerFile_Error << "Cannot set tmcd; creating a timecode track is not supported when multiple mdat boxes are present";
+            return false;
+        }
+
+        uint8_t Hours=0, Minutes=0, Seconds=0, Frames=0;
+        bool IsDropFrame=false;
+        char Sep1, Sep2, Sep3;
+        int Parsed = sscanf(Value.c_str(), "%hhu%c%hhu%c%hhu%c%hhu", &Hours, &Sep1, &Minutes, &Sep2, &Seconds, &Sep3, &Frames);
+        
+        if (Parsed != 7)
+        {
+            PerFile_Error << "Cannot set tmcd; invalid timecode format";
+            return false;
+        }
+
+        // First two separators must be ':'
+        if (Sep1 != ':' || Sep2 != ':')
+        {
+            PerFile_Error << "Cannot set tmcd; invalid timecode format";
+            return false;
+        }
+
+        // Third separator can be ':', ';', or '.'
+        // ';' and '.' indicate drop frame
+        if (Sep3 != ':' && Sep3 != ';' && Sep3 != '.')
+        {
+            PerFile_Error << "Cannot set tmcd; invalid timecode format";
+            return false;
+        }
+
+        IsDropFrame = (Sep3 == ';' || Sep3 == '.');
+
+        // Basic validation of ranges
+        if (Minutes >= 60 || Seconds >= 60 || Frames >= 100)
+        {
+            PerFile_Error << "Cannot set tmcd; invalid timecode format";
+            return false;
+        }
+
+
+        int32u VideoTimeScale=Chunks->Global->moov_trak_mdia_mdhd[Chunks->Global->moov_trak_FirstVideoIndex]->TimeScale;
+        const vector<mp4_Base::global::block_moov_trak_mdia_minf_stbl_stts::entry>& SttsEntries=Chunks->Global->moov_trak_mdia_minf_stbl_stts[Chunks->Global->moov_trak_FirstVideoIndex]->Entries;
+
+        int64u SamplesInTenSeconds=stts_SamplesFromDuration(SttsEntries, (int64u)VideoTimeScale*10);
+        if (SamplesInTenSeconds==(int64u)-1)
+        {
+             PerFile_Error << "Cannot set tmcd; internal error";
+            return false;
+        }
+
+        int32u FramesPerSecond=(int32u)((SamplesInTenSeconds+5)/10); // Rounded nominal fps from stts
+        if (!FramesPerSecond || Frames>=FramesPerSecond)
+        {
+            PerFile_Error << "Cannot set tmcd; internal error";
+            return false;
+        }
+
+        int64u TotalMinutes=(int64u)Hours*60+Minutes;
+        int64u TimeCodeFrameNumber=((int64u)Hours*3600+Minutes*60+Seconds)*FramesPerSecond+Frames;
+        if (IsDropFrame)
+        {
+            int64u DroppedPerMinute=FramesPerSecond/15; // 2 for 30 fps, 4 for 60 fps
+            if (!DroppedPerMinute)
+            {
+                PerFile_Error << "Cannot set tmcd; internal error";
+                return false;
+            }
+
+            TimeCodeFrameNumber-=DroppedPerMinute*(TotalMinutes-TotalMinutes/10);
+        }
+
+        if (TimeCodeFrameNumber>0xFFFFFFFF)
+        {
+            PerFile_Error << "Cannot set tmcd; internal error";
+            return false;
+        }
+
+        if (!Simulate)
+        {
+            const int32u flags_DropFrameMask=0x00000001;
+            Chunks->Global->mdat->Position=(int32u)TimeCodeFrameNumber;
+
+            if (Chunks->Global->moov_trak_tref_tmcd.find(Chunks->Global->moov_trak_FirstVideoIndex)==Chunks->Global->moov_trak_tref_tmcd.end())
+            {
+                Chunks->Global->moov_trak_tref_tmcd[Chunks->Global->moov_trak_FirstVideoIndex]=new mp4_Base::global::block_moov_trak_tref_tmcd();
+
+                Chunks->Global->moov_trak_tref_tmcd[Chunks->Global->moov_trak_FirstVideoIndex]->TrackID=(int32u)-1; // This will trigger the creation of a new timecode track during the save process
+                Chunks->Global->moov_trak_tref_tmcd_Modified=true;
+
+                int64u TotalSampleDuration=stts_TotalSampleDuration(SttsEntries);
+
+                // mdat
+                Chunks->Global->mdat->Position_Offset=Chunks->Global->mdat->File_Offset_End;
+
+                // tkhd
+                Chunks->Global->moov_trak_tkhd[(size_t)-1]=new mp4_Base::global::block_moov_trak_tkhd();
+                Chunks->Global->moov_trak_tkhd[(size_t)-1]->Flags=0x00000002;
+                Chunks->Global->moov_trak_tkhd[(size_t)-1]->TrackID=(int32u)-1; // Updated later
+                Chunks->Global->moov_trak_tkhd[(size_t)-1]->Duration=Chunks->Global->moov_trak_tkhd[Chunks->Global->moov_trak_FirstVideoIndex]->Duration;
+                Chunks->Global->moov_trak_tkhd_Modified=true;
+
+                // elst
+                Chunks->Global->moov_trak_edts_elst[(int64u)-1]=new mp4_Base::global::block_moov_trak_edts_elst();
+                Chunks->Global->moov_trak_edts_elst[(int64u)-1]->Entries.push_back(mp4_Base::global::block_moov_trak_edts_elst::entry());
+                Chunks->Global->moov_trak_edts_elst[(int64u)-1]->Entries.back().TrackDuration=(int32u)TotalSampleDuration;
+                Chunks->Global->moov_trak_edts_elst[(int64u)-1]->Entries.back().MediaTime=0;
+                Chunks->Global->moov_trak_edts_elst[(int64u)-1]->Entries.back().MediaRateInteger=1;
+                Chunks->Global->moov_trak_edts_elst[(int64u)-1]->Entries.back().MediaRateFraction=0;
+                Chunks->Global->moov_trak_edts_elst_Modified=true;
+
+                // mdhd
+                Chunks->Global->moov_trak_mdia_mdhd[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_mdhd();
+                Chunks->Global->moov_trak_mdia_mdhd[(int64u)-1]->TimeScale=VideoTimeScale;
+                Chunks->Global->moov_trak_mdia_mdhd[(int64u)-1]->Duration=Chunks->Global->moov_trak_mdia_mdhd[Chunks->Global->moov_trak_FirstVideoIndex]->Duration;
+                Chunks->Global->moov_trak_mdia_mdhd_Modified=true;
+
+                // hdlr (mdia)
+                Chunks->Global->moov_trak_mdia_hdlr[(int64u)-1]=new mp4_Base::global::block_moov_trak_xxxx_hdlr();
+                Chunks->Global->moov_trak_mdia_hdlr[(int64u)-1]->ComponentType=0x6D686C72; // mhlr
+                Chunks->Global->moov_trak_mdia_hdlr[(int64u)-1]->ComponentSubtype=0x746D6364; // tmcd
+                Chunks->Global->moov_trak_mdia_hdlr[(int64u)-1]->ComponentName="TimeCodeHandler";
+                Chunks->Global->moov_trak_mdia_hdlr_Modified=true;
+
+                // gmin
+                Chunks->Global->moov_trak_mdia_minf_gmhd_gmin[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_gmhd_gmin();
+                Chunks->Global->moov_trak_mdia_minf_gmhd_gmin_Modified=true;
+
+                // text
+                Chunks->Global->moov_trak_mdia_minf_gmhd_text[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_gmhd_text();
+                Chunks->Global->moov_trak_mdia_minf_gmhd_text[(int64u)-1]->Text.resize(36, 0);
+                Chunks->Global->moov_trak_mdia_minf_gmhd_text[(int64u)-1]->Text[1]='\x01';
+                Chunks->Global->moov_trak_mdia_minf_gmhd_text[(int64u)-1]->Text[17]='\x01';
+                Chunks->Global->moov_trak_mdia_minf_gmhd_text[(int64u)-1]->Text[32]='\x40';
+                Chunks->Global->moov_trak_mdia_minf_gmhd_text_Modified=true;
+
+                // tcmi
+                Chunks->Global->moov_trak_mdia_minf_gmhd_tmcd_tcmi[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_gmhd_tmcd_tcmi();
+                Chunks->Global->moov_trak_mdia_minf_gmhd_tmcd_tcmi_Modified=true;
+
+                // hdlr (minf)
+                Chunks->Global->moov_trak_mdia_minf_hdlr[(int64u)-1]=new mp4_Base::global::block_moov_trak_xxxx_hdlr();
+                Chunks->Global->moov_trak_mdia_minf_hdlr[(int64u)-1]->ComponentType=0x64686C72; // dhlr
+                Chunks->Global->moov_trak_mdia_minf_hdlr[(int64u)-1]->ComponentSubtype=0x75726C20; // url%20
+                Chunks->Global->moov_trak_mdia_minf_hdlr[(int64u)-1]->ComponentName="DataHandler";
+                Chunks->Global->moov_trak_mdia_minf_hdlr_Modified=true;
+
+                // dref
+                Chunks->Global->moov_trak_mdia_minf_dinf_dref[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_dinf_dref();
+                Chunks->Global->moov_trak_mdia_minf_dinf_dref[(int64u)-1]->EntryCount=1; // for url
+
+                // url
+                Chunks->Global->moov_trak_mdia_minf_dinf_dref_url[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_dinf_dref_url();
+                Chunks->Global->moov_trak_mdia_minf_dinf_dref_url[(int64u)-1]->Flags=0x00000001; // Self-contained flag
+
+                // stsd
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd();
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd[(int64u)-1]->EntryCount=1; //for tmcd
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_Modified=true;
+
+                //tmcd (sample description)
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsd_tmcd();
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[(int64u)-1]->Flags=IsDropFrame?flags_DropFrameMask:0;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[(int64u)-1]->TimeScale=VideoTimeScale;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[(int64u)-1]->FrameDuration=VideoTimeScale/FramesPerSecond;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[(int64u)-1]->NumberOfFrames=FramesPerSecond;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd_Modified=true;
+
+                // stts
+                Chunks->Global->moov_trak_mdia_minf_stbl_stts[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stts();
+                Chunks->Global->moov_trak_mdia_minf_stbl_stts[(int64u)-1]->Entries.push_back(mp4_Base::global::block_moov_trak_mdia_minf_stbl_stts::entry());
+                Chunks->Global->moov_trak_mdia_minf_stbl_stts[(int64u)-1]->Entries.back().SampleCount=1;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stts[(int64u)-1]->Entries.back().SampleDuration=TotalSampleDuration;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stts_Modified=true;
+
+                // stsc
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsc[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsc();
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsc[(int64u)-1]->Entries.push_back(mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsc::entry());
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsc[(int64u)-1]->Entries.back().FirstChunk=1;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsc[(int64u)-1]->Entries.back().SamplesPerChunk=1;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsc[(int64u)-1]->Entries.back().SampleDescriptionIndex=1;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsc_Modified=true;
+
+                // stsz
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsz[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stsz();
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsz[(int64u)-1]->SampleSize=4;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsz[(int64u)-1]->SampleCount=1;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stsz_Modified=true;
+
+                // stco
+                Chunks->Global->moov_trak_mdia_minf_stbl_stco[(int64u)-1]=new mp4_Base::global::block_moov_trak_mdia_minf_stbl_stco();
+                Chunks->Global->moov_trak_mdia_minf_stbl_stco[(int64u)-1]->Entries.push_back(0);
+                Chunks->Global->moov_trak_mdia_minf_stbl_stco[(int64u)-1]->Entries.back()=Chunks->Global->mdat->File_Offset_End;
+                Chunks->Global->moov_trak_mdia_minf_stbl_stco_Modified=true;
+            }
+            else // A valid time code track already exists
+            {
+                Chunks->Global->mdat->Position_Offset=Chunks->Global->moov_trak_mdia_minf_stbl_stco[TimeCodeTrack_Index]->Entries[0];
+
+                bool OriginalDropFrame=(Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[TimeCodeTrack_Index]->Flags&flags_DropFrameMask)!=0;
+                if (IsDropFrame!=OriginalDropFrame)
+                {
+                    if (IsDropFrame)
+                        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[TimeCodeTrack_Index]->Flags|=flags_DropFrameMask;
+                    else
+                        Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd[TimeCodeTrack_Index]->Flags&=~flags_DropFrameMask;
+
+                    Chunks->Global->moov_trak_mdia_minf_stbl_stsd_tmcd_Modified=true;
+                }
+            }
+        }
+        return true;
+    }
+
     else if (Field=="lang")
     {
         bool Ok=true;
@@ -2174,7 +2842,8 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
 
     else if (Field=="wscale")
     {
-        if (!Chunks->Global->moov_trak_tkhd)
+        if (Chunks->Global->moov_trak_FirstVideoIndex==(size_t)-1 ||
+            !Chunks->Global->moov_trak_tkhd.count(Chunks->Global->moov_trak_FirstVideoIndex))
             return false; // TODO: Error mesg
 
         double wScale=0;
@@ -2183,7 +2852,7 @@ bool mp4_Handler::Set(const string &Field, const string &Value, bool Simulate)
 
         if (!Simulate)
         {
-            Chunks->Global->moov_trak_tkhd->Width_Scale=wScale;
+            Chunks->Global->moov_trak_tkhd[Chunks->Global->moov_trak_FirstVideoIndex]->Matrix[0]=wScale;
             Chunks->Global->moov_trak_tkhd_Modified=true;
             return true;
         }

@@ -13,12 +13,12 @@
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-void mp4_moov_trak_tref::Read_Internal ()
+void mp4_moov_trak_edts::Read_Internal ()
 {
     Chunk.trak_Index=Global->moov_trak.size()-1;
 
     SUBS_BEGIN();
-        SUB_ELEMENT(moov_trak_tref_tmcd);
+        SUB_ELEMENT(moov_trak_edts_elst);
     SUBS_END();
 }
 
@@ -27,12 +27,12 @@ void mp4_moov_trak_tref::Read_Internal ()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
-size_t mp4_moov_trak_tref::Insert_Internal (int32u Chunk_Name_Insert)
+size_t mp4_moov_trak_edts::Insert_Internal (int32u Chunk_Name_Insert)
 {
     mp4_Base* NewChunk;
     switch (Chunk_Name_Insert)
     {
-        case Elements::moov_trak_tref_tmcd :  NewChunk=new mp4_moov_trak_tref_tmcd(Global); break;
+        case Elements::moov_trak_edts_elst :  NewChunk=new mp4_moov_trak_edts_elst(Global); break;
         default                            :  return Subs.size();
     }
 

@@ -20,7 +20,6 @@ void mp4_moov::Read_Internal ()
     moov->File_Offset=Global->In.Position_Get();
     Global->moov.push_back(moov);
 
-
     SUBS_BEGIN();
         SUB_ELEMENT(moov_trak);
         SUB_ELEMENT(moov_meta);
@@ -38,19 +37,38 @@ size_t mp4_moov::Insert_Internal (int32u Chunk_Name_Insert)
     switch (Chunk_Name_Insert)
     {
         case Elements::moov_meta :  NewChunk=new mp4_moov_meta(Global); break;
+        case Elements::moov_trak :  NewChunk=new mp4_moov_trak(Global); break;
         default                  :  return Subs.size();
     }
 
     size_t Subs_Pos;
     switch (Chunk_Name_Insert)
     {
-        case Elements::moov_meta :  Subs_Pos=(size_t)-1                                                            ; break;
-        default                  :  return Subs.size();
+        case  Elements::moov_meta :  Subs_Pos=(size_t)-1  ; break;
+        case  Elements::moov_trak :
+        {
+            for (size_t Pos=Subs.size(); Pos; Pos--)
+            {
+                if (Subs[Pos-1]->Chunk.Header.Name==Elements::moov_trak)
+                {
+                    Subs_Pos=Pos-1;
+                    break;
+                }
+            }
+        }
+        break;
+        default                   :  return Subs.size();
     }
 
     NewChunk->Modify();
     if (!NewChunk->IsRemovable())
     {
+        if (Chunk_Name_Insert==Elements::moov_trak)
+        {
+            Global->moov_trak.push_back(new mp4_Base::global::block_moov_trak);
+            NewChunk->Chunk.trak_Index=Global->moov_trak.size()-1;
+        }
+
         if (Subs_Pos<Subs.size())
         {
             Subs.insert(Subs.begin()+Subs_Pos+1, NewChunk); //First place

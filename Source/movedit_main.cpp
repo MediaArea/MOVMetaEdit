@@ -61,6 +61,7 @@ int main(int argc, char* argv[])
     std::string clap_New=string();
     bool        clap_Delete=false;
     bool        clap_OK=true;
+    std::string tmcd_New=string();
     bool        tmcd_Delete=false;
     bool        tmcd_OK=true;
     std::map<size_t, std::string> lang_New;
@@ -531,6 +532,49 @@ int main(int argc, char* argv[])
             }
             argp++;
         }
+        else if ((Ztring(argv[argp]) == __T("-timecode")
+               || Ztring(argv[argp]) == __T("--timecode")))
+        {
+            if (argp+1>=argc)
+            {
+                cout << "Timecode value is missing" << endl;
+                return ReturnValue_ERROR;
+            }
+
+            uint8_t Hours=0, Minutes=0, Seconds=0, Frames=0;
+            char Sep1, Sep2, Sep3;
+            int Parsed = sscanf(argv[argp+1], "%hhu%c%hhu%c%hhu%c%hhu", &Hours, &Sep1, &Minutes, &Sep2, &Seconds, &Sep3, &Frames);
+
+            if (Parsed != 7)
+            {
+                cout << "Timecode format is incorrect, must be HH:MM:SS[:;.]FF format" << endl;
+                return ReturnValue_ERROR;
+            }
+
+            // First two separators must be ':'
+            if (Sep1 != ':' || Sep2 != ':')
+            {
+                cout << "Timecode format is incorrect, first two separators must be ':'" << endl;
+                return ReturnValue_ERROR;
+            }
+
+            // Third separator can be ':', ';', or '.'
+            if (Sep3 != ':' && Sep3 != ';' && Sep3 != '.')
+            {
+                cout << "Timecode format is incorrect, third separator must be ':', ';', or '.'" << endl;
+                return ReturnValue_ERROR;
+            }
+
+            // Basic validation of ranges
+            if (Minutes >= 60 || Seconds >= 60 || Frames >= 100)
+            {
+                cout << "Timecode format is incorrect, minutes, seconds, or frames out of range" << endl;
+                return ReturnValue_ERROR;
+            }
+
+            tmcd_New=argv[argp+1];
+            argp++;
+        }
         else if ((Ztring(argv[argp]) == __T("-timecode-delete")
                || Ztring(argv[argp]) == __T("--timecode-delete")))
         {
@@ -703,7 +747,7 @@ int main(int argc, char* argv[])
          !lang_New.empty() ||
          mdcv_Delete ||
          clli_Delete ||
-         tmcd_Delete ||
+         !tmcd_New.empty() || tmcd_Delete ||
          !luminance_New.empty() ||
          !display_primaries_New.empty() ||
          !maximum_content_light_level_New.empty() ||
@@ -864,7 +908,7 @@ int main(int argc, char* argv[])
     cout << "  it (empty)" << endl;
     cout << "M = The field will be modified ('Y') or should be modified but it is not possible" << endl;
     cout << "  due to feature not implemented ('N')" << endl;
-    cout << FileNameFake << "|OK?|Clean Ap.|M| Prod Ap.|M| Enc. Ap.|M|vid. version|M|temp. quality|M|      PAR|M|                              Display Primaries|M|          Luminance|M|    Max content light lev.|M| Max frame avg. light lev.|M|w-scale|M|   Field|M|   Color|M|Gamma|M|                 Aperture|M|TimeCode|M| Languages|M|                 Channels|M|" << endl;
+    cout << FileNameFake << "|OK?|Clean Ap.|M| Prod Ap.|M| Enc. Ap.|M|vid. version|M|temp. quality|M|      PAR|M|                              Display Primaries|M|          Luminance|M|    Max content light lev.|M| Max frame avg. light lev.|M|w-scale|M|   Field|M|   Color|M|Gamma|M|                 Aperture|M|   TimeCode|M| Languages|M|                 Channels|M|" << endl;
     }
     else
         cout << FileNameFake << "|OK?| Registry|UniversalAdId value" << endl;
@@ -1131,6 +1175,14 @@ int main(int argc, char* argv[])
                 }
                 else if (clap_Delete)
                     H->Remove("clap");
+                if (!tmcd_New.empty())
+                {
+                    if(!H->Set("tmcd", tmcd_New))
+                    {
+                        tmcd_OK=false;
+                        ToReturn=ReturnValue_ERROR;
+                    }
+                }
                 else if (tmcd_Delete)
                     H->Remove("tmcd");
                 if (!lang_New.empty())
@@ -1239,9 +1291,9 @@ int main(int argc, char* argv[])
                clap.insert(0, 25 - clap.size(), ' ');
              cout << clap << "|" << ((!clap_New.empty() || clap_Delete) ? ((OK && clap_OK) ? "Y" : "N") : " ") << "|";
             string tmcd = H->Get("tmcd");
-            if (tmcd.size() < 8)
-               tmcd.insert(0, 8 - tmcd.size(), ' ');
-             cout << tmcd << "|" << (tmcd_Delete ? ((OK && tmcd_OK) ? "Y" : "N") : " ") << "|";
+            if (tmcd.size() < 11)
+               tmcd.insert(0, 11 - tmcd.size(), ' ');
+             cout << tmcd << "|" << ((!tmcd_New.empty() || tmcd_Delete) ? ((OK && tmcd_OK) ? "Y" : "N") : " ") << "|";
             vector<string>langs;
             string lang = H->Get("lang");
             {

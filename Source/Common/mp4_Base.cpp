@@ -204,7 +204,7 @@ void mp4_Base::Read_Internal_ReadAllInBuffer ()
     if (Chunk.Content.Size>(size_t)-1)
         throw exception_read_block("non-audio data exceeds available memory");
 
-    delete Chunk.Content.Buffer; Chunk.Content.Buffer=NULL;
+    delete[] Chunk.Content.Buffer; Chunk.Content.Buffer=NULL;
 
     try
     {
@@ -372,7 +372,7 @@ void mp4_Base::Write ()
         }
         while (DataChunkMustBeMoved);
     }
-    
+
     //Content
     if (Chunk.Content.IsModified)
     {
@@ -435,6 +435,68 @@ void mp4_Base::Write ()
 
     if (Chunk.Header.Level==0 && Global->Out_Buffer_File_TryModification)
     {
+        bool Mdat_Position_IsValid=false;
+        bool Mdat_Position_MustExpand=false;
+        int64u Mdat_End_Offset=0;
+        int64u Mdat_Position_Offset=0;
+        int8u Mdat_Position[4];
+
+        if (Global->mdat)
+        {
+            Mdat_End_Offset=Global->mdat->File_Offset_End;
+            Mdat_Position_Offset=Global->mdat->Position_Offset;
+            if (Mdat_Position_Offset!=(int64u)-1
+             && Mdat_Position_Offset>=Global->mdat->File_Offset_Begin
+             && Mdat_Position_Offset<=Global->mdat->File_Offset_End)
+            {
+                if (Mdat_Position_Offset==Global->mdat->File_Offset_End)
+                    Mdat_Position_MustExpand=true;
+                else if (Mdat_Position_Offset+4<=Global->mdat->File_Offset_End)
+                    Mdat_Position_IsValid=true;
+
+                if (Mdat_Position_MustExpand || Mdat_Position_IsValid)
+                    int32u2BigEndian(Mdat_Position, Global->mdat->Position);
+            }
+        }
+
+        if (Mdat_Position_MustExpand)
+        {
+            if (!Global->Out_Buffer_Begin.Data || Global->Out_Buffer_Begin.Size<Global->mdat->File_Offset_Begin)
+                throw exception_write("Can not update mdat size, file may be CORRUPTED");
+
+            // mdat content starts after either 8-byte header (32-bit size) or
+            // 16-byte header (64-bit size). We patch the corresponding size field.
+            bool Is64bitSize=false;
+            if (Global->mdat->File_Offset_Begin>=16)
+            {
+                size_t Size32_Offset=(size_t)(Global->mdat->File_Offset_Begin-16);
+                if (Global->Out_Buffer_Begin.Size>=Size32_Offset+4
+                 && BigEndian2int32u(Global->Out_Buffer_Begin.Data+Size32_Offset)==1)
+                    Is64bitSize=true;
+            }
+
+            size_t Size_Offset=(size_t)(Global->mdat->File_Offset_Begin-8);
+            if (Is64bitSize)
+            {
+                if (Global->Out_Buffer_Begin.Size<Size_Offset+8)
+                    throw exception_write("Can not update mdat size, file may be CORRUPTED");
+                int64u Size=BigEndian2int64u(Global->Out_Buffer_Begin.Data+Size_Offset);
+                int64u2BigEndian(Global->Out_Buffer_Begin.Data+Size_Offset, Size+4);
+            }
+            else
+            {
+                if (Global->Out_Buffer_Begin.Size<Size_Offset+4)
+                    throw exception_write("Can not update mdat size, file may be CORRUPTED");
+                int32u Size=BigEndian2int32u(Global->Out_Buffer_Begin.Data+Size_Offset);
+                if (Size>0xFFFFFFFF-4)
+                    throw exception_write("mdat size exceeds 32-bit atom size limit");
+                int32u2BigEndian(Global->Out_Buffer_Begin.Data+Size_Offset, Size+4);
+            }
+
+            Global->mdat->File_Offset_End+=4;
+            Mdat_Position_IsValid=true;
+        }
+
         //Testing if all is OK.
         if (Global->mdat)
         {
@@ -463,9 +525,24 @@ void mp4_Base::Write ()
                     throw exception_write("Can not write input file, file may be CORRUPTED");
             }
 
+            // Optional mdat in-place overwrite for Position metadata.
+            if (Mdat_Position_IsValid && !Mdat_Position_MustExpand)
+            {
+                if (!Global->Out.GoTo(Mdat_Position_Offset))
+                    throw exception_write("Can not seek input file, file may be CORRUPTED");
+                if (Global->Out.Write(Mdat_Position, 4)!=4)
+                    throw exception_write("Can not write input file, file may be CORRUPTED");
+            }
+
             //Middle
-            if (!Global->Out.GoTo(Global->mdat->File_Offset_End))
+            if (!Global->Out.GoTo(Mdat_End_Offset))
                 throw exception_write("Can not seek input file, file may be CORRUPTED");
+
+            if (Mdat_Position_MustExpand)
+            {
+                if (Global->Out.Write(Mdat_Position, 4)!=4)
+                    throw exception_write("Can not write input file, file may be CORRUPTED");
+            }
 
             //End
             if (Global->Out_Buffer_End.Data)

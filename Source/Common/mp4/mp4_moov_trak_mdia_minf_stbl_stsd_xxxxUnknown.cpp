@@ -15,9 +15,4 @@
 //---------------------------------------------------------------------------
 void mp4_moov_trak_mdia_minf_stbl_stsd_xxxxUnknown::Read_Internal ()
 {
-    if (Chunk.Header.Name==Elements::moov_trak_mdia_minf_stbl_stsd_tmcd)
-    {
-        Global->moov_trak.back()->moov_trak_mdia_minf_stbl_stsd_tmcd_Present=true;
-        Global->TimeCode_Track_Present=true;
-    }
 }

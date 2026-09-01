@@ -152,6 +152,11 @@ ReturnValue Help_Tech(bool WithExamples)
     TEXTOUT("  --from-id VALUE");
     TEXTOUT("      Read HDR values from the MasteringDisplay with the the specified ID in the XML");
     TEXTOUT("Options related to the timecode track:");
+    TEXTOUT("  --timecode VALUE");
+    TEXTOUT("      Add or modify the timecode track of the first video track with the specified VALUE");
+    TEXTOUT("      Value format: HH:MM:SS:FF (for non-drop frame) or HH:MM:SS;FF (for drop frame)");
+    TEXTOUT("      Alternative format: HH:MM:SS.FF (also used for drop frame)");
+    TEXTOUT("      Examples: 00:00:00:00, 01:23:45:12, 01:00:00;00");
     TEXTOUT("  --timecode-delete");
     TEXTOUT("      Remove the timecode track and all related references atoms");
     TEXTOUT("");

@@ -73,7 +73,7 @@ public:
     }
 
 protected:
-    string text;    
+    string text;
 };
 
 class exception_write : public exception
@@ -175,11 +175,18 @@ public:
         {
             int64u          File_Offset_Begin;
             int64u          File_Offset_End; //Excluded
+            size_t          Count;
+
+            int32u          Position;
+            int64u          Position_Offset;
 
             block_mdat()
             {
                 File_Offset_Begin=(int64u)-1;
                 File_Offset_End=0;
+                Count=0;
+                Position=0;
+                Position_Offset=(int64u)-1;
             }
         };
         struct block_moov
@@ -198,7 +205,6 @@ public:
             bool IsTimeCode;
             bool moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present;
             bool moov_trak_mdia_minf_stbl_stsd_xxxxSound_Present;
-            bool moov_trak_mdia_minf_stbl_stsd_tmcd_Present;
 
             block_moov_trak()
             {
@@ -207,7 +213,6 @@ public:
                 IsTimeCode=false;
                 moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Present=false;
                 moov_trak_mdia_minf_stbl_stsd_xxxxSound_Present=false;
-                moov_trak_mdia_minf_stbl_stsd_tmcd_Present=false;
             }
         };
         struct block_moov_trak_tapt_xxxx
@@ -410,13 +415,48 @@ public:
         };
         struct block_moov_trak_tkhd
         {
-            double Width_Scale;
-            size_t Width_Scale_Pos;
+            int8u  Version;
+            int32u Flags;
+            int64u CreationTime;
+            int64u ModificationTime;
+            int32u TrackID;
+            int32u Reserved_1;
+            int64u Duration;
+            int32u Reserved_2[2];
+            int16s Layer;
+            int16s AlternateGroup;
+            int16s Volume;
+            int16u Reserved_3;
+            double Matrix[9]; // [a,b,u, c,d,v, x,y,w]; u,v,w are 2.30 fixed-point, rest are 16.16
+            int32u Width;
+            int32u Height;
 
             block_moov_trak_tkhd()
             {
-                Width_Scale=0;
-                Width_Scale_Pos=0;
+                Version=0;
+                Flags=0;
+                CreationTime=0;
+                ModificationTime=0;
+                TrackID=0;
+                Reserved_1=0;
+                Duration=0;
+                Reserved_2[0]=0;
+                Reserved_2[1]=0;
+                Layer=0;
+                AlternateGroup=0;
+                Volume=0;
+                Reserved_3=0;
+                Matrix[0]=1.0;     // a  (16.16)
+                Matrix[1]=0.0;     // b  (16.16)
+                Matrix[2]=0.0;     // u  (2.30)
+                Matrix[3]=0.0;     // c  (16.16)
+                Matrix[4]=1.0;     // d  (16.16)
+                Matrix[5]=0.0;     // v  (2.30)
+                Matrix[6]=0.0;     // x  (16.16)
+                Matrix[7]=0.0;     // y  (16.16)
+                Matrix[8]=1.0;     // w  (2.30)
+                Width=0;
+                Height=0;
             }
         };
 
@@ -434,6 +474,266 @@ public:
 
             block_moov_meta_keys()
             {
+            }
+        };
+        struct block_moov_trak_tref_tmcd
+        {
+            int32u TrackID;
+
+            block_moov_trak_tref_tmcd()
+            {
+                TrackID=0;
+            }
+        };
+        struct block_moov_trak_edts_elst
+        {
+            struct entry
+            {
+                int32u TrackDuration;
+                int32s MediaTime;
+                int16s MediaRateInteger;
+                int16u MediaRateFraction;
+
+                entry()
+                {
+                    TrackDuration=0;
+                    MediaTime=0;
+                    MediaRateInteger=1;
+                    MediaRateFraction=0;
+                }
+            };
+
+            int8u Version;
+            int32u Flags;
+            int32u NumberOfEntries;
+            vector<entry> Entries;
+
+            block_moov_trak_edts_elst()
+            {
+                Version=0;
+                Flags=0;
+                NumberOfEntries=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stco
+        {
+
+            int8u Version;
+            int32u Flags;
+            vector<int32u> Entries;
+
+            block_moov_trak_mdia_minf_stbl_stco()
+            {
+                Version=0;
+                Flags=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stsc
+        {
+            struct entry
+            {
+                int32u FirstChunk;
+                int32u SamplesPerChunk;
+                int32u SampleDescriptionIndex;
+
+                entry()
+                {
+                    FirstChunk=0;
+                    SamplesPerChunk=0;
+                    SampleDescriptionIndex=0;
+                }
+            };
+
+            int8u Version;
+            int32u Flags;
+            vector<entry> Entries;
+
+            block_moov_trak_mdia_minf_stbl_stsc()
+            {
+                Version=0;
+                Flags=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stsz
+        {
+            int8u Version;
+            int32u Flags;
+            int32u SampleSize;
+            int32u SampleCount;
+            vector<int32u> Entries;
+
+            block_moov_trak_mdia_minf_stbl_stsz()
+            {
+                Version=0;
+                Flags=0;
+                SampleSize=0;
+                SampleCount=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stts
+        {
+            struct entry
+            {
+                int32u SampleCount;
+                int32u SampleDuration;
+
+                entry()
+                {
+                    SampleCount=0;
+                    SampleDuration=0;
+                }
+            };
+
+            vector<entry> Entries;
+
+            block_moov_trak_mdia_minf_stbl_stts()
+            {
+            }
+        };
+        struct block_moov_trak_mdia_minf_dinf_dref
+        {
+            int8u Version;
+            int32u Flags;
+            int32u EntryCount;
+
+            block_moov_trak_mdia_minf_dinf_dref()
+            {
+                Version=0;
+                Flags=0;
+                EntryCount=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_dinf_dref_url
+        {
+            int8u Version;
+            int32u Flags;
+
+            block_moov_trak_mdia_minf_dinf_dref_url()
+            {
+                Version=0;
+                Flags=1; // self-contained
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stsd
+        {
+            int8u Version;
+            int32u Flags;
+            int32u EntryCount;
+
+            block_moov_trak_mdia_minf_stbl_stsd()
+            {
+                Version=0;
+                Flags=0;
+                EntryCount=0;
+            }
+        };
+        struct block_moov_trak_xxxx_hdlr
+        {
+            int8u Version;
+            int32u Flags;
+            int32u ComponentType;
+            int32u ComponentSubtype;
+            int32u ComponentManufacturer;
+            int32u ComponentFlags;
+            int32u ComponentFlagsMask;
+            string ComponentName;
+
+            block_moov_trak_xxxx_hdlr()
+            {
+                Version=0;
+                Flags=0;
+                ComponentType=0;
+                ComponentSubtype=0;
+                ComponentManufacturer=0;
+                ComponentFlags=0;
+                ComponentFlagsMask=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_gmhd_gmin
+        {
+            int8u Version;
+            int32u Flags;
+            int16u GraphicsMode;
+            int16u OpColorRed;
+            int16u OpColorGreen;
+            int16u OpColorBlue;
+            int16u Balance;
+            int16u Reserved;
+
+            block_moov_trak_mdia_minf_gmhd_gmin()
+            {
+                Version=0;
+                Flags=0;
+                GraphicsMode=0x0040;
+                OpColorRed=0x8000;
+                OpColorGreen=0x8000;
+                OpColorBlue=0x8000;
+                Balance=0;
+                Reserved=0;
+            }
+        };
+        struct block_moov_trak_mdia_minf_gmhd_text
+        {
+            string Text;
+        };
+        struct block_moov_trak_mdia_minf_gmhd_tmcd_tcmi
+        {
+            int8u Version;
+            int32u Flags;
+            int16u TextFont;
+            int16u TextFace;
+            int16u TextSize;
+            int16u Reserved;
+            int16u TextColorRed;
+            int16u TextColorGreen;
+            int16u TextColorBlue;
+            int16u BackgroundColorRed;
+            int16u BackgroundColorGreen;
+            int16u BackgroundColorBlue;
+            string FontName;
+
+            block_moov_trak_mdia_minf_gmhd_tmcd_tcmi()
+            {
+                Version=0;
+                Flags=0;
+                TextFont=0;
+                TextFace=0;
+                TextSize=12;
+                Reserved=0;
+                TextColorRed=0;
+                TextColorGreen=0;
+                TextColorBlue=0;
+                BackgroundColorRed=0xFFFF;
+                BackgroundColorGreen=0xFFFF;
+                BackgroundColorBlue=0xFFFF;
+                FontName="Lucida Grande";
+            }
+        };
+        struct block_moov_trak_mdia_minf_stbl_stsd_tmcd
+        {
+            int32u Reserved_1;
+            int16u Reserved_2;
+            int16u DataReferenceIndex;
+            int32u Reserved_3;
+            int32u Flags;
+            int32u TimeScale;
+            int32u FrameDuration;
+            int8u  NumberOfFrames;
+            int32u Reserved_4;
+            bool   Reserved_4_Size_Is_Triple;
+
+            block_moov_trak_mdia_minf_stbl_stsd_tmcd()
+            {
+                Reserved_1=0;
+                Reserved_2=0;
+                DataReferenceIndex=0;
+                Reserved_3=0;
+                Flags=0;
+                TimeScale=0;
+                FrameDuration=0;
+                NumberOfFrames=0;
+                Reserved_4=0;
+                Reserved_4_Size_Is_Triple=false;
             }
         };
         struct block_strings
@@ -498,8 +798,38 @@ public:
         bool                                                        moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified;
         map<size_t, block_moov_trak_mdia_mdhd*> moov_trak_mdia_mdhd;
         bool                                    moov_trak_mdia_mdhd_Modified;
-        block_moov_trak_tkhd* moov_trak_tkhd;
-        bool                  moov_trak_tkhd_Modified;
+        map<size_t, block_moov_trak_xxxx_hdlr*> moov_trak_mdia_hdlr;
+        bool                                    moov_trak_mdia_hdlr_Modified;
+        map<size_t, block_moov_trak_xxxx_hdlr*> moov_trak_mdia_minf_hdlr;
+        bool                                    moov_trak_mdia_minf_hdlr_Modified;
+        map<size_t, block_moov_trak_mdia_minf_gmhd_gmin*> moov_trak_mdia_minf_gmhd_gmin;
+        bool                                    moov_trak_mdia_minf_gmhd_gmin_Modified;
+        map<size_t, block_moov_trak_mdia_minf_gmhd_text*> moov_trak_mdia_minf_gmhd_text;
+        bool                                    moov_trak_mdia_minf_gmhd_text_Modified;
+        map<size_t, block_moov_trak_mdia_minf_gmhd_tmcd_tcmi*> moov_trak_mdia_minf_gmhd_tmcd_tcmi;
+        bool                                    moov_trak_mdia_minf_gmhd_tmcd_tcmi_Modified;
+        map<size_t, block_moov_trak_mdia_minf_stbl_stco*> moov_trak_mdia_minf_stbl_stco;
+        bool                                    moov_trak_mdia_minf_stbl_stco_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsc*> moov_trak_mdia_minf_stbl_stsc;
+        bool                                    moov_trak_mdia_minf_stbl_stsc_Modified;
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsz*> moov_trak_mdia_minf_stbl_stsz;
+        bool                                    moov_trak_mdia_minf_stbl_stsz_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_stbl_stts*> moov_trak_mdia_minf_stbl_stts;
+        bool                                    moov_trak_mdia_minf_stbl_stts_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_mdia_minf_dinf_dref*> moov_trak_mdia_minf_dinf_dref;
+        bool                                    moov_trak_mdia_minf_dinf_dref_Modified;
+        map<size_t, block_moov_trak_mdia_minf_dinf_dref_url*> moov_trak_mdia_minf_dinf_dref_url;
+        bool                                    moov_trak_mdia_minf_dinf_dref_url_Modified;
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd*> moov_trak_mdia_minf_stbl_stsd;
+        bool                                    moov_trak_mdia_minf_stbl_stsd_Modified;
+        map<size_t, block_moov_trak_mdia_minf_stbl_stsd_tmcd*> moov_trak_mdia_minf_stbl_stsd_tmcd;
+        bool                                    moov_trak_mdia_minf_stbl_stsd_tmcd_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_tref_tmcd*> moov_trak_tref_tmcd;
+        bool                                    moov_trak_tref_tmcd_Modified; // For FirstVideoIndex
+        map<size_t, block_moov_trak_edts_elst*> moov_trak_edts_elst;
+        bool                                    moov_trak_edts_elst_Modified;
+        map<size_t, block_moov_trak_tkhd*> moov_trak_tkhd;
+        bool                               moov_trak_tkhd_Modified; // For FirstVideoIndex
         block_moov_meta_hdlr* moov_meta_hdlr;
         bool                  moov_meta_hdlr_Modified;
         block_moov_meta_ilst* moov_meta_ilst;
@@ -511,7 +841,6 @@ public:
         vector<string>      moov_meta_ilst_NewValues;
         size_t              moov_meta_ilst_AlreadyPresent;
         size_t              moov_trak_FirstVideoIndex;
-        bool                TimeCode_Track_Present;
         bool                TimeCode_Track_Delete;
         bool                NewChunksAtTheEnd;
         bool                Out_Buffer_File_TryModification;
@@ -528,6 +857,8 @@ public:
             moov_trak_tapt_clef_Modified=false;
             moov_trak_tapt_prof_Modified=false;
             moov_trak_tapt_enof_Modified=false;
+            moov_trak_tref_tmcd_Modified=false;
+            moov_trak_edts_elst_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxxVideo_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxx_clap_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxx_colr_Modified=false;
@@ -538,7 +869,19 @@ public:
             moov_trak_mdia_minf_stbl_stsd_xxxx_clli_Modified=false;
             moov_trak_mdia_minf_stbl_stsd_xxxx_chan_Modified=false;
             moov_trak_mdia_mdhd_Modified=false;
-            moov_trak_tkhd=NULL;
+            moov_trak_mdia_hdlr_Modified=false;
+            moov_trak_mdia_minf_hdlr_Modified=false;
+            moov_trak_mdia_minf_gmhd_gmin_Modified=false;
+            moov_trak_mdia_minf_gmhd_text_Modified=false;
+            moov_trak_mdia_minf_gmhd_tmcd_tcmi_Modified=false;
+            moov_trak_mdia_minf_stbl_stco_Modified=false;
+            moov_trak_mdia_minf_stbl_stsc_Modified=false;
+            moov_trak_mdia_minf_stbl_stsz_Modified=false;
+            moov_trak_mdia_minf_stbl_stts_Modified=false;
+            moov_trak_mdia_minf_dinf_dref_Modified=false;
+            moov_trak_mdia_minf_dinf_dref_url_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_Modified=false;
+            moov_trak_mdia_minf_stbl_stsd_tmcd_Modified=false;
             moov_trak_tkhd_Modified=false;
             moov_meta_hdlr=NULL;
             moov_meta_hdlr_Modified=false;
@@ -549,7 +892,6 @@ public:
             moov_meta_keys_AlreadyPresent=0;
             moov_meta_ilst_AlreadyPresent=0;
             moov_trak_FirstVideoIndex=(size_t)-1;
-            TimeCode_Track_Present=false;
             TimeCode_Track_Delete=false;
             NewChunksAtTheEnd=false;
             Out_Buffer_WriteAtEnd=false;
@@ -562,52 +904,70 @@ public:
         ~global()
         {
             delete mdat;
-            delete moov_trak_tkhd;
             delete moov_meta_hdlr;
             delete moov_meta_ilst;
             delete moov_meta_keys;
 
             for (size_t Pos=0; Pos<moov_trak.size(); Pos++)
                 delete moov_trak[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_tapt_clef.size(); Pos++)
-                delete moov_trak_tapt_clef[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_tapt_prof.size(); Pos++)
-                delete moov_trak_tapt_prof[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_tapt_enof.size(); Pos++)
-                delete moov_trak_tapt_enof[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxxVideo.size(); Pos++)
-                delete moov_trak_mdia_minf_stbl_stsd_xxxxVideo[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_clap.size(); Pos++)
-                delete moov_trak_mdia_minf_stbl_stsd_xxxx_clap[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_colr.size(); Pos++)
-                delete moov_trak_mdia_minf_stbl_stsd_xxxx_colr[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.size(); Pos++)
-                delete moov_trak_mdia_minf_stbl_stsd_xxxx_fiel[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_gama.size(); Pos++)
-                delete moov_trak_mdia_minf_stbl_stsd_xxxx_gama[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_pasp.size(); Pos++)
-                delete moov_trak_mdia_minf_stbl_stsd_xxxx_pasp[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv.size(); Pos++)
-                delete moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_clli.size(); Pos++)
-                delete moov_trak_mdia_minf_stbl_stsd_xxxx_clli[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_mdia_minf_stbl_stsd_xxxx_chan.size(); Pos++)
-                delete moov_trak_mdia_minf_stbl_stsd_xxxx_chan[Pos];
-
-            for (size_t Pos=0; Pos<moov_trak_mdia_mdhd.size(); Pos++)
-                delete moov_trak_mdia_mdhd[Pos];
+            for (map<size_t, block_moov_trak_tapt_xxxx*>::iterator It=moov_trak_tapt_clef.begin(); It!=moov_trak_tapt_clef.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_tapt_xxxx*>::iterator It=moov_trak_tapt_prof.begin(); It!=moov_trak_tapt_prof.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_tapt_xxxx*>::iterator It=moov_trak_tapt_enof.begin(); It!=moov_trak_tapt_enof.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_tref_tmcd*>::iterator It=moov_trak_tref_tmcd.begin(); It!=moov_trak_tref_tmcd.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_edts_elst*>::iterator It=moov_trak_edts_elst.begin(); It!=moov_trak_edts_elst.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_tkhd*>::iterator It=moov_trak_tkhd.begin(); It!=moov_trak_tkhd.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxxVideo*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxxVideo.begin(); It!=moov_trak_mdia_minf_stbl_stsd_xxxxVideo.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_clap*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_clap.begin(); It!=moov_trak_mdia_minf_stbl_stsd_xxxx_clap.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_colr*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_colr.begin(); It!=moov_trak_mdia_minf_stbl_stsd_xxxx_colr.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_fiel*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.begin(); It!=moov_trak_mdia_minf_stbl_stsd_xxxx_fiel.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_gama*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_gama.begin(); It!=moov_trak_mdia_minf_stbl_stsd_xxxx_gama.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_pasp*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_pasp.begin(); It!=moov_trak_mdia_minf_stbl_stsd_xxxx_pasp.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv.begin(); It!=moov_trak_mdia_minf_stbl_stsd_xxxx_mdcv.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_clli*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_clli.begin(); It!=moov_trak_mdia_minf_stbl_stsd_xxxx_clli.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd_xxxx_chan*>::iterator It=moov_trak_mdia_minf_stbl_stsd_xxxx_chan.begin(); It!=moov_trak_mdia_minf_stbl_stsd_xxxx_chan.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_mdhd*>::iterator It=moov_trak_mdia_mdhd.begin(); It!=moov_trak_mdia_mdhd.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_xxxx_hdlr*>::iterator It=moov_trak_mdia_hdlr.begin(); It!=moov_trak_mdia_hdlr.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_xxxx_hdlr*>::iterator It=moov_trak_mdia_minf_hdlr.begin(); It!=moov_trak_mdia_minf_hdlr.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_gmhd_gmin*>::iterator It=moov_trak_mdia_minf_gmhd_gmin.begin(); It!=moov_trak_mdia_minf_gmhd_gmin.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_gmhd_text*>::iterator It=moov_trak_mdia_minf_gmhd_text.begin(); It!=moov_trak_mdia_minf_gmhd_text.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_gmhd_tmcd_tcmi*>::iterator It=moov_trak_mdia_minf_gmhd_tmcd_tcmi.begin(); It!=moov_trak_mdia_minf_gmhd_tmcd_tcmi.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stco*>::iterator It=moov_trak_mdia_minf_stbl_stco.begin(); It!=moov_trak_mdia_minf_stbl_stco.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsc*>::iterator It=moov_trak_mdia_minf_stbl_stsc.begin(); It!=moov_trak_mdia_minf_stbl_stsc.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_dinf_dref*>::iterator It=moov_trak_mdia_minf_dinf_dref.begin(); It!=moov_trak_mdia_minf_dinf_dref.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_dinf_dref_url*>::iterator It=moov_trak_mdia_minf_dinf_dref_url.begin(); It!=moov_trak_mdia_minf_dinf_dref_url.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd*>::iterator It=moov_trak_mdia_minf_stbl_stsd.begin(); It!=moov_trak_mdia_minf_stbl_stsd.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsd_tmcd*>::iterator It=moov_trak_mdia_minf_stbl_stsd_tmcd.begin(); It!=moov_trak_mdia_minf_stbl_stsd_tmcd.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stsz*>::iterator It=moov_trak_mdia_minf_stbl_stsz.begin(); It!=moov_trak_mdia_minf_stbl_stsz.end(); ++It)
+                delete It->second;
+            for (map<size_t, block_moov_trak_mdia_minf_stbl_stts*>::iterator It=moov_trak_mdia_minf_stbl_stts.begin(); It!=moov_trak_mdia_minf_stbl_stts.end(); ++It)
+                delete It->second;
         }
     };
 

@@ -21,6 +21,7 @@ void mp4_mdat::Read_Internal ()
         Global->mdat=new mp4_Base::global::block_mdat;
         Global->mdat->File_Offset_Begin=Global->In.Position_Get();
     }
+    Global->mdat->Count++;
     Global->mdat->File_Offset_End=Global->In.Position_Get()+Chunk.Content.Size;
 }
 

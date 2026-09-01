@@ -39,7 +39,7 @@ void mp4_moov_trak_mdia_minf_stbl_stsd_xxxxSound::Read_Internal ()
     size_t Extra_Size;
     if (Version==0)
         Extra_Size=12;
-    if (Version==1)
+    else if (Version==1)
         Extra_Size=28;
     else //Version==2
         Extra_Size=48;
